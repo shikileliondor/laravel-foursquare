@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('code')->nullable();
-            $table->string('pastor_name');
+            $table->string('pastor_name')->nullable();
             $table->string('address')->nullable();
             $table->string('commune')->nullable()->index();
             $table->string('quartier')->nullable();
