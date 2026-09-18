@@ -76,11 +76,14 @@ jobs:
           set -euo pipefail
           : "${FTP_PASSWORD:?Set FTP_PASSWORD in the production environment}"
           : "${FTP_SERVER_DIR:?Set FTP_SERVER_DIR in the production environment}"
+          [[ "$FTP_SERVER_DIR" =~ ^/?[A-Za-z0-9._/-]+$ ]] || { echo 'FTP_SERVER_DIR contains unsupported characters' >&2; exit 1; }
+          remote_dir="/${FTP_SERVER_DIR#/}"
+          remote_dir="${remote_dir%/}"
           lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://web42.lws-hosting.com -e "
             set cmd:fail-exit yes
             set ftp:ssl-force true
             set ftp:ssl-protect-data true
             set ssl:verify-certificate true
-            put \"$RUNNER_TEMP/foursquare-release.zip\" -o \"$FTP_SERVER_DIR/foursquare-release.zip\"
+            put $RUNNER_TEMP/foursquare-release.zip -o $remote_dir/foursquare-release.zip
             bye
           "
