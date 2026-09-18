@@ -67,7 +67,7 @@ jobs:
           chmod 600 .env
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
-          lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://ftp.studiobeyam.net -e "
+          lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://web42.lws-hosting.com -e "
             set cmd:fail-exit yes
             set ftp:ssl-force true
             set ftp:ssl-protect-data true
