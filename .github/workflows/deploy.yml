@@ -52,28 +52,36 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy via explicit FTPS
+      - name: Package release ZIP
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zip unzip lftp
+          release_dir="$(mktemp -d)"
+          archive="$RUNNER_TEMP/foursquare-release.zip"
+          cp -a app artisan bootstrap composer.json composer.lock config database public resources routes vendor .env.example "$release_dir/"
+          mkdir -p "$release_dir/storage/app/private" "$release_dir/storage/app/public" "$release_dir/storage/framework/cache/data" "$release_dir/storage/framework/sessions" "$release_dir/storage/framework/views" "$release_dir/storage/logs"
+          (cd "$release_dir" && zip -qr "$archive" .)
+          unzip -tq "$archive"
+          if unzip -Z -1 "$archive" | grep -Eq '(^|/)\.env$'; then
+            echo 'The release archive must not contain .env' >&2
+            exit 1
+          fi
+
+      - name: Upload ZIP via explicit FTPS
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          PRODUCTION_ENV: ${{ secrets.PRODUCTION_ENV }}
           FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
         run: |
           set -euo pipefail
           : "${FTP_PASSWORD:?Set FTP_PASSWORD in the production environment}"
-          : "${PRODUCTION_ENV:?Set PRODUCTION_ENV in the production environment}"
           : "${FTP_SERVER_DIR:?Set FTP_SERVER_DIR in the production environment}"
-          trap 'rm -f .env' EXIT
-          printf '%s\n' "$PRODUCTION_ENV" > .env
-          chmod 600 .env
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq lftp
           lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://web42.lws-hosting.com -e "
             set cmd:fail-exit yes
             set ftp:ssl-force true
             set ftp:ssl-protect-data true
             set ssl:verify-certificate true
             mkdir -p \"$FTP_SERVER_DIR\"
-            mirror -R --parallel=4 --exclude-glob .git --exclude-glob .github --exclude-glob node_modules --exclude-glob tests --exclude-glob .env --exclude-glob .env.* --exclude-glob .phpunit.cache --exclude-glob .phpunit.result.cache --exclude-glob .idea --exclude-glob .vscode ./ \"$FTP_SERVER_DIR\"
-            put .env -o \"$FTP_SERVER_DIR/.env\"
+            put \"$RUNNER_TEMP/foursquare-release.zip\" -o \"$FTP_SERVER_DIR/foursquare-release.zip\"
             bye
           "

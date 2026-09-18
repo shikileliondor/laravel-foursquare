@@ -1,17 +1,22 @@
 # Déploiement cPanel
 
-Le workflow GitHub `.github/workflows/deploy.yml`, à la racine du dépôt, déploie automatiquement après la réussite des tests sur `main`. Un lancement manuel est aussi possible dans GitHub Actions.
+Le workflow GitHub `.github/workflows/deploy.yml` construit Laravel après la réussite des tests sur `main`, puis envoie **un seul fichier** `foursquare-release.zip` par FTPS. L'extraction dans cPanel est manuelle. Un lancement manuel est aussi possible dans GitHub Actions.
 
 Dans GitHub, créer l'environnement **production**, puis y définir :
 
-| Type   | Nom              | Valeur                                                                                                     |
-| ------ | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Secret | `FTP_PASSWORD`   | Mot de passe du compte FTP `c2860566c@winestock.studiobeyam.net`                                           |
-| Secret | `PRODUCTION_ENV` | Contenu complet du `.env` de production, avec `APP_KEY`, URL, base PostgreSQL et autres secrets            |
-| Secret | `FTP_SERVER_DIR` | Chemin FTP du dossier Laravel, par exemple `/foursquare-api` ; le chemin dépend de la racine du compte FTP |
+| Type   | Nom              | Valeur                                                           |
+| ------ | ---------------- | ---------------------------------------------------------------- |
+| Secret | `FTP_PASSWORD`   | Mot de passe du compte FTP `c2860566c@winestock.studiobeyam.net` |
+| Secret | `FTP_SERVER_DIR` | Dossier FTP qui recevra `foursquare-release.zip`                 |
 
-Le serveur FTPS est `web42.lws-hosting.com`, port `21` : ce nom pointe vers le même serveur que `ftp.studiobeyam.net` et correspond au certificat TLS présenté. Le `.env` local est configuré pour le développement et ne doit pas servir en production. Préparer le secret `PRODUCTION_ENV` avec `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://api.studiobeyam.net` et les identifiants MySQL réels. Conserver la même `APP_KEY` entre deux déploiements.
+Le serveur FTPS est `web42.lws-hosting.com`, port `21` : ce nom pointe vers le même serveur que `ftp.studiobeyam.net` et correspond au certificat TLS présenté. La valeur de `FTP_SERVER_DIR` est relative à la racine autorisée du compte FTP. Si cette racine est le dossier cPanel `public_html`, le sous-dossier `project` se note `/project` ; si elle est le dossier personnel cPanel, il se note `/public_html/project`. Vérifier la racine du compte FTP dans cPanel avant de choisir.
 
-Dans cPanel, faire pointer le document root du sous-domaine vers `foursquare-api/public`. Le serveur doit disposer de PHP 8.4.1 ou plus et des extensions requises par Composer. La configuration de production fournie utilise MySQL ; renseigner `DB_CONNECTION=mysql` et les identifiants réels dans `PRODUCTION_ENV`. `storage/` et `bootstrap/cache/` doivent être inscriptibles. Après le premier transfert, exécuter `php artisan migrate --force` et `php artisan storage:link` dans le terminal cPanel. Réexécuter les migrations après un déploiement qui en ajoute : FTP ne peut pas lancer de commandes PHP sur le serveur.
+Après le transfert, dans le gestionnaire de fichiers cPanel :
 
-Le transfert n'efface pas les fichiers distants, afin de préserver les uploads et données persistantes.
+1. Extraire `foursquare-release.zip` **dans le dossier qui le contient** : `artisan`, `app/` et `public/` doivent être directement dans ce dossier.
+2. Créer ou conserver `.env` dans ce dossier avec les valeurs MySQL de production. Le ZIP exclut volontairement `.env` et le secret GitHub `PRODUCTION_ENV` n'est pas inclus dans l'archive. Garder la même `APP_KEY` lors des mises à jour.
+3. Faire pointer la racine web du sous-domaine uniquement vers le sous-dossier `public/`. Le serveur doit avoir PHP 8.4.1 ou plus ; `storage/` et `bootstrap/cache/` doivent être inscriptibles.
+4. Dans le terminal cPanel, exécuter `php artisan migrate --force` et, la première fois, `php artisan storage:link`. Ne jamais lancer `migrate:fresh` en production.
+5. Supprimer le ZIP après extraction, particulièrement si le dossier FTP est sous `public_html`.
+
+Le ZIP ne contient ni `node_modules`, ni les tests, ni `.env`. L'extraction n'efface pas les uploads ou données persistantes déjà présents sur le serveur.
