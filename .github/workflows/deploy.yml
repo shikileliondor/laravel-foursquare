@@ -81,7 +81,6 @@ jobs:
             set ftp:ssl-force true
             set ftp:ssl-protect-data true
             set ssl:verify-certificate true
-            mkdir -p \"$FTP_SERVER_DIR\"
             put \"$RUNNER_TEMP/foursquare-release.zip\" -o \"$FTP_SERVER_DIR/foursquare-release.zip\"
             bye
           "
