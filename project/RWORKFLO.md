@@ -109,11 +109,11 @@ Prendre la dernière version stable de Laravel compatible avec la version PHP du
 La structure métier est strictement :
 
 National
-  ↓
+↓
 District
-  ↓
+↓
 Zone
-  ↓
+↓
 Église locale
 
 Règles :
@@ -574,8 +574,8 @@ notifications
 
 Exemples :
 
-POST   /api/v1/admin/news
-PATCH  /api/v1/admin/news/{id}
+POST /api/v1/admin/news
+PATCH /api/v1/admin/news/{id}
 DELETE /api/v1/admin/news/{id}
 
 18. Auth API
@@ -586,23 +586,23 @@ Routes :
 
 POST /api/v1/auth/login
 POST /api/v1/auth/logout
-GET  /api/v1/auth/me
+GET /api/v1/auth/me
 
 Login :
 
 {
-  "email": "...",
-  "password": "..."
+"email": "...",
+"password": "..."
 }
 
 Réponse :
 
 {
-  "success": true,
-  "data": {
-    "user": {},
-    "token": "..."
-  }
+"success": true,
+"data": {
+"user": {},
+"token": "..."
+}
 }
 
 Pour la V1, un token Sanctum simple suffit.
@@ -614,31 +614,31 @@ Ne pas mettre de logique d’auth membre.
 Succès simple :
 
 {
-  "success": true,
-  "data": {}
+"success": true,
+"data": {}
 }
 
 Liste paginée :
 
 {
-  "success": true,
-  "data": [],
-  "meta": {
-    "page": 1,
-    "per_page": 20,
-    "total": 100,
-    "last_page": 5
-  }
+"success": true,
+"data": [],
+"meta": {
+"page": 1,
+"per_page": 20,
+"total": 100,
+"last_page": 5
+}
 }
 
 Erreur :
 
 {
-  "success": false,
-  "error": {
-    "code": "NEWS_NOT_FOUND",
-    "message": "Actualité introuvable"
-  }
+"success": false,
+"error": {
+"code": "NEWS_NOT_FOUND",
+"message": "Actualité introuvable"
+}
 }
 
 Créer un système simple pour uniformiser les erreurs JSON.
@@ -755,14 +755,14 @@ GET /api/v1/home
 Réponse :
 
 {
-  "success": true,
-  "data": {
-    "banners": [],
-    "featured_news": null,
-    "featured_event": null,
-    "latest_news": [],
-    "upcoming_events": []
-  }
+"success": true,
+"data": {
+"banners": [],
+"featured_news": null,
+"featured_event": null,
+"latest_news": [],
+"upcoming_events": []
+}
 }
 
 Un seul appel pour l’écran d’accueil Flutter.
@@ -775,11 +775,11 @@ Structure recommandée :
 
 app/
 ├── Http/
-│   ├── Controllers/
-│   │   ├── Api/V1/
-│   │   └── Api/V1/Admin/
-│   ├── Requests/
-│   └── Resources/
+│ ├── Controllers/
+│ │ ├── Api/V1/
+│ │ └── Api/V1/Admin/
+│ ├── Requests/
+│ └── Resources/
 │
 ├── Models/
 ├── Policies/

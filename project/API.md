@@ -14,31 +14,38 @@ Succès :
 Liste paginée (20 par défaut, 100 max via `?per_page=`) :
 
 ```json
-{ "success": true, "data": [], "meta": { "page": 1, "per_page": 20, "total": 100, "last_page": 5 } }
+{
+    "success": true,
+    "data": [],
+    "meta": { "page": 1, "per_page": 20, "total": 100, "last_page": 5 }
+}
 ```
 
 Erreur :
 
 ```json
-{ "success": false, "error": { "code": "NEWS_NOT_FOUND", "message": "Actualité introuvable" } }
+{
+    "success": false,
+    "error": { "code": "NEWS_NOT_FOUND", "message": "Actualité introuvable" }
+}
 ```
 
 Les erreurs de validation renvoient `422` avec `error.code = VALIDATION_ERROR` et le détail par champ dans `error.fields`.
 
 ## Endpoints publics
 
-| Méthode | Endpoint | Filtres |
-|---|---|---|
-| GET | `/home` | — |
-| GET | `/news` | `search`, `scope`, `district_id`, `zone_id`, `church_id`, `per_page` |
-| GET | `/news/{slug}` | — |
-| GET | `/events` | `search`, `status` (`upcoming` / `ongoing` / `past`), `scope`, `per_page` |
-| GET | `/events/{slug}` | — |
-| GET | `/districts` | `per_page` |
-| GET | `/zones` | `district_id`, `per_page` |
-| GET | `/churches` | `search`, `district_id`, `zone_id`, `commune`, `per_page` |
-| GET | `/churches/{slug}` | — |
-| POST | `/devices` | enregistrement FCM |
+| Méthode | Endpoint           | Filtres                                                                   |
+| ------- | ------------------ | ------------------------------------------------------------------------- |
+| GET     | `/home`            | —                                                                         |
+| GET     | `/news`            | `search`, `scope`, `district_id`, `zone_id`, `church_id`, `per_page`      |
+| GET     | `/news/{slug}`     | —                                                                         |
+| GET     | `/events`          | `search`, `status` (`upcoming` / `ongoing` / `past`), `scope`, `per_page` |
+| GET     | `/events/{slug}`   | —                                                                         |
+| GET     | `/districts`       | `per_page`                                                                |
+| GET     | `/zones`           | `district_id`, `per_page`                                                 |
+| GET     | `/churches`        | `search`, `district_id`, `zone_id`, `commune`, `per_page`                 |
+| GET     | `/churches/{slug}` | —                                                                         |
+| POST    | `/devices`         | enregistrement FCM                                                        |
 
 Seul le contenu publié est exposé : `status = PUBLISHED` pour news/events, `status = ACTIVE` pour la structure.
 `/home` renvoie en un appel `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`.
@@ -88,12 +95,12 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 
 ### Limites de débit
 
-| Groupe | Limite |
-|---|---|
-| API publique | 60 req/min par IP |
-| Login | 5 req/min par IP et par email |
-| Mutations admin | 120 req/min par admin |
-| Uploads | 20 req/min par admin |
+| Groupe          | Limite                        |
+| --------------- | ----------------------------- |
+| API publique    | 60 req/min par IP             |
+| Login           | 5 req/min par IP et par email |
+| Mutations admin | 120 req/min par admin         |
+| Uploads         | 20 req/min par admin          |
 
 ## Panel d'administration
 
