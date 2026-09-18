@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Foursquare CI — Admin</title>
+<style>
+:root {
+  --bg: #0f1419; --panel: #171e26; --line: #2a343f; --text: #e6edf3; --muted: #8b98a5;
+  --accent: #2f81f7; --danger: #e5534b; --ok: #3fb950; --radius: 6px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; }
+a { color: var(--accent); }
+button { font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: 7px 12px; border-radius: var(--radius); }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--danger); }
+button:disabled { opacity: .5; cursor: default; }
+input, select, textarea { font: inherit; width: 100%; background: #0d1117; color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); padding: 7px 10px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { min-height: 120px; resize: vertical; }
+label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+tbody tr:hover { background: #1b232c; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); }
+.badge.on { color: var(--ok); border-color: #1d4429; }
+.badge.off { color: var(--muted); }
+
+/* login */
+#login { max-width: 340px; margin: 12vh auto; padding: 28px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+#login h1 { margin: 0 0 4px; font-size: 18px; }
+#login p { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+#login .field { margin-bottom: 14px; }
+#login button { width: 100%; }
+
+/* shell */
+#app { display: grid; grid-template-columns: 210px 1fr; min-height: 100vh; }
+nav { background: var(--panel); border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; }
+nav h2 { font-size: 13px; margin: 0 0 16px; padding: 0 8px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+nav a { display: block; padding: 7px 8px; border-radius: var(--radius); color: var(--text); text-decoration: none; margin-bottom: 2px; }
+nav a:hover { background: #1b232c; }
+nav a.active { background: var(--accent); color: #fff; }
+nav .spacer { flex: 1; }
+nav .me { padding: 8px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); margin-top: 12px; }
+main { padding: 22px 26px; overflow: auto; }
+.head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.head h1 { font-size: 20px; margin: 0; flex: 1; }
+.head input { width: 220px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.pager { display: flex; align-items: center; gap: 10px; padding: 12px; color: var(--muted); }
+.pager .spacer { flex: 1; }
+.empty { padding: 36px; text-align: center; color: var(--muted); }
+
+/* form */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.grid .wide { grid-column: 1 / -1; }
+.field .err { color: var(--danger); font-size: 12px; margin-top: 4px; }
+.actions { display: flex; gap: 10px; margin-top: 20px; }
+.actions .spacer { flex: 1; }
+.check { display: flex; align-items: center; gap: 8px; }
+.check input { width: auto; }
+.check label { margin: 0; }
+
+#toast { position: fixed; right: 18px; bottom: 18px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); padding: 11px 16px; border-radius: var(--radius); max-width: 340px; display: none; }
+#toast.bad { border-left-color: var(--danger); }
+@media (max-width: 720px) {
+  #app { grid-template-columns: 1fr; }
+  nav { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  nav h2, nav .spacer, nav .me { display: none; }
+  .grid { grid-template-columns: 1fr; }
+  main { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast"></div>
+
+<script>
+const BASE = location.pathname.replace(/\/admin\/?$/, '');
+const API = location.origin + BASE + '/api/v1';
+const $ = (id) => document.getElementById(id);
+const root = $('root');
+
+let token = localStorage.getItem('fq_token');
+let me = null;
+let state = { key: 'districts', page: 1, search: '', editing: null };
+
+// ---------------------------------------------------------------- resources
+const STATUS = ['ACTIVE', 'INACTIVE'];
+const SCOPE = ['NATIONAL', 'DISTRICT', 'ZONE', 'CHURCH'];
+const PRIORITY = ['NORMAL', 'IMPORTANT', 'URGENT'];
+
+// Scope targets: only the field matching scope_type is accepted by the API.
+const scopeFields = (src = 'scope_type') => [
+  { name: src, label: 'Portée', type: 'select', options: SCOPE, required: true },
+  { name: 'district_id', label: 'District', type: 'ref', ref: 'districts', showIf: (v) => v[src] === 'DISTRICT' },
+  { name: 'zone_id', label: 'Zone', type: 'ref', ref: 'zones', showIf: (v) => v[src] === 'ZONE' },
+  { name: 'church_id', label: 'Église', type: 'ref', ref: 'churches', showIf: (v) => v[src] === 'CHURCH' },
+];
+
+const RESOURCES = {
+  districts: {
+    label: 'Districts', search: true,
+    columns: [['name', 'Nom'], ['slug', 'Slug'], ['zones_count', 'Zones'], ['status', 'Statut']],
+    fields: [
+      { name: 'name', label: 'Nom', required: true },
+      { name: 'code', label: 'Code' },
+      { name: 'description', label: 'Description', type: 'textarea', wide: true },
+      { name: 'status', label: 'Statut', type: 'select', options: STATUS },
+    ],
+  },
+  zones: {
+    label: 'Zones', search: true,
+    columns: [['name', 'Nom'], ['district.name', 'District'], ['churches_count', 'Églises'], ['status', 'Statut']],
+    fields: [
+      { name: 'district_id', label: 'District', type: 'ref', ref: 'districts', required: true },
+      { name: 'name', label: 'Nom', required: true },
+      { name: 'code', label: 'Code' },
+      { name: 'description', label: 'Description', type: 'textarea', wide: true },
+      { name: 'status', label: 'Statut', type: 'select', options: STATUS },
+    ],
+  },
+  churches: {
+    label: 'Églises', search: true,
+    columns: [['name', 'Nom'], ['zone.name', 'Zone'], ['commune', 'Commune'], ['pastor_name', 'Pasteur'], ['status', 'Statut']],
+    fields: [
+      { name: 'zone_id', label: 'Zone', type: 'ref', ref: 'zones', required: true },
+      { name: 'name', label: 'Nom', required: true },
+      { name: 'pastor_name', label: 'Pasteur', required: true },
+      { name: 'code', label: 'Code' },
+      { name: 'image_media_id', label: 'Image', type: 'ref', ref: 'media' },
+      { name: 'address', label: 'Adresse' },
+      { name: 'commune', label: 'Commune' },
+      { name: 'quartier', label: 'Quartier' },
+      { name: 'secretariat_phone', label: 'Tél. secrétariat' },
+      { name: 'official_whatsapp', label: 'WhatsApp officiel' },
+      { name: 'official_email', label: 'Email officiel', type: 'email' },
+      { name: 'main_service_day', label: 'Jour de culte' },
+      { name: 'main_service_time', label: 'Heure de culte' },
+      { name: 'latitude', label: 'Latitude', type: 'number' },
+      { name: 'longitude', label: 'Longitude', type: 'number' },
+      { name: 'description', label: 'Description', type: 'textarea', wide: true },
+      { name: 'status', label: 'Statut', type: 'select', options: STATUS },
+    ],
+  },
+  news: {
+    label: 'Actualités', search: true,
+    columns: [['title', 'Titre'], ['scope_type', 'Portée'], ['priority', 'Priorité'], ['is_featured', 'À la une'], ['status', 'Statut']],
+    fields: [
+      { name: 'title', label: 'Titre', required: true, wide: true },
+      { name: 'excerpt', label: 'Résumé', wide: true },
+      { name: 'content', label: 'Contenu', type: 'textarea', required: true, wide: true,
+        hint: 'HTML limité : p, br, strong, em, u, ul, ol, li, h2-h4, blockquote, a. Le reste est supprimé.' },
+      { name: 'cover_media_id', label: 'Image de couverture', type: 'ref', ref: 'media' },
+      ...scopeFields(),
+      { name: 'priority', label: 'Priorité', type: 'select', options: PRIORITY },
+      { name: 'status', label: 'Statut', type: 'select', options: ['DRAFT', 'PUBLISHED', 'ARCHIVED'] },
+      { name: 'published_at', label: 'Publié le', type: 'datetime-local' },
+      { name: 'is_featured', label: 'Mettre à la une', type: 'checkbox' },
+    ],
+  },
+  events: {
+    label: 'Événements', search: true,
+    columns: [['title', 'Titre'], ['start_at', 'Début'], ['time_status', 'Quand'], ['scope_type', 'Portée'], ['status', 'Statut']],
+    fields: [
+      { name: 'title', label: 'Titre', required: true, wide: true },
+      { name: 'description', label: 'Description', type: 'textarea', required: true, wide: true },
+      { name: 'cover_media_id', label: 'Image de couverture', type: 'ref', ref: 'media' },
+      { name: 'organizer_name', label: 'Organisateur' },
+      { name: 'start_at', label: 'Début', type: 'datetime-local', required: true },
+      { name: 'end_at', label: 'Fin', type: 'datetime-local', required: true },
+      ...scopeFields(),
+      { name: 'venue_name', label: 'Lieu' },
+      { name: 'address', label: 'Adresse' },
+      { name: 'commune', label: 'Commune' },
+      { name: 'contact_phone', label: 'Téléphone' },
+      { name: 'official_whatsapp', label: 'WhatsApp' },
+      { name: 'latitude', label: 'Latitude', type: 'number' },
+      { name: 'longitude', label: 'Longitude', type: 'number' },
+      { name: 'priority', label: 'Priorité', type: 'select', options: PRIORITY },
+      { name: 'status', label: 'Statut', type: 'select', options: ['DRAFT', 'PUBLISHED', 'CANCELLED', 'ARCHIVED'] },
+      { name: 'is_featured', label: 'Mettre à la une', type: 'checkbox' },
+    ],
+  },
+  banners: {
+    label: 'Bannières', search: true,
+    columns: [['title', 'Titre'], ['link_type', 'Lien'], ['display_order', 'Ordre'], ['is_active', 'Active']],
+    fields: [
+      { name: 'title', label: 'Titre', required: true },
+      { name: 'subtitle', label: 'Sous-titre' },
+      { name: 'media_id', label: 'Image', type: 'ref', ref: 'media', required: true },
+      { name: 'button_text', label: 'Texte du bouton' },
+      { name: 'link_type', label: 'Type de lien', type: 'select', options: ['NONE', 'NEWS', 'EVENT', 'CHURCH', 'EXTERNAL'] },
+      { name: 'news_id', label: 'Actualité liée', type: 'ref', ref: 'news', showIf: (v) => v.link_type === 'NEWS' },
+      { name: 'event_id', label: 'Événement lié', type: 'ref', ref: 'events', showIf: (v) => v.link_type === 'EVENT' },
+      { name: 'church_id', label: 'Église liée', type: 'ref', ref: 'churches', showIf: (v) => v.link_type === 'CHURCH' },
+      { name: 'external_url', label: 'URL externe', showIf: (v) => v.link_type === 'EXTERNAL' },
+      { name: 'display_order', label: 'Ordre d\'affichage', type: 'number' },
+      { name: 'starts_at', label: 'Visible à partir du', type: 'datetime-local' },
+      { name: 'ends_at', label: 'Visible jusqu\'au', type: 'datetime-local' },
+      { name: 'is_active', label: 'Active', type: 'checkbox' },
+    ],
+  },
+  notifications: {
+    label: 'Notifications',
+    columns: [['title', 'Titre'], ['type', 'Type'], ['audience', 'Audience'], ['status', 'Statut'], ['sent_at', 'Envoyée le']],
+    fields: [
+      { name: 'title', label: 'Titre', required: true },
+      { name: 'type', label: 'Type', type: 'select', options: ['GENERAL', 'NEWS', 'EVENT'] },
+      { name: 'body', label: 'Message', type: 'textarea', required: true, wide: true },
+      { name: 'news_id', label: 'Actualité liée', type: 'ref', ref: 'news' },
+      { name: 'event_id', label: 'Événement lié', type: 'ref', ref: 'events' },
+      { name: 'audience', label: 'Audience', type: 'select', options: ['ALL', 'DISTRICT', 'ZONE', 'CHURCH'] },
+      { name: 'district_id', label: 'District', type: 'ref', ref: 'districts', showIf: (v) => v.audience === 'DISTRICT' },
+      { name: 'zone_id', label: 'Zone', type: 'ref', ref: 'zones', showIf: (v) => v.audience === 'ZONE' },
+      { name: 'church_id', label: 'Église', type: 'ref', ref: 'churches', showIf: (v) => v.audience === 'CHURCH' },
+      { name: 'status', label: 'Statut', type: 'select', options: ['DRAFT', 'PENDING', 'PROCESSING', 'SENT', 'FAILED'] },
+    ],
+  },
+  media: {
+    label: 'Médias', upload: true, noCreate: true, noEdit: true,
+    columns: [['url', 'Aperçu'], ['mime_type', 'Type'], ['width', 'L'], ['height', 'H']],
+    fields: [],
+  },
+  devices: {
+    label: 'Appareils', noCreate: true,
+    columns: [['platform', 'Plateforme'], ['app_version', 'Version'], ['notifications_enabled', 'Notifs'], ['last_seen_at', 'Vu le']],
+    fields: [
+      { name: 'platform', label: 'Plateforme', type: 'select', options: ['android', 'ios', 'web'] },
+      { name: 'app_version', label: 'Version' },
+      { name: 'notifications_enabled', label: 'Notifications activées', type: 'checkbox' },
+    ],
+  },
+};
+
+// ---------------------------------------------------------------------- api
+async function api(path, { method = 'GET', body, raw } = {}) {
+  const res = await fetch(API + path, {
+    method,
+    headers: Object.assign(
+      { Accept: 'application/json' },
+      token ? { Authorization: 'Bearer ' + token } : {},
+      raw ? {} : { 'Content-Type': 'application/json' },
+    ),
+    body: raw ? body : (body ? JSON.stringify(body) : undefined),
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (res.status === 401 && token) { logout(); throw new Error('Session expirée'); }
+  if (!res.ok) { const e = new Error(json?.error?.message || 'Erreur'); e.payload = json?.error; throw e; }
+
+  return json;
+}
+
+function toast(message, bad = false) {
+  const el = $('toast');
+  el.textContent = message;
+  el.className = bad ? 'bad' : '';
+  el.style.display = 'block';
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { el.style.display = 'none'; }, 3200);
+}
+
+// --------------------------------------------------------------------- auth
+async function login(email, password) {
+  const res = await api('/auth/login', { method: 'POST', body: { email, password, device_name: 'panel' } });
+  token = res.data.token;
+  me = res.data.user;
+  localStorage.setItem('fq_token', token);
+  renderApp();
+}
+
+function logout() {
+  if (token) api('/auth/logout', { method: 'POST' }).catch(() => {});
+  token = null; me = null;
+  localStorage.removeItem('fq_token');
+  renderLogin();
+}
+
+// ------------------------------------------------------------------ helpers
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dig = (row, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), row);
+
+function cell(row, path) {
+  const v = dig(row, path);
+  if (v === true) return '<span class="badge on">oui</span>';
+  if (v === false) return '<span class="badge off">non</span>';
+  if (v == null || v === '') return '<span class="badge off">—</span>';
+  if (path === 'url') return '<img src="' + esc(v) + '" alt="" style="height:34px;border-radius:4px">';
+  if (/_at$/.test(path)) return esc(new Date(v).toLocaleString('fr-FR'));
+  return esc(v);
+}
+
+const label = (row) => row.title || row.name || row.original_name || row.id;
+
+// Relation options are small lists; cache them per resource.
+const refCache = {};
+async function refOptions(key) {
+  if (!refCache[key]) {
+    refCache[key] = api('/admin/' + key + '?per_page=100')
+      .then((r) => r.data.map((row) => ({ id: row.id, label: label(row) })))
+      .catch(() => []);
+  }
+  return refCache[key];
+}
+
+// ------------------------------------------------------------------- render
+function renderLogin(error = '') {
+  root.innerHTML = `
+    <form id="login">
+      <h1>Foursquare CI</h1>
+      <p>Panel d'administration</p>
+      <div class="field"><label>Email</label><input name="email" type="email" required autofocus></div>
+      <div class="field"><label>Mot de passe</label><input name="password" type="password" required></div>
+      ${error ? `<p style="color:var(--danger)">${esc(error)}</p>` : ''}
+      <button class="primary" type="submit">Se connecter</button>
+    </form>`;
+
+  $('login').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    try {
+      await login(e.target.email.value, e.target.password.value);
+    } catch (err) {
+      btn.disabled = false;
+      renderLogin(err.message);
+    }
+  };
+}
+
+async function renderApp() {
+  if (!me) {
+    try { me = (await api('/auth/me')).data; } catch { return renderLogin(); }
+  }
+
+  root.innerHTML = `
+    <div id="app">
+      <nav>
+        <h2>Foursquare CI</h2>
+        ${Object.entries(RESOURCES).map(([k, r]) =>
+          `<a href="#${k}" class="${k === state.key ? 'active' : ''}">${r.label}</a>`).join('')}
+        <div class="spacer"></div>
+        <div class="me">${esc(me.name)}<br>${esc(me.role)}</div>
+        <button id="logout">Déconnexion</button>
+      </nav>
+      <main id="main"></main>
+    </div>`;
+
+  $('logout').onclick = logout;
+  state.editing ? renderForm() : renderList();
+}
+
+async function renderList() {
+  const key = state.key;
+  const res = RESOURCES[key];
+  const main = $('main');
+
+  main.innerHTML = `
+    <div class="head">
+      <h1>${res.label}</h1>
+      ${res.search ? `<input id="search" placeholder="Rechercher…" value="${esc(state.search)}">` : ''}
+      ${res.upload ? `<input id="file" type="file" accept="image/jpeg,image/png,image/webp" style="width:auto">` : ''}
+      ${res.noCreate ? '' : `<button class="primary" id="create">Nouveau</button>`}
+    </div>
+    <div class="card" id="list"><div class="empty">Chargement…</div></div>`;
+
+  if (res.search) {
+    const input = $('search');
+    input.oninput = () => {
+      clearTimeout(renderList.timer);
+      renderList.timer = setTimeout(() => { state.search = input.value; state.page = 1; renderList(); }, 300);
+    };
+  }
+
+  if (res.upload) {
+    $('file').onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const form = new FormData();
+      form.append('file', file);
+      try {
+        await api('/admin/media', { method: 'POST', body: form, raw: true });
+        delete refCache.media;
+        toast('Média importé');
+        renderList();
+      } catch (err) { toast(err.message, true); }
+    };
+  }
+
+  if (!res.noCreate) $('create').onclick = () => { state.editing = {}; renderForm(); };
+
+  const query = `?page=${state.page}&per_page=20` + (state.search ? `&search=${encodeURIComponent(state.search)}` : '');
+  let data, meta;
+  try {
+    ({ data, meta } = await api('/admin/' + key + query));
+  } catch (err) { return toast(err.message, true); }
+
+  if (!data.length) {
+    $('list').innerHTML = '<div class="empty">Aucun élément.</div>';
+    return;
+  }
+
+  $('list').innerHTML = `
+    <table>
+      <thead><tr>${res.columns.map((c) => `<th>${c[1]}</th>`).join('')}<th></th></tr></thead>
+      <tbody>
+        ${data.map((row, i) => `
+          <tr>
+            ${res.columns.map((c) => `<td>${cell(row, c[0])}</td>`).join('')}
+            <td style="text-align:right;white-space:nowrap">
+              ${res.noEdit ? '' : `<button data-edit="${i}">Éditer</button>`}
+              <button class="danger" data-del="${i}">Supprimer</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="pager">
+      <span>${meta.total} élément(s) — page ${meta.page}/${meta.last_page}</span>
+      <span class="spacer"></span>
+      <button id="prev" ${meta.page <= 1 ? 'disabled' : ''}>Précédent</button>
+      <button id="next" ${meta.page >= meta.last_page ? 'disabled' : ''}>Suivant</button>
+    </div>`;
+
+  $('list').querySelectorAll('[data-edit]').forEach((b) => {
+    b.onclick = async () => {
+      try {
+        state.editing = (await api('/admin/' + key + '/' + data[b.dataset.edit].id)).data;
+        renderForm();
+      } catch (err) { toast(err.message, true); }
+    };
+  });
+
+  $('list').querySelectorAll('[data-del]').forEach((b) => {
+    b.onclick = async () => {
+      const row = data[b.dataset.del];
+      if (!confirm(`Supprimer « ${label(row)} » ?`)) return;
+      try {
+        await api('/admin/' + key + '/' + row.id, { method: 'DELETE' });
+        delete refCache[key];
+        toast('Supprimé');
+        renderList();
+      } catch (err) { toast(err.message, true); }
+    };
+  });
+
+  $('prev').onclick = () => { state.page--; renderList(); };
+  $('next').onclick = () => { state.page++; renderList(); };
+}
+
+async function renderForm(errors = {}) {
+  const key = state.key;
+  const res = RESOURCES[key];
+  const row = state.editing;
+  const isNew = !row.id;
+
+  // Load every relation list this form needs before drawing it.
+  const refs = {};
+  await Promise.all(
+    res.fields.filter((f) => f.type === 'ref').map(async (f) => { refs[f.name] = await refOptions(f.ref); }),
+  );
+
+  const values = Object.assign({}, row);
+
+  const draw = () => {
+    $('main').innerHTML = `
+      <div class="head">
+        <h1>${isNew ? 'Nouveau' : 'Éditer'} — ${res.label}</h1>
+      </div>
+      <div class="card" style="padding:20px">
+        <form id="form" class="grid">
+          ${res.fields.filter((f) => !f.showIf || f.showIf(values)).map((f) => field(f, values[f.name], errors[f.name], refs[f.name])).join('')}
+          <div class="actions wide">
+            <button class="primary" type="submit">${isNew ? 'Créer' : 'Enregistrer'}</button>
+            <button type="button" id="cancel">Annuler</button>
+          </div>
+        </form>
+      </div>`;
+
+    $('cancel').onclick = () => { state.editing = null; renderList(); };
+
+    // Conditional fields depend on scope_type / link_type / audience.
+    ['scope_type', 'link_type', 'audience'].forEach((name) => {
+      const el = $('form').elements[name];
+      if (el) el.onchange = () => {
+        Object.assign(values, collect($('form'), res, values));
+        values[name] = el.value;
+        draw();
+      };
+    });
+
+    $('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const payload = {};
+
+      res.fields.filter((f) => !f.showIf || f.showIf(values)).forEach((f) => {
+        const el = e.target.elements[f.name];
+        if (!el) return;
+        if (f.type === 'checkbox') payload[f.name] = el.checked;
+        else if (f.type === 'number') payload[f.name] = el.value === '' ? null : Number(el.value);
+        else payload[f.name] = el.value === '' ? null : el.value;
+      });
+
+      try {
+        await api('/admin/' + key + (isNew ? '' : '/' + row.id), { method: isNew ? 'POST' : 'PATCH', body: payload });
+        delete refCache[key];
+        state.editing = null;
+        toast(isNew ? 'Créé' : 'Enregistré');
+        renderList();
+      } catch (err) {
+        const fields = err.payload?.fields || {};
+        toast(Object.keys(fields).length ? 'Corrigez les champs en rouge' : err.message, true);
+        state.editing = collect(e.target, res, values);
+        renderForm(fields);
+      }
+    };
+  };
+
+  draw();
+}
+
+function collect(form, res, values) {
+  const out = {};
+  res.fields.forEach((f) => {
+    const el = form.elements[f.name];
+    if (!el) return;
+    out[f.name] = f.type === 'checkbox' ? el.checked : el.value;
+  });
+  return Object.assign({}, values, out);
+}
+
+function field(f, value, error, options) {
+  const err = error ? `<div class="err">${esc(error[0])}</div>` : '';
+  const hint = f.hint ? `<div class="err" style="color:var(--muted)">${esc(f.hint)}</div>` : '';
+  const req = f.required ? 'required' : '';
+  const wide = f.wide || f.type === 'textarea' ? ' wide' : '';
+  let input;
+
+  if (f.type === 'checkbox') {
+    return `<div class="field${wide}"><div class="check">
+      <input type="checkbox" name="${f.name}" id="f_${f.name}" ${value ? 'checked' : ''}>
+      <label for="f_${f.name}">${f.label}</label></div>${err}</div>`;
+  }
+
+  if (f.type === 'select') {
+    input = `<select name="${f.name}" ${req}>
+      ${f.required ? '' : '<option value="">—</option>'}
+      ${f.options.map((o) => `<option ${o === value ? 'selected' : ''}>${o}</option>`).join('')}
+    </select>`;
+  } else if (f.type === 'ref') {
+    input = `<select name="${f.name}" ${req}>
+      <option value="">—</option>
+      ${(options || []).map((o) => `<option value="${o.id}" ${o.id === value ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}
+    </select>`;
+  } else if (f.type === 'textarea') {
+    input = `<textarea name="${f.name}" ${req}>${esc(value)}</textarea>`;
+  } else {
+    const v = f.type === 'datetime-local' && value ? String(value).slice(0, 16) : value;
+    input = `<input name="${f.name}" type="${f.type || 'text'}" ${f.type === 'number' ? 'step="any"' : ''} value="${esc(v)}" ${req}>`;
+  }
+
+  return `<div class="field${wide}"><label>${f.label}${f.required ? ' *' : ''}</label>${input}${err}${hint}</div>`;
+}
+
+// --------------------------------------------------------------------- boot
+window.onhashchange = () => {
+  const key = location.hash.slice(1);
+  if (RESOURCES[key]) {
+    state = { key, page: 1, search: '', editing: null };
+    renderApp();
+  }
+};
+
+const initial = location.hash.slice(1);
+if (RESOURCES[initial]) state.key = initial;
+
+token ? renderApp() : renderLogin();
+</script>
+</body>
+</html>
