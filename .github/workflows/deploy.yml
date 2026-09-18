@@ -1,0 +1,79 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [tests]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  ftp:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: project
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: project/package-lock.json
+
+      - name: Build application
+        run: |
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+          npm ci
+          npm run build
+
+      - name: Deploy via explicit FTPS
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          PRODUCTION_ENV: ${{ secrets.PRODUCTION_ENV }}
+          FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR }}
+        run: |
+          set -euo pipefail
+          : "${FTP_PASSWORD:?Set FTP_PASSWORD in the production environment}"
+          : "${PRODUCTION_ENV:?Set PRODUCTION_ENV in the production environment}"
+          : "${FTP_SERVER_DIR:?Set FTP_SERVER_DIR in the production environment}"
+          trap 'rm -f .env' EXIT
+          printf '%s\n' "$PRODUCTION_ENV" > .env
+          chmod 600 .env
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://ftp.studiobeyam.net -e "
+            set cmd:fail-exit yes
+            set ftp:ssl-force true
+            set ftp:ssl-protect-data true
+            set ssl:verify-certificate true
+            mkdir -p \"$FTP_SERVER_DIR\"
+            mirror -R --parallel=4 --exclude-glob .git --exclude-glob .github --exclude-glob node_modules --exclude-glob tests --exclude-glob .env --exclude-glob .env.* --exclude-glob .phpunit.cache --exclude-glob .phpunit.result.cache --exclude-glob .idea --exclude-glob .vscode ./ \"$FTP_SERVER_DIR\"
+            put .env -o \"$FTP_SERVER_DIR/.env\"
+            bye
+          "
