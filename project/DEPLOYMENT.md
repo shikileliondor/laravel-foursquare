@@ -1,21 +1,22 @@
-# Déploiement cPanel
+# Déployer sur cPanel
 
-Le workflow GitHub `.github/workflows/deploy.yml` construit Laravel après la réussite des tests sur `main`, puis envoie **un seul fichier** `foursquare-release.zip` par FTPS. L'extraction dans cPanel est manuelle. Un lancement manuel est aussi possible dans GitHub Actions.
+Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-release.zip` et l'envoie à la racine du compte FTP. L'extraction sur le serveur se fait manuellement.
 
-Dans GitHub, créer l'environnement **production**, puis y définir :
+## Dans cPanel
 
-| Type   | Nom            | Valeur                                                           |
-| ------ | -------------- | ---------------------------------------------------------------- |
-| Secret | `FTP_PASSWORD` | Mot de passe du compte FTP `c2860566c@winestock.studiobeyam.net` |
+1. Ouvrir **Gestionnaire de fichiers** et chercher `foursquare-release.zip` à la racine du compte FTP.
+2. Déplacer le ZIP dans `public_html/project`, puis choisir **Extraire** dans ce dossier. Vérifier que `public_html/project/artisan`, `public_html/project/app` et `public_html/project/public` existent directement, sans dossier supplémentaire créé par l'extraction.
+3. Créer ou conserver `public_html/project/.env` avec les paramètres de production. Le ZIP ne contient pas ce fichier. Garder la même `APP_KEY` lors des mises à jour.
+4. Régler la racine web du sous-domaine sur `public_html/project/public`. Utiliser PHP **8.4.1 ou plus** et rendre `storage/` et `bootstrap/cache/` inscriptibles.
+5. Dans le terminal cPanel, depuis `public_html/project`, lancer :
 
-Le serveur FTPS est `web42.lws-hosting.com`, port `21`. Le ZIP est déposé à la racine accessible du compte FTP, car le chemin `FTP_SERVER_DIR` configuré dans GitHub n'existe pas depuis ce compte. Ce secret n'est plus utilisé.
+   ```bash
+   php artisan migrate --force
+   php artisan storage:link  # uniquement si le lien n'existe pas déjà
+   ```
 
-Après le transfert, dans le gestionnaire de fichiers cPanel :
+6. Supprimer `foursquare-release.zip` après l'extraction.
 
-1. Repérer `foursquare-release.zip` à la racine du compte FTP. Le déplacer vers `public_html/project` si nécessaire, puis l'extraire **dans `project`** : `artisan`, `app/` et `public/` doivent être directement dans ce dossier.
-2. Créer ou conserver `.env` dans ce dossier avec les valeurs MySQL de production. Le ZIP exclut volontairement `.env` et le secret GitHub `PRODUCTION_ENV` n'est pas inclus dans l'archive. Garder la même `APP_KEY` lors des mises à jour.
-3. Faire pointer la racine web du sous-domaine uniquement vers le sous-dossier `public/`. Le serveur doit avoir PHP 8.4.1 ou plus ; `storage/` et `bootstrap/cache/` doivent être inscriptibles.
-4. Dans le terminal cPanel, exécuter `php artisan migrate --force` et, la première fois, `php artisan storage:link`. Ne jamais lancer `migrate:fresh` en production.
-5. Supprimer le ZIP après extraction, particulièrement si le dossier FTP est sous `public_html`.
+Pour une mise à jour, refaire les étapes 1, 2, 5 et 6, en conservant `.env` et les fichiers déjà présents dans `storage/`. Ne pas lancer `migrate:fresh` en production.
 
-Le ZIP ne contient ni `node_modules`, ni les tests, ni `.env`. L'extraction n'efface pas les uploads ou données persistantes déjà présents sur le serveur.
+Le seul secret GitHub nécessaire au transfert est `FTP_PASSWORD`. Le secret `FTP_SERVER_DIR` n'est plus utilisé ; le ZIP arrive à la racine du compte FTP. Le secret `PRODUCTION_ENV` n'est pas copié dans le ZIP : `.env` reste à gérer sur le serveur.

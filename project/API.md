@@ -1,5 +1,7 @@
 # Foursquare Côte d'Ivoire — API v1
 
+Guide court à transmettre à l'IA frontend : [API_FRONTEND.md](API_FRONTEND.md).
+
 Backend Laravel, JSON only. Consommé par l'application Flutter et, plus tard, un panel React.
 Base : `https://api.studiobeyam.net/api/v1`
 
@@ -105,7 +107,7 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 ## Panel d'administration
 
 Disponible sur `/admin/` ([public/admin/index.html](public/admin/index.html)) : une page autonome,
-sans build ni dépendance, qui consomme uniquement l'API publique documentée ci-dessus.
+sans build ni dépendance, qui consomme l'API v1 documentée ci-dessus.
 
 Connexion via `POST /auth/login`, token conservé dans le `localStorage`, envoyé en `Bearer` sur
 chaque appel. Un `401` renvoie automatiquement à l'écran de connexion.
@@ -134,29 +136,7 @@ plus un jeu de données de démonstration.
 
 ## Déploiement cPanel
 
-Racine du sous-domaine → `/home/<user>/foursquare-api/public`.
-
-```bash
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan storage:link
-```
-
-`storage/` et `bootstrap/cache/` doivent être inscriptibles par PHP.
-
-`.env` de production :
-
-```
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://api.studiobeyam.net
-DB_CONNECTION=pgsql
-LOG_LEVEL=warning
-```
-
-Base PostgreSQL et utilisateur dédiés, jamais un superuser. `.env` n'est jamais commité.
+Suivre [DEPLOYMENT.md](DEPLOYMENT.md) pour le ZIP envoyé par FTPS, l'extraction manuelle dans `public_html/project`, la configuration `.env` MySQL et les migrations.
 
 ## Stockage des médias
 
