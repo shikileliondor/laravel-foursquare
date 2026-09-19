@@ -1420,6 +1420,28 @@
 
             const fmtDate = (v) => new Date(v).toLocaleString('fr-FR');
 
+            function mediaUrl(url) {
+                if (!url) return '';
+
+                try {
+                    const parsed = new URL(url, location.origin);
+
+                    if (
+                        parsed.pathname.startsWith('/storage/') &&
+                        ['localhost', '127.0.0.1'].includes(parsed.hostname) &&
+                        ['localhost', '127.0.0.1'].includes(location.hostname)
+                    ) {
+                        return location.origin + BASE + parsed.pathname;
+                    }
+
+                    return parsed.href;
+                } catch {
+                    return String(url).startsWith('/storage/')
+                        ? location.origin + BASE + url
+                        : String(url);
+                }
+            }
+
             const badge = (v) =>
                 `<span class="badge ${TONE[v] || ''}">${esc(v)}</span>`;
 
@@ -1428,7 +1450,9 @@
 
                 if (type === 'thumb')
                     return `<div class="rowthumb">${
-                        v ? `<img src="${esc(v)}" alt="" loading="lazy">` : ''
+                        v
+                            ? `<img src="${esc(mediaUrl(v))}" alt="" loading="lazy">`
+                            : ''
                     }</div>`;
 
                 if (v === true) return '<span class="badge ok">oui</span>';
@@ -1462,6 +1486,7 @@
             const mediaCache = {};
 
             function remember(media) {
+                if (media && media.url) media.url = mediaUrl(media.url);
                 if (media && media.id) mediaCache[media.id] = media;
                 return media;
             }
