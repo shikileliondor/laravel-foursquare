@@ -46,16 +46,35 @@ function publishedEvent(array $attributes = []): Event
 }
 
 it('returns the home payload in one call', function () {
-    publishedNews(['is_featured' => true]);
+    publishedNews([
+        'title' => 'Convention nationale',
+        'slug' => 'convention-nationale',
+        'is_featured' => true,
+        'published_at' => now()->subDays(2),
+    ]);
+    publishedNews([
+        'title' => 'Convocation jeunesse',
+        'slug' => 'convocation-jeunesse',
+        'is_featured' => true,
+        'published_at' => now()->subDay(),
+    ]);
+    publishedNews([
+        'title' => 'Actualite simple',
+        'slug' => 'actualite-simple',
+        'is_featured' => false,
+    ]);
     publishedEvent(['is_featured' => true]);
 
     $this->getJson('/api/v1/home')
         ->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonStructure([
-            'data' => ['banners', 'featured_news', 'featured_event', 'latest_news', 'upcoming_events'],
+            'data' => ['banners', 'featured_news', 'featured_news_item', 'featured_event', 'latest_news', 'upcoming_events'],
         ])
-        ->assertJsonPath('data.featured_news.title', 'Convention nationale')
+        ->assertJsonCount(2, 'data.featured_news')
+        ->assertJsonPath('data.featured_news.0.title', 'Convocation jeunesse')
+        ->assertJsonPath('data.featured_news.1.title', 'Convention nationale')
+        ->assertJsonPath('data.featured_news_item.title', 'Convocation jeunesse')
         ->assertJsonPath('data.featured_event.time_status', 'UPCOMING');
 });
 

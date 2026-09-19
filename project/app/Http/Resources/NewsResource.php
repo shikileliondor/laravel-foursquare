@@ -30,6 +30,7 @@ class NewsResource extends JsonResource
             'is_featured' => $this->is_featured,
             'status' => $this->status,
             'published_at' => $this->published_at?->toIso8601String(),
+            'cover_media_id' => $this->cover_media_id,
             'cover' => MediaResource::make($this->whenLoaded('cover')),
         ];
     }

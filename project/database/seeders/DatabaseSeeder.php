@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\Event;
 use App\Models\Media;
 use App\Models\News;
+use App\Models\User;
 use App\Models\Zone;
 use Illuminate\Database\Seeder;
 
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            AdminSeeder::class,
             DistrictSeeder::class,
             ZoneSeeder::class,
             ChurchSeeder::class,
@@ -26,6 +28,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->command->table(['Données', 'Total après seeding'], [
+            ['Administrateurs', User::query()->count()],
             ['Districts', District::query()->count()],
             ['Zones', Zone::query()->count()],
             ['Églises', Church::query()->count()],

@@ -22,9 +22,9 @@ class UpdateNewsRequest extends FormRequest
             'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['sometimes', 'string'],
             'cover_media_id' => ['nullable', 'uuid', 'exists:media,id'],
-            'priority' => ['nullable', Rule::in(News::PRIORITIES)],
+            'priority' => ['sometimes', Rule::in(News::PRIORITIES)],
             'is_featured' => ['boolean'],
-            'status' => ['nullable', Rule::in(News::STATUSES)],
+            'status' => ['sometimes', Rule::in(News::STATUSES)],
             'published_at' => ['nullable', 'date'],
         ], $this->scopeRules(required: false));
     }

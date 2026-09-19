@@ -31,7 +31,7 @@ class UpdateChurchRequest extends FormRequest
             'main_service_time' => ['nullable', 'string', 'max:30'],
             'description' => ['nullable', 'string'],
             'image_media_id' => ['nullable', 'uuid', 'exists:media,id'],
-            'status' => ['nullable', Rule::in(Church::STATUSES)],
+            'status' => ['sometimes', Rule::in(Church::STATUSES)],
         ];
     }
 }

@@ -27,6 +27,10 @@ class BannerResource extends JsonResource
             'church_id' => $this->church_id,
             'external_url' => $this->external_url,
             'display_order' => $this->display_order,
+            'is_active' => $this->is_active,
+            'starts_at' => $this->starts_at?->toIso8601String(),
+            'ends_at' => $this->ends_at?->toIso8601String(),
+            'media_id' => $this->media_id,
             'media' => MediaResource::make($this->whenLoaded('media')),
         ];
     }

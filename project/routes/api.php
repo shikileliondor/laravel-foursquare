@@ -50,6 +50,8 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
             Route::apiResource('events', Admin\EventController::class);
             Route::apiResource('banners', Admin\BannerController::class);
             Route::apiResource('notifications', Admin\NotificationController::class);
+            Route::post('notifications/{notification}/send', [Admin\NotificationController::class, 'send'])
+                ->name('notifications.send');
             Route::apiResource('devices', Admin\DeviceController::class)->only(['index', 'show', 'update', 'destroy']);
 
             Route::get('media', [Admin\MediaController::class, 'index'])->name('media.index');

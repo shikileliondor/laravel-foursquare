@@ -29,6 +29,7 @@ class PushNotificationResource extends JsonResource
             'church_id' => $this->church_id,
             'status' => $this->status,
             'retry_count' => $this->retry_count,
+            'last_error' => $this->last_error,
             'sent_at' => $this->sent_at?->toIso8601String(),
         ];
     }

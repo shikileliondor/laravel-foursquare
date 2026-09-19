@@ -39,6 +39,7 @@ class EventResource extends JsonResource
             'priority' => $this->priority,
             'is_featured' => $this->is_featured,
             'status' => $this->status,
+            'cover_media_id' => $this->cover_media_id,
             'cover' => MediaResource::make($this->whenLoaded('cover')),
         ];
     }

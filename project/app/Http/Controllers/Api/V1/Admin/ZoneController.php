@@ -18,6 +18,9 @@ class ZoneController extends CrudController
     protected array $with = ['district'];
 
     /** @var list<string> */
+    protected array $withCount = ['churches'];
+
+    /** @var list<string> */
     protected array $searchable = ['name', 'code'];
 
     protected string $orderBy = 'name';
@@ -37,7 +40,7 @@ class ZoneController extends CrudController
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('zones', 'slug')->ignore($model?->getKey())],
             'code' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'status' => ['nullable', Rule::in(Zone::STATUSES)],
+            'status' => ['sometimes', Rule::in(Zone::STATUSES)],
         ];
     }
 }

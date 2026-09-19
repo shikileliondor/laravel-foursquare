@@ -28,6 +28,9 @@ abstract class CrudController extends ApiController
     protected array $with = [];
 
     /** @var list<string> */
+    protected array $withCount = [];
+
+    /** @var list<string> */
     protected array $searchable = [];
 
     protected string $orderBy = 'created_at';
@@ -107,7 +110,7 @@ abstract class CrudController extends ApiController
      */
     protected function query(): Builder
     {
-        return $this->model::query()->with($this->with);
+        return $this->model::query()->with($this->with)->withCount($this->withCount);
     }
 
     protected function find(string $id): Model

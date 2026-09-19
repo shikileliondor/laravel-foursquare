@@ -31,9 +31,9 @@ class UpdateEventRequest extends FormRequest
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'contact_phone' => ['nullable', 'string', 'max:30'],
             'official_whatsapp' => ['nullable', 'string', 'max:30'],
-            'priority' => ['nullable', Rule::in(Event::PRIORITIES)],
+            'priority' => ['sometimes', Rule::in(Event::PRIORITIES)],
             'is_featured' => ['boolean'],
-            'status' => ['nullable', Rule::in(Event::STATUSES)],
+            'status' => ['sometimes', Rule::in(Event::STATUSES)],
         ], $this->scopeRules(required: false));
     }
 }
