@@ -16,6 +16,8 @@ Après le transfert, dans le gestionnaire de fichiers cPanel :
 2. Créer ou conserver `.env` dans ce dossier avec les valeurs MySQL de production. Le ZIP exclut volontairement `.env` et le secret GitHub `PRODUCTION_ENV` n'est pas inclus dans l'archive. Garder la même `APP_KEY` lors des mises à jour.
 3. Faire pointer la racine web du sous-domaine uniquement vers le sous-dossier `public/`. Le serveur doit avoir PHP 8.4.1 ou plus ; `storage/` et `bootstrap/cache/` doivent être inscriptibles.
 4. Dans le terminal cPanel, exécuter `php artisan migrate --force` et, la première fois, `php artisan storage:link`. Ne jamais lancer `migrate:fresh` en production.
-5. Supprimer le ZIP après extraction, particulièrement si le dossier FTP est sous `public_html`.
+5. Pour les notifications push, déposer le JSON Firebase Admin dans `storage/app/firebase/`, hors de `public/`, puis mettre `FCM_CREDENTIALS=storage/app/firebase` dans `.env`. `FCM_PROJECT_ID` peut rester vide si le JSON contient `project_id`.
+6. Configurer une tâche cron cPanel toutes les minutes pour vider la file des notifications : `cd /home/<user>/public_html/project && php artisan queue:work --stop-when-empty --quiet`.
+7. Supprimer le ZIP après extraction, particulièrement si le dossier FTP est sous `public_html`.
 
 Le ZIP ne contient ni `node_modules`, ni les tests, ni `.env`. L'extraction n'efface pas les uploads ou données persistantes déjà présents sur le serveur.

@@ -171,14 +171,15 @@ un jeton OAuth (mis en cache 50 min), puis chaque appareil reçoit son propre me
 n'a plus d'envoi groupé. Les envois partent par lots parallèles de `FCM_CHUNK` appareils.
 
 ```env
-FCM_CREDENTIALS=storage/app/firebase/service-account.json
+FCM_CREDENTIALS=storage/app/firebase
 FCM_PROJECT_ID=votre-projet
 FCM_CHUNK=50
 FCM_TIMEOUT=10
 ```
 
 Le JSON vient de la console Firebase (Paramètres du projet → Comptes de service → Générer une
-clé privée). **Le déposer hors de `public/`.** `FCM_PROJECT_ID` est déduit du JSON s'il est vide.
+clé privée). **Le déposer hors de `public/`.** `FCM_CREDENTIALS` peut pointer vers ce fichier JSON
+ou vers son dossier, par exemple `storage/app/firebase`. `FCM_PROJECT_ID` est déduit du JSON s'il est vide.
 
 L'envoi est un job en file (`QUEUE_CONNECTION=database`), il faut donc un worker :
 

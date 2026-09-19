@@ -113,6 +113,20 @@ it('queues the notification when the admin hits send', function () {
     Queue::assertPushed(SendPushNotification::class);
 });
 
+it('accepts a firebase credentials directory', function () {
+    $directory = storage_path('framework/testing/firebase');
+    @mkdir($directory, 0777, true);
+    file_put_contents($directory.'/firebase-admin.json', json_encode([
+        'client_email' => 'push@foursquare.iam.gserviceaccount.com',
+        'private_key' => TEST_PRIVATE_KEY,
+        'project_id' => 'foursquare-ci',
+    ]));
+
+    config(['fcm.credentials' => $directory, 'fcm.project_id' => null]);
+
+    expect(app(FcmClient::class)->configured())->toBeTrue();
+});
+
 it('refuses to send the same notification twice', function () {
     Queue::fake();
     $notification = makeNotification(['status' => 'SENT']);

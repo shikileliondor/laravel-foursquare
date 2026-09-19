@@ -201,8 +201,17 @@ class FcmClient
             return null;
         }
 
-        return str_starts_with($path, '/') || preg_match('/^[A-Za-z]:/', $path)
+        $resolved = str_starts_with($path, '/') || preg_match('/^[A-Za-z]:/', $path)
             ? $path
             : base_path($path);
+
+        if (is_dir($resolved)) {
+            $files = glob(rtrim($resolved, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'*.json') ?: [];
+            sort($files);
+
+            return $files[0] ?? null;
+        }
+
+        return $resolved;
     }
 }
