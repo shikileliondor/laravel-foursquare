@@ -825,6 +825,11 @@
                     label: 'Actualités',
                     group: 'Contenu',
                     search: true,
+                    defaults: {
+                        scope_type: 'NATIONAL',
+                        priority: 'NORMAL',
+                        status: 'PUBLISHED',
+                    },
                     columns: [
                         ['cover.url', '', 'thumb'],
                         ['title', 'Titre', 'title'],
@@ -1426,17 +1431,23 @@
                 try {
                     const parsed = new URL(url, location.origin);
 
+                    const localHosts = ['localhost', '127.0.0.1'];
+                    const localMediaPath =
+                        parsed.pathname.startsWith('/storage/') ||
+                        parsed.pathname.startsWith('/api/v1/media/');
+
                     if (
-                        parsed.pathname.startsWith('/storage/') &&
-                        ['localhost', '127.0.0.1'].includes(parsed.hostname) &&
-                        ['localhost', '127.0.0.1'].includes(location.hostname)
+                        localMediaPath &&
+                        localHosts.includes(parsed.hostname) &&
+                        localHosts.includes(location.hostname)
                     ) {
                         return location.origin + BASE + parsed.pathname;
                     }
 
                     return parsed.href;
                 } catch {
-                    return String(url).startsWith('/storage/')
+                    return String(url).startsWith('/storage/') ||
+                        String(url).startsWith('/api/v1/media/')
                         ? location.origin + BASE + url
                         : String(url);
                 }
@@ -2049,7 +2060,11 @@
                         }),
                 );
 
-                const values = Object.assign({}, row);
+                const values = Object.assign(
+                    {},
+                    isNew ? res.defaults || {} : {},
+                    row,
+                );
                 const visible = (f) => !f.showIf || f.showIf(values);
 
                 const draw = () => {

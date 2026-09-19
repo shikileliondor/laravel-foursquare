@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
@@ -25,6 +26,10 @@ class Media extends Model
 
     public function url(): string
     {
-        return Storage::disk(config('media.disk', 'public'))->url($this->path);
+        try {
+            return route('v1.media.file', ['media' => $this->id]);
+        } catch (UrlGenerationException) {
+            return Storage::disk(config('media.disk', 'public'))->url($this->path);
+        }
     }
 }

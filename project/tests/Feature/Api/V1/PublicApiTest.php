@@ -4,9 +4,11 @@ use App\Models\Church;
 use App\Models\Device;
 use App\Models\District;
 use App\Models\Event;
+use App\Models\Media;
 use App\Models\News;
 use App\Models\User;
 use App\Models\Zone;
+use Illuminate\Support\Facades\Storage;
 
 function structure(): array
 {
@@ -87,6 +89,26 @@ it('lists published news with pagination meta', function () {
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('meta.per_page', 20)
         ->assertJsonPath('meta.total', 1);
+});
+
+it('serves media files through the public api', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('media/test.jpg', 'image-bytes');
+
+    $media = Media::create([
+        'original_name' => 'test.jpg',
+        'stored_name' => 'test.jpg',
+        'path' => 'media/test.jpg',
+        'mime_type' => 'image/jpeg',
+        'file_size' => 11,
+    ]);
+
+    expect($media->url())->toContain("/api/v1/media/{$media->id}/file");
+
+    $this->get("/api/v1/media/{$media->id}/file")
+        ->assertOk()
+        ->assertHeader('content-type', 'image/jpeg')
+        ->assertSee('image-bytes');
 });
 
 it('caps pagination at 100 per page', function () {
