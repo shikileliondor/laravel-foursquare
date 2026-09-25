@@ -197,11 +197,11 @@ Cycle d'un statut : `DRAFT` → `PENDING` (mise en file) → `PROCESSING` → `S
 
 Chaque envoi renseigne aussi son bilan, remis à zéro à chaque nouvelle tentative :
 
-| Champ             | Sens                                                       |
-| ----------------- | ---------------------------------------------------------- |
-| `delivered_count` | appareils que FCM a acceptés                               |
-| `pruned_count`    | tokens périmés, donc appareils supprimés                   |
-| `failed_count`    | refus FCM qui ne justifient pas de supprimer l'appareil    |
+| Champ             | Sens                                                    |
+| ----------------- | ------------------------------------------------------- |
+| `delivered_count` | appareils que FCM a acceptés                            |
+| `pruned_count`    | tokens périmés, donc appareils supprimés                |
+| `failed_count`    | refus FCM qui ne justifient pas de supprimer l'appareil |
 
 **`SENT` ne signifie pas « reçu ».** Il signifie que FCM a accepté l'envoi. Lire
 `delivered_count` pour savoir si un téléphone a été joint.
