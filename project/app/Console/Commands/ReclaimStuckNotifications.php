@@ -46,7 +46,7 @@ class ReclaimStuckNotifications extends Command
             $stuck->map(fn (PushNotification $n) => [
                 $n->title,
                 $n->status,
-                $n->updated_at?->diffForHumans(syntax: true) ?? '?',
+                $n->updated_at?->diffForHumans() ?? '?',
             ])->all(),
         );
 
