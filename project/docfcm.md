@@ -92,9 +92,9 @@ Payload attendu :
 
 ```json
 {
-  "token": "FCM_TOKEN_ICI",
-  "platform": "android",
-  "guest_key": "guest-device-id-optionnel"
+    "token": "FCM_TOKEN_ICI",
+    "platform": "android",
+    "guest_key": "guest-device-id-optionnel"
 }
 ```
 
@@ -134,15 +134,15 @@ Reponse API :
 
 ```json
 {
-  "message": "Jeton push enregistre.",
-  "data": {
-    "id": 1,
-    "user_id": null,
-    "guest_key": "guest-device-id-optionnel",
-    "token": "FCM_TOKEN_ICI",
-    "platform": "android",
-    "is_active": true
-  }
+    "message": "Jeton push enregistre.",
+    "data": {
+        "id": 1,
+        "user_id": null,
+        "guest_key": "guest-device-id-optionnel",
+        "token": "FCM_TOKEN_ICI",
+        "platform": "android",
+        "is_active": true
+    }
 }
 ```
 
@@ -260,9 +260,9 @@ Payload :
 
 ```json
 {
-  "title": "Titre",
-  "body": "Message de la notification",
-  "link": "/alerts/1"
+    "title": "Titre",
+    "body": "Message de la notification",
+    "link": "/alerts/1"
 }
 ```
 
