@@ -152,6 +152,11 @@ qui insère les balises autorisées et un aperçu. Le serveur applique de toute 
 Liste avec statuts colorés, colonne `last_error` et actions directes : « Envoyer » appelle
 `POST /admin/notifications/{id}/send`, « Remettre en brouillon » annule une mise en file.
 
+La colonne **Livraison** donne le bilan réel de l'envoi : `12 livrées`, plus le cas échéant
+`2 tokens morts` et `1 échec`. Elle est indispensable parce qu'un `SENT` seul ne dit pas si un
+téléphone a reçu quoi que ce soit — un envoi dont tous les tokens étaient périmés est un `SENT`
+à zéro livraison.
+
 ### Champs conditionnels
 
 Quand le panel masque une cible (changement de `link_type`, de `type` ou d'`audience`), il envoie
@@ -190,12 +195,39 @@ php artisan queue:work --stop-when-empty   # cron cPanel, toutes les minutes
 Cycle d'un statut : `DRAFT` → `PENDING` (mise en file) → `PROCESSING` → `SENT` ou `FAILED`.
 `FAILED` renseigne `last_error` et incrémente `retry_count` ; l'action « Envoyer » rejoue.
 
+Chaque envoi renseigne aussi son bilan, remis à zéro à chaque nouvelle tentative :
+
+| Champ             | Sens                                                       |
+| ----------------- | ---------------------------------------------------------- |
+| `delivered_count` | appareils que FCM a acceptés                               |
+| `pruned_count`    | tokens périmés, donc appareils supprimés                   |
+| `failed_count`    | refus FCM qui ne justifient pas de supprimer l'appareil    |
+
+**`SENT` ne signifie pas « reçu ».** Il signifie que FCM a accepté l'envoi. Lire
+`delivered_count` pour savoir si un téléphone a été joint.
+
 Un token refusé par FCM (`UNREGISTERED`, `INVALID_ARGUMENT`, `SENDER_ID_MISMATCH`) fait
 supprimer l'appareil. Si tous les appareils visés sont dans ce cas, la notification finit
 quand même en `SENT` : rien n'a échoué côté serveur, rejouer ne changerait rien.
 
 Tant que `FCM_CREDENTIALS` n'est pas renseigné, l'envoi échoue proprement en `FAILED` avec
 « FCM non configuré » dans `last_error` — aucune exception non gérée.
+
+### Vérifier la chaîne sans passer par le panel
+
+```bash
+php artisan fcm:test --token=<token-du-telephone>   # un seul appareil, même non enregistré
+php artisan fcm:test                                # les appareils enregistrés, après confirmation
+```
+
+La commande court-circuite la base et la file pour ne répondre qu'à une question : « le téléphone
+reçoit-il ? » Elle n'enregistre aucune notification dans l'historique et ne supprime aucun token,
+contrairement à un envoi réel. Elle affiche le projet Firebase utilisé et, par token, `livrée`,
+`token mort` ou `échec` avec le message de Google. Code de sortie non nul si rien n'est livré, ce
+qui la rend utilisable en vérification de déploiement.
+
+Le token du téléphone s'obtient dans la console de `flutter run` : l'application le journalise au
+démarrage (en debug uniquement), avec l'URL d'API qu'elle utilise.
 
 ## Installation locale
 

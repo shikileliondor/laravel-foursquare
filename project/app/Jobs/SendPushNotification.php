@@ -35,7 +35,12 @@ class SendPushNotification implements ShouldQueue
             return;
         }
 
-        $notification->update(['status' => 'PROCESSING']);
+        $notification->update([
+            'status' => 'PROCESSING',
+            'delivered_count' => 0,
+            'pruned_count' => 0,
+            'failed_count' => 0,
+        ]);
 
         try {
             [$delivered, $stale, $errors] = $this->deliver($fcm, $notification);
@@ -50,7 +55,7 @@ class SendPushNotification implements ShouldQueue
         }
 
         if ($delivered === 0 && $errors !== []) {
-            $this->fail($notification, $errors[0]);
+            $this->fail($notification, $errors[0], count($stale), count($errors));
 
             return;
         }
@@ -59,6 +64,9 @@ class SendPushNotification implements ShouldQueue
             'status' => 'SENT',
             'sent_at' => now(),
             'last_error' => null,
+            'delivered_count' => $delivered,
+            'pruned_count' => count($stale),
+            'failed_count' => count($errors),
         ]);
 
         AuditLog::record('sent', $notification, [
@@ -95,12 +103,15 @@ class SendPushNotification implements ShouldQueue
         return [$delivered, $stale, $errors];
     }
 
-    private function fail(PushNotification $notification, string $error): void
+    private function fail(PushNotification $notification, string $error, int $pruned = 0, int $failed = 0): void
     {
         $notification->update([
             'status' => 'FAILED',
             'last_error' => mb_substr($error, 0, 1000),
             'retry_count' => $notification->retry_count + 1,
+            'delivered_count' => 0,
+            'pruned_count' => $pruned,
+            'failed_count' => $failed,
         ]);
     }
 }

@@ -1067,10 +1067,10 @@
                         ['type', 'Type'],
                         ['audience', 'Audience'],
                         ['status', 'Statut'],
+                        ['delivered_count', 'Livraison', 'delivery'],
                         ['sent_at', 'Envoyée le'],
                         ['last_error', 'Erreur'],
                     ],
-                    // Envoi réel = worker FCM, pas encore branché côté serveur.
                     rowActions: [
                         {
                             label: 'Envoyer',
@@ -1082,7 +1082,7 @@
                                 ' aux appareils concernes ?',
                             method: 'POST',
                             path: '/send',
-                            done: 'Envoi lance',
+                            done: 'Envoi lancé — le bilan apparaît dans la colonne Livraison',
                         },
                         {
                             label: 'Remettre en brouillon',
@@ -1456,8 +1456,46 @@
             const badge = (v) =>
                 `<span class="badge ${TONE[v] || ''}">${esc(v)}</span>`;
 
+            const plural = (n, word) => n + ' ' + word + (n > 1 ? 's' : '');
+
+            /**
+             * `SENT` signifie « FCM a accepte l envoi », pas « un telephone a recu ».
+             * Un envoi dont tous les tokens etaient perimes est un SENT a 0 livraison :
+             * sans ce bilan, l administrateur croirait la notification partie.
+             */
+            function deliveryCell(row) {
+                if (row.status !== 'SENT' && row.status !== 'FAILED')
+                    return '<span class="badge">—</span>';
+
+                const out = [
+                    `<span class="badge ${
+                        row.delivered_count > 0 ? 'ok' : 'bad'
+                    }">${plural(row.delivered_count || 0, 'livrée')}</span>`,
+                ];
+
+                if (row.pruned_count > 0)
+                    out.push(
+                        `<span class="badge warn">${plural(
+                            row.pruned_count,
+                            'token mort',
+                        )}</span>`,
+                    );
+
+                if (row.failed_count > 0)
+                    out.push(
+                        `<span class="badge bad">${plural(
+                            row.failed_count,
+                            'échec',
+                        )}</span>`,
+                    );
+
+                return out.join(' ');
+            }
+
             function cell(row, [path, , type]) {
                 const v = dig(row, path);
+
+                if (type === 'delivery') return deliveryCell(row);
 
                 if (type === 'thumb')
                     return `<div class="rowthumb">${

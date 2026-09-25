@@ -221,3 +221,112 @@ it('fails loudly when no service account is configured', function () {
         ->and($notification->last_error)->toContain('FCM non configuré')
         ->and($notification->retry_count)->toBe(1);
 });
+
+it('records how many devices were actually reached', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    Device::create(['fcm_token' => 'live-1', 'platform' => 'android']);
+    Device::create(['fcm_token' => 'live-2', 'platform' => 'android']);
+    $notification = makeNotification(['status' => 'PENDING']);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    $notification = $notification->fresh();
+
+    expect($notification->status)->toBe('SENT')
+        ->and($notification->delivered_count)->toBe(2)
+        ->and($notification->pruned_count)->toBe(0)
+        ->and($notification->failed_count)->toBe(0);
+});
+
+it('shows zero deliveries when every token was dead', function () {
+    fakeServiceAccount();
+    fakeFcm(['error' => ['status' => 'UNREGISTERED', 'message' => 'Requested entity was not found.']], 404);
+
+    Device::create(['fcm_token' => 'dead-token', 'platform' => 'android']);
+    $notification = makeNotification(['status' => 'PENDING']);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    $notification = $notification->fresh();
+
+    // Le statut reste SENT — rien n'a echoue de notre cote — mais le bilan
+    // empeche de croire qu'un telephone a recu quoi que ce soit.
+    expect($notification->status)->toBe('SENT')
+        ->and($notification->delivered_count)->toBe(0)
+        ->and($notification->pruned_count)->toBe(1);
+});
+
+it('counts the failures when FCM rejects the send', function () {
+    fakeServiceAccount();
+    fakeFcm(['error' => ['status' => 'UNAVAILABLE', 'message' => 'The service is unavailable.']], 503);
+
+    Device::create(['fcm_token' => 'live-token', 'platform' => 'android']);
+    $notification = makeNotification(['status' => 'PENDING']);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    $notification = $notification->fresh();
+
+    expect($notification->status)->toBe('FAILED')
+        ->and($notification->delivered_count)->toBe(0)
+        ->and($notification->failed_count)->toBe(1);
+});
+
+it('clears the previous tally when a failed notification is sent again', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    Device::create(['fcm_token' => 'live-token', 'platform' => 'android']);
+    $notification = makeNotification([
+        'status' => 'PENDING',
+        'delivered_count' => 0,
+        'failed_count' => 7,
+        'pruned_count' => 3,
+    ]);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    $notification = $notification->fresh();
+
+    expect($notification->delivered_count)->toBe(1)
+        ->and($notification->failed_count)->toBe(0)
+        ->and($notification->pruned_count)->toBe(0);
+});
+
+it('sends a diagnostic push to an explicit token without touching the database', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    $this->artisan('fcm:test', ['--token' => ['token-du-telephone']])
+        ->expectsOutputToContain('foursquare-ci')
+        ->assertExitCode(0);
+
+    // Un diagnostic ne laisse aucune trace dans l'historique du panel.
+    expect(PushNotification::count())->toBe(0);
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com')
+        && $request['message']['token'] === 'token-du-telephone');
+});
+
+it('refuses the diagnostic push when no service account is configured', function () {
+    config(['fcm.credentials' => null]);
+
+    $this->artisan('fcm:test', ['--token' => ['token-du-telephone']])
+        ->expectsOutputToContain('FCM non configuré')
+        ->assertExitCode(1);
+});
+
+it('keeps a dead token in place when only diagnosing', function () {
+    fakeServiceAccount();
+    fakeFcm(['error' => ['status' => 'UNREGISTERED', 'message' => 'Requested entity was not found.']], 404);
+
+    Device::create(['fcm_token' => 'dead-token', 'platform' => 'android']);
+
+    $this->artisan('fcm:test', ['--force' => true])->assertExitCode(1);
+
+    // Contrairement a un envoi reel, le diagnostic ne purge rien : il repond
+    // a une question, il ne modifie pas l'etat du parc.
+    expect(Device::where('fcm_token', 'dead-token')->exists())->toBeTrue();
+});

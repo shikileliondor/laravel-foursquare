@@ -182,7 +182,8 @@ class FcmClient
         return $account;
     }
 
-    private function projectId(): string
+    /** Public : la commande de diagnostic l'affiche pour lever toute ambiguite de projet. */
+    public function projectId(): string
     {
         $projectId = config('fcm.project_id') ?: ($this->serviceAccount()['project_id'] ?? null);
 
