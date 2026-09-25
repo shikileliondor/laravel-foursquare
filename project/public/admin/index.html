@@ -1085,9 +1085,19 @@
                             done: 'Envoi lancé — le bilan apparaît dans la colonne Livraison',
                         },
                         {
+                            // PROCESSING est inclus a dessein : si le worker
+                            // meurt en cours d envoi, la notification y reste
+                            // bloquee et « Envoyer » la refuse. C est la seule
+                            // sortie manuelle.
                             label: 'Remettre en brouillon',
                             show: (r) =>
-                                r.status === 'PENDING' || r.status === 'FAILED',
+                                r.status === 'PENDING' ||
+                                r.status === 'PROCESSING' ||
+                                r.status === 'FAILED',
+                            confirm: (r) =>
+                                r.status === 'PROCESSING'
+                                    ? 'Cette notification est en cours d’envoi. Ne la debloquez que si elle est figee depuis plusieurs minutes, sinon elle risque de partir deux fois. Continuer ?'
+                                    : null,
                             patch: { status: 'DRAFT' },
                             done: 'Notification remise en brouillon',
                         },
@@ -1871,7 +1881,10 @@
                     const row = data[i];
                     const act = actions[ai];
                     b.onclick = async () => {
-                        if (act.confirm && !confirm(act.confirm(row))) return;
+                        // Un message vide vaut « pas de confirmation » :
+                        // une action peut n'interroger que dans certains cas.
+                        const question = act.confirm?.(row);
+                        if (question && !confirm(question)) return;
                         b.disabled = true;
                         try {
                             await api(

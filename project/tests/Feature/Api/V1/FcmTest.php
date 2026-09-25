@@ -330,3 +330,102 @@ it('keeps a dead token in place when only diagnosing', function () {
     // a une question, il ne modifie pas l'etat du parc.
     expect(Device::where('fcm_token', 'dead-token')->exists())->toBeTrue();
 });
+
+it('fails with an actionable reason when the audience has no device at all', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    $notification = makeNotification(['status' => 'PENDING']);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    $notification = $notification->fresh();
+
+    // SENT serait un mensonge : personne n'a ete joint, et surtout `send()`
+    // refuse SENT — la notification serait definitivement inrenvoyable.
+    expect($notification->status)->toBe('FAILED')
+        ->and($notification->last_error)->toContain('Aucun appareil enregistré');
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com'));
+});
+
+it('points at the missing church link when a targeted audience is empty', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    Device::create(['fcm_token' => 'sans-eglise', 'platform' => 'android']);
+
+    $notification = makeNotification([
+        'audience' => 'CHURCH',
+        'church_id' => $this->church->id,
+        'status' => 'PENDING',
+    ]);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    expect($notification->fresh()->last_error)->toContain('church_id');
+});
+
+it('releases a notification whose job died mid-flight', function () {
+    $notification = makeNotification(['status' => 'PROCESSING']);
+
+    // Ce que la file appelle quand le job leve ou depasse son temps.
+    (new SendPushNotification($notification->id))->failed(new RuntimeException('worker tué'));
+
+    $notification = $notification->fresh();
+
+    expect($notification->status)->toBe('FAILED')
+        ->and($notification->last_error)->toContain('worker tué')
+        ->and($notification->retry_count)->toBe(1);
+});
+
+it('leaves a finished notification alone when the queue reports a failure', function () {
+    $notification = makeNotification(['status' => 'SENT', 'delivered_count' => 3]);
+
+    (new SendPushNotification($notification->id))->failed(new RuntimeException('trop tard'));
+
+    // L'envoi avait abouti : le rapport tardif de la file ne doit pas
+    // reecrire un resultat acquis.
+    expect($notification->fresh()->status)->toBe('SENT')
+        ->and($notification->fresh()->delivered_count)->toBe(3);
+});
+
+it('reclaims a notification stuck longer than the grace period', function () {
+    $stuck = makeNotification(['status' => 'PROCESSING']);
+    $stuck->forceFill(['updated_at' => now()->subHour()])->saveQuietly();
+
+    $recent = makeNotification(['status' => 'PENDING']);
+
+    $this->artisan('notifications:reclaim', ['--minutes' => 15])
+        ->expectsOutputToContain('1 notification(s) libérée(s)')
+        ->assertExitCode(0);
+
+    expect($stuck->fresh()->status)->toBe('FAILED')
+        ->and($stuck->fresh()->last_error)->toContain('ne s\'est jamais terminé')
+        // Un envoi tout juste mis en file ne doit pas etre tue au passage.
+        ->and($recent->fresh()->status)->toBe('PENDING');
+});
+
+it('changes nothing in dry run', function () {
+    $stuck = makeNotification(['status' => 'PROCESSING']);
+    $stuck->forceFill(['updated_at' => now()->subHour()])->saveQuietly();
+
+    $this->artisan('notifications:reclaim', ['--minutes' => 15, '--dry-run' => true])
+        ->assertExitCode(0);
+
+    expect($stuck->fresh()->status)->toBe('PROCESSING');
+});
+
+it('lets the admin send again once a failed notification is back to draft', function () {
+    Queue::fake();
+    $notification = makeNotification(['status' => 'FAILED', 'last_error' => 'Aucun appareil']);
+
+    $this->patchJson("/api/v1/admin/notifications/{$notification->id}", ['status' => 'DRAFT'])
+        ->assertOk();
+
+    $this->postJson("/api/v1/admin/notifications/{$notification->id}/send")
+        ->assertOk()
+        ->assertJsonPath('data.status', 'PENDING');
+
+    Queue::assertPushed(SendPushNotification::class);
+});
