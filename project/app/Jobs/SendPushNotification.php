@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Device;
 use App\Models\PushNotification;
 use App\Services\FcmClient;
+use App\Services\FcmService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
@@ -25,8 +26,10 @@ class SendPushNotification implements ShouldQueue
 
     public function __construct(public readonly string $notificationId) {}
 
-    public function handle(FcmClient $fcm): void
+    public function handle(FcmClient $fcm, ?FcmService $push = null): void
     {
+        $push ??= app(FcmService::class);
+
         $notification = PushNotification::find($this->notificationId);
 
         // Seule une notification en attente part : évite un double envoi si le
@@ -49,15 +52,11 @@ class SendPushNotification implements ShouldQueue
         ]);
 
         try {
-            [$delivered, $stale, $errors, $attempted] = $this->deliver($fcm, $notification);
+            [$delivered, $stale, $errors, $attempted] = $this->deliver($fcm, $push, $notification);
         } catch (Throwable $e) {
             $this->markFailed($notification, $e->getMessage());
 
             return;
-        }
-
-        if ($stale !== []) {
-            Device::whereIn('fcm_token', $stale)->delete();
         }
 
         // Une audience sans aucun appareil n'est pas un succès : l'intention de
@@ -113,7 +112,7 @@ class SendPushNotification implements ShouldQueue
     /**
      * @return array{0: int, 1: list<string>, 2: list<string>, 3: int} livrés, tokens morts, erreurs, appareils visés
      */
-    private function deliver(FcmClient $fcm, PushNotification $notification): array
+    private function deliver(FcmClient $fcm, FcmService $push, PushNotification $notification): array
     {
         $delivered = 0;
         $stale = [];
@@ -135,6 +134,8 @@ class SendPushNotification implements ShouldQueue
                     };
                 }
             });
+
+        $push->disableTokens($stale);
 
         return [$delivered, $stale, $errors, $attempted];
     }

@@ -163,7 +163,7 @@ it('only reaches the devices of the targeted church', function () {
         && $request['message']['token'] === 'outside');
 });
 
-it('drops a device whose token FCM no longer knows', function () {
+it('disables a device whose token FCM no longer knows', function () {
     fakeServiceAccount();
     fakeFcm(['error' => ['status' => 'UNREGISTERED', 'message' => 'Requested entity was not found.']], 404);
 
@@ -172,9 +172,9 @@ it('drops a device whose token FCM no longer knows', function () {
 
     (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
 
-    // Rien n'a echoue de notre cote : le token etait perime, il est purge.
-    // Rejouer l'envoi ne changerait rien, la notification reste SENT.
-    expect(Device::where('fcm_token', 'dead-token')->exists())->toBeFalse()
+    // Rien n'a echoue de notre cote : le token etait perime, il est desactive.
+    // Rejouer l'envoi ne le ciblera plus, mais la ligne reste disponible.
+    expect(Device::where('fcm_token', 'dead-token')->value('notifications_enabled'))->toBeFalse()
         ->and($notification->fresh()->status)->toBe('SENT');
 });
 

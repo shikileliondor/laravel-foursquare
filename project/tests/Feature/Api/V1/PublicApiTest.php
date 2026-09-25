@@ -208,6 +208,21 @@ it('registers a device once per token', function () {
     expect(Device::count())->toBe(1);
 });
 
+it('reactivates a disabled device when the same token registers again', function () {
+    Device::create([
+        'fcm_token' => 'token-disabled',
+        'platform' => 'android',
+        'notifications_enabled' => false,
+    ]);
+
+    $this->postJson('/api/v1/devices', [
+        'fcm_token' => 'token-disabled',
+        'platform' => 'android',
+    ])->assertOk();
+
+    expect(Device::where('fcm_token', 'token-disabled')->value('notifications_enabled'))->toBeTrue();
+});
+
 it('rejects an unknown device platform', function () {
     $this->postJson('/api/v1/devices', ['fcm_token' => 'x', 'platform' => 'symbian'])
         ->assertStatus(422)
