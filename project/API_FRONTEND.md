@@ -1,6 +1,6 @@
 # API v1 — guide court pour l'IA frontend
 
-Construis le front Foursquare Côte d'Ivoire avec cette API Laravel. Base de production : `https://api.studiobeyam.net/api/v1`. En local, remplacer seulement cette base par `http://127.0.0.1:8000/api/v1`. Envoyer `Accept: application/json`. Les routes publiques ci-dessous ne demandent pas de connexion.
+Construis le front Foursquare Côte d'Ivoire avec cette API Laravel. Base de production : `https://api.studiobeyam.net/api/v1`. En local ([DOCKER.md](DOCKER.md)), remplacer seulement cette base par `http://127.0.0.1:8000/api/v1`. Sur un téléphone Android branché en USB, lancer d'abord `adb reverse tcp:8000 tcp:8000` ; en Wi-Fi, utiliser `http://<IP du PC>:8000/api/v1`. Envoyer `Accept: application/json`. Les routes publiques ci-dessous ne demandent pas de connexion.
 
 ## Lire les réponses
 

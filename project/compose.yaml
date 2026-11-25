@@ -1,0 +1,74 @@
+# Backend local : API et panel sur http://127.0.0.1:8000, MariaDB, worker des
+# notifications et planificateur. Mode d'emploi : DOCKER.md.
+name: foursquare
+
+x-laravel: &laravel
+  build: docker/app
+  image: foursquare-api:local
+  environment:
+    # Seule valeur reprise du .env de la machine. Le reste vient de
+    # docker/app/laravel.env, monté à la place du .env dans les conteneurs.
+    APP_KEY: ${APP_KEY:?APP_KEY manquant dans .env (php artisan key:generate)}
+  volumes:
+    - .:/var/www/html
+    # vendor/ vit dans un volume Docker : lire des milliers de fichiers
+    # depuis un dossier Windows ralentirait chaque requête.
+    - vendor:/var/www/html/vendor
+    - ./docker/app/laravel.env:/var/www/html/.env:ro
+  restart: unless-stopped
+
+services:
+  app:
+    <<: *laravel
+    ports:
+      - "8000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      # Le premier démarrage installe les dépendances et remplit la base.
+      start_period: 10m
+      start_interval: 5s
+
+  queue:
+    <<: *laravel
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=90"]
+    depends_on:
+      app:
+        condition: service_healthy
+
+  scheduler:
+    <<: *laravel
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      # Base de développement locale uniquement, joignable depuis cette machine.
+      MARIADB_DATABASE: foursquare
+      MARIADB_USER: foursquare
+      MARIADB_PASSWORD: foursquare
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  db:
+  vendor:
