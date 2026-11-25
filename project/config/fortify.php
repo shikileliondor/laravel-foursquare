@@ -160,8 +160,9 @@ return [
     |
     */
 
+    // Pas d'inscription publique : les comptes sont des administrateurs, créés
+    // par `php artisan foursquare:create-admin` ou depuis le panel.
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

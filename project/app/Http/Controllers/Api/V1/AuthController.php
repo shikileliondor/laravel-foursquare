@@ -21,6 +21,12 @@ class AuthController extends ApiController
             return ApiResponse::error('INVALID_CREDENTIALS', 'Identifiants invalides', 401);
         }
 
+        // L'API ne connaît que des administrateurs : un compte sans rôle
+        // n'obtient pas de jeton.
+        if (! $user->isAdmin()) {
+            return ApiResponse::error('FORBIDDEN', 'Accès réservé aux administrateurs', 403);
+        }
+
         if ($user->status !== 'ACTIVE') {
             return ApiResponse::error('ACCOUNT_SUSPENDED', 'Compte suspendu', 403);
         }

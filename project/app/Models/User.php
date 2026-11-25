@@ -4,11 +4,13 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Concerns\HasTeams;
+use App\Enums\AdminRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -28,7 +30,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
  * @property int|null $current_team_id
- * @property string $role
+ * @property string|null $role
+ * @property string|null $district_id
+ * @property string|null $church_id
  * @property string $status
  * @property Carbon|null $last_login_at
  * @property Carbon|null $created_at
@@ -38,7 +42,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
  */
-#[Fillable(['name', 'email', 'password', 'current_team_id', 'role', 'status'])]
+#[Fillable(['name', 'email', 'password', 'current_team_id', 'role', 'status', 'district_id', 'church_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -58,5 +62,54 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
             'last_login_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return BelongsTo<District, $this>
+     */
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    /**
+     * @return BelongsTo<Church, $this>
+     */
+    public function church(): BelongsTo
+    {
+        return $this->belongsTo(Church::class);
+    }
+
+    public function adminRole(): ?AdminRole
+    {
+        return AdminRole::tryFrom((string) $this->role);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->adminRole() !== null;
+    }
+
+    public function isNationalAdmin(): bool
+    {
+        return (bool) $this->adminRole()?->isNational();
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->adminRole() === AdminRole::SuperAdmin;
+    }
+
+    /**
+     * District couvert par un administrateur de district ou d'église ;
+     * null pour le périmètre national.
+     */
+    public function perimeterDistrictId(): ?string
+    {
+        return match ($this->adminRole()) {
+            AdminRole::DistrictAdmin => $this->district_id,
+            AdminRole::ChurchAdmin => $this->church?->district_id,
+            default => null,
+        };
     }
 }
