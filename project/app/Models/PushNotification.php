@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RefreshesPublicCache;
 use App\Support\Audience;
 use App\Support\Perimeter;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PushNotification extends Model
 {
-    use HasUuids;
+    use HasUuids, RefreshesPublicCache;
 
     public const TYPES = ['GENERAL', 'NEWS', 'EVENT'];
 

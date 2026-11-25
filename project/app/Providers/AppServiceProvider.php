@@ -49,7 +49,9 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('api-public', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+        // Ne compte que les lectures absentes du cache public et l'enregistrement
+        // des appareils. Large, car beaucoup de téléphones partagent une même IP.
+        RateLimiter::for('api-public', fn (Request $request) => Limit::perMinute(300)->by($request->ip()));
 
         RateLimiter::for('auth', fn (Request $request) => [
             Limit::perMinute(5)->by($request->ip()),

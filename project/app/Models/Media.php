@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RefreshesPublicCache;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Exceptions\UrlGenerationException;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
-    use HasUuids;
+    use HasUuids, RefreshesPublicCache;
 
     protected $table = 'media';
 

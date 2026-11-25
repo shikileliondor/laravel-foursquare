@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\RefreshesPublicCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class District extends Model
 {
-    use HasSlug, HasUuids;
+    use HasSlug, HasUuids, RefreshesPublicCache;
 
     public const STATUSES = ['ACTIVE', 'INACTIVE'];
 

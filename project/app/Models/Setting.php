@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RefreshesPublicCache;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Setting extends Model
 {
+    use RefreshesPublicCache;
+
     /** Clés connues et leur règle de validation. */
     public const RULES = [
         'launch_church_id' => ['nullable', 'uuid', 'exists:churches,id'],

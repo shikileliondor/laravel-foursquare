@@ -10,15 +10,16 @@ use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\StructureController;
+use App\Http\Middleware\CachePublicResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('v1.')->group(function (): void {
 
     // ---------------------------------------------------------------- public
-    Route::middleware('throttle:api-public')->group(function (): void {
+    // Lectures servies depuis un cache court, vérifié avant la limitation de
+    // débit : les pics d'ouverture de l'application ne touchent pas la base.
+    Route::middleware([CachePublicResponse::class, 'throttle:api-public'])->group(function (): void {
         Route::get('home', HomeController::class)->name('home');
-
-        Route::get('media/{media}/file', [MediaController::class, 'file'])->name('media.file');
 
         Route::get('news', [NewsController::class, 'index'])->name('news.index');
         Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
@@ -31,9 +32,15 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::get('churches/{slug}', [StructureController::class, 'church'])->name('churches.show');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
-
-        Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
     });
+
+    // Images immuables, gardées en cache par les téléphones. Pas de limitation
+    // de débit : beaucoup de téléphones partagent une même IP (réseaux mobiles,
+    // Wi-Fi d'une église) et chaque contrôle coûte des écritures en base.
+    Route::get('media/{media}/file', [MediaController::class, 'file'])->name('media.file');
+
+    Route::post('devices', [DeviceController::class, 'store'])
+        ->middleware('throttle:api-public')->name('devices.store');
 
     Route::post('events/{event}/register', [EventRegistrationController::class, 'store'])
         ->middleware('throttle:registrations')->name('events.register');

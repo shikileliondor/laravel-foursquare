@@ -14,12 +14,15 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
    ```bash
    php artisan migrate --force
    php artisan optimize:clear
+   php artisan optimize      # met en cache configuration, routes et vues : chaque requête démarre plus vite
    php artisan storage:link  # uniquement si le lien n'existe pas déjà
    ```
 
 5. Supprimer `foursquare-release.zip`.
 
-Configuration à faire une fois : la racine web du sous-domaine `api.studiobeyam.net` pointe sur le sous-dossier `public/` du dossier de l'API ; PHP **8.4.1 ou plus** ; `storage/` et `bootstrap/cache/` inscriptibles ; `.env` de production (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://api.studiobeyam.net`, base MySQL de l'hébergement, même `APP_KEY` à chaque mise à jour).
+Configuration à faire une fois : la racine web du sous-domaine `api.studiobeyam.net` pointe sur le sous-dossier `public/` du dossier de l'API ; PHP **8.4.1 ou plus** ; `storage/` et `bootstrap/cache/` inscriptibles ; `.env` de production (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://api.studiobeyam.net`, base MySQL de l'hébergement, même `APP_KEY` à chaque mise à jour, `PUBLIC_CACHE_STORE=file` pour servir les lectures publiques sans MySQL). Après une modification du `.env`, relancer `php artisan optimize`.
+
+Deux tâches cron cPanel, toutes les minutes, depuis le dossier de l'API : `php artisan queue:work --stop-when-empty --quiet` (notifications, voir plus bas) et `php artisan schedule:run` (tâches planifiées, dont la libération des notifications bloquées).
 
 ### Première mise en service de la V1 nationale
 

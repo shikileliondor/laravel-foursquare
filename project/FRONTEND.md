@@ -28,7 +28,7 @@ requise, sans quoi le ciblage des notifications ne fonctionnera pas.
 POST /api/v1/devices
 ```
 
-Endpoint public, non authentifié, limité à 60 requêtes/minute par IP. Renvoyer le même
+Endpoint public, non authentifié, limité à 300 requêtes/minute par IP. Renvoyer le même
 `fcm_token` met l'enregistrement à jour.
 
 ```json

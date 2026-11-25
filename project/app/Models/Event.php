@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\RefreshesPublicCache;
 use App\Support\Audience;
 use App\Support\Perimeter;
 use App\Support\Sql;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
-    use HasSlug, HasUuids;
+    use HasSlug, HasUuids, RefreshesPublicCache;
 
     public const SCOPES = ['NATIONAL', 'DISTRICT', 'CHURCH'];
 

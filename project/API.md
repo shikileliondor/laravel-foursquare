@@ -169,10 +169,14 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 
 | Groupe          | Limite                        |
 | --------------- | ----------------------------- |
-| API publique    | 60 req/min par IP             |
+| API publique    | 300 req/min par IP, hors réponses servies par le cache |
+| Images (`/media/{id}/file`) | aucune limite |
 | Login           | 5 req/min par IP et par email |
+| Inscriptions aux événements | 5 req/min et 30 req/h par IP |
 | Mutations admin | 120 req/min par admin         |
 | Uploads         | 20 req/min par admin          |
+
+Les lectures publiques (`GET`, sauf les recherches `search`) sont mises en cache 60 secondes, et le cache est vidé dès qu'un contenu change dans le panel. L'en-tête `X-Cache` vaut `HIT` ou `MISS`. Les images sont renvoyées avec `Cache-Control: immutable` : côté app, un cache disque (par exemple `cached_network_image` en Flutter) évite de les retélécharger.
 
 ## Panel d'administration
 

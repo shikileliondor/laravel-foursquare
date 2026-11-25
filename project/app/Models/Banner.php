@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RefreshesPublicCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Banner extends Model
 {
-    use HasUuids;
+    use HasUuids, RefreshesPublicCache;
 
     public const LINK_TYPES = ['NONE', 'NEWS', 'EVENT', 'CHURCH', 'EXTERNAL'];
 

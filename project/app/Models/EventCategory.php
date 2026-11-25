@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\IsCategory;
+use App\Models\Concerns\RefreshesPublicCache;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,5 +16,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class EventCategory extends Model
 {
-    use HasUuids, IsCategory;
+    use HasUuids, IsCategory, RefreshesPublicCache;
 }

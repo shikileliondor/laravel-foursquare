@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AdminRole;
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\RefreshesPublicCache;
 use App\Support\Sql;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Church extends Model
 {
-    use HasSlug, HasUuids;
+    use HasSlug, HasUuids, RefreshesPublicCache;
 
     public const STATUSES = ['ACTIVE', 'INACTIVE'];
 

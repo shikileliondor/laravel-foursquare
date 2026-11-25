@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CachePublicResponse;
 use App\Http\Middleware\EnsureIsAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -36,6 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias(['admin' => EnsureIsAdmin::class]);
+
+        // Le cache public répond avant la limitation de débit (routes/api.php).
+        $middleware->prependToPriorityList(ThrottleRequests::class, CachePublicResponse::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
