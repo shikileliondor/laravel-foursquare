@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 trait HasSlug
@@ -13,6 +14,18 @@ trait HasSlug
                 $model->slug = $model->generateSlug();
             }
         });
+    }
+
+    /**
+     * Retrouve un enregistrement par son identifiant ou son slug : les
+     * bannières et notifications donnent un identifiant, les URL un slug.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeIdentifiedBy($query, string $key)
+    {
+        return $query->where(fn ($q) => $q->where($this->qualifyColumn('slug'), $key)->orWhere($this->getQualifiedKeyName(), $key));
     }
 
     protected function slugSource(): string

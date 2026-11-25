@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\DescribesSource;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -11,6 +12,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class NewsResource extends JsonResource
 {
+    use DescribesSource;
+
     /**
      * @return array<string, mixed>
      */
@@ -25,6 +28,9 @@ class NewsResource extends JsonResource
             'scope_type' => $this->scope_type,
             'district_id' => $this->district_id,
             'church_id' => $this->church_id,
+            'source' => $this->source(),
+            'category_id' => $this->category_id,
+            'category' => CategoryResource::make($this->whenLoaded('category')),
             'priority' => $this->priority,
             'is_featured' => $this->is_featured,
             'status' => $this->status,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\V1\ApiController;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Support\ApiResponse;
 use App\Support\Sql;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,10 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Minimal CRUD shared by the simple admin resources.
  * Anything with real business rules gets its own controller.
+ *
+ * Chaque action est autorisée côté serveur : par la Gate `$gate` si elle est
+ * définie, sinon par la Policy du modèle (qui reçoit les données validées).
  */
 abstract class CrudController extends ApiController
 {
@@ -23,6 +28,9 @@ abstract class CrudController extends ApiController
 
     /** @var class-string<JsonResource> */
     protected string $resource;
+
+    /** Gate protégeant toute la ressource (ex. `manage-national`). */
+    protected ?string $gate = null;
 
     /** @var list<string> */
     protected array $with = [];
@@ -48,7 +56,9 @@ abstract class CrudController extends ApiController
 
     public function index(Request $request): JsonResponse
     {
-        $items = $this->query()
+        $this->authorizeFor('viewAny');
+
+        $items = $this->restrict($this->query(), $request->user())
             ->when($request->filled('search') && $this->searchable, function (Builder $q) use ($request) {
                 $like = '%'.$request->string('search')->toString().'%';
                 $op = Sql::like();
@@ -69,6 +79,10 @@ abstract class CrudController extends ApiController
     {
         $data = $request->validate($this->rules($request));
 
+        $this->authorizeFor('create', null, $data);
+
+        $data = $this->prepare($data, $request);
+
         if ($this->stampsCreator) {
             $data['created_by'] = $request->user()->id;
         }
@@ -82,13 +96,21 @@ abstract class CrudController extends ApiController
 
     public function show(string $id): JsonResponse
     {
-        return ApiResponse::ok($this->resource::make($this->find($id)));
+        $item = $this->find($id);
+
+        $this->authorizeFor('view', $item);
+
+        return ApiResponse::ok($this->resource::make($item));
     }
 
     public function update(Request $request, string $id): JsonResponse
     {
         $item = $this->find($id);
-        $item->update($request->validate($this->rules($request, $item)));
+        $data = $request->validate($this->rules($request, $item));
+
+        $this->authorizeFor('update', $item, $data);
+
+        $item->update($this->prepare($data, $request, $item));
 
         AuditLog::record('updated', $item);
 
@@ -98,11 +120,50 @@ abstract class CrudController extends ApiController
     public function destroy(string $id): JsonResponse
     {
         $item = $this->find($id);
+
+        $this->authorizeFor('delete', $item);
+
         $item->delete();
 
         AuditLog::record('deleted', $item);
 
         return ApiResponse::ok(['deleted' => true]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function authorizeFor(string $ability, ?Model $item = null, array $data = []): void
+    {
+        if ($this->gate !== null) {
+            Gate::authorize($this->gate);
+
+            return;
+        }
+
+        Gate::authorize($ability, $item ? [$item, $data] : [$this->model, $data]);
+    }
+
+    /**
+     * Limite les listes au périmètre de l'administrateur.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    protected function restrict(Builder $query, User $user): Builder
+    {
+        return method_exists($this->model, 'scopeManageableBy') ? $query->scopes(['manageableBy' => [$user]]) : $query;
+    }
+
+    /**
+     * Dernière étape avant l'écriture, une fois la requête autorisée.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function prepare(array $data, Request $request, ?Model $model = null): array
+    {
+        return $data;
     }
 
     /**

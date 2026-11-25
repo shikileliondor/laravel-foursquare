@@ -25,6 +25,24 @@ class District extends Model
     }
 
     /**
+     * Districts visibles par l'administrateur : tous au niveau national,
+     * sinon le sien (celui de son église pour un administrateur d'église).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeManageableBy(Builder $query, User $user): Builder
+    {
+        if ($user->isNationalAdmin()) {
+            return $query;
+        }
+
+        $districtId = $user->perimeterDistrictId();
+
+        return $districtId ? $query->whereKey($districtId) : $query->whereRaw('1 = 0');
+    }
+
+    /**
      * @param  Builder<static>  $query
      * @return Builder<static>
      */

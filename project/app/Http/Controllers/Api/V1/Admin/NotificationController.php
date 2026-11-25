@@ -7,6 +7,7 @@ use App\Jobs\SendPushNotification;
 use App\Models\AuditLog;
 use App\Models\PushNotification;
 use App\Support\ApiResponse;
+use App\Support\Perimeter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,19 @@ class NotificationController extends CrudController
     }
 
     /**
+     * Changer d'audience efface l'ancienne cible.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function prepare(array $data, Request $request, ?Model $model = null): array
+    {
+        $audience = $data['audience'] ?? $model?->getAttribute('audience') ?? 'ALL';
+
+        return Perimeter::onlyTargetOf($audience, $data, $model);
+    }
+
+    /**
      * Each audience carries its own target and no other. `prohibited` alone
      * lets the panel send an explicit null to clear a stale target.
      *
@@ -67,6 +81,8 @@ class NotificationController extends CrudController
     public function send(string $id): JsonResponse
     {
         $notification = PushNotification::findOrFail($id);
+
+        $this->authorizeFor('update', $notification);
 
         if (in_array($notification->status, ['PENDING', 'PROCESSING', 'SENT'], true)) {
             return ApiResponse::error(

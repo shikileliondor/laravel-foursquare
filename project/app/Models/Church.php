@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AdminRole;
 use App\Models\Concerns\HasSlug;
 use App\Support\Sql;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +22,7 @@ class Church extends Model
         'district_id', 'name', 'slug', 'code', 'pastor_name', 'address', 'commune', 'quartier',
         'secretariat_phone', 'official_whatsapp', 'official_email', 'latitude', 'longitude',
         'main_service_day', 'main_service_time', 'description', 'image_media_id', 'status',
+        'city', 'service_times', 'facebook_url', 'youtube_url', 'instagram_url', 'tiktok_url', 'website_url',
     ];
 
     /** @var array<string, string> */
@@ -55,6 +57,26 @@ class Church extends Model
     public function image(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'image_media_id');
+    }
+
+    /**
+     * Églises gérées par l'administrateur.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeManageableBy(Builder $query, User $user): Builder
+    {
+        return match ($user->adminRole()) {
+            AdminRole::SuperAdmin, AdminRole::NationalAdmin => $query,
+            AdminRole::DistrictAdmin => $user->district_id
+                ? $query->where('churches.district_id', $user->district_id)
+                : $query->whereRaw('1 = 0'),
+            AdminRole::ChurchAdmin => $user->church_id
+                ? $query->whereKey($user->church_id)
+                : $query->whereRaw('1 = 0'),
+            default => $query->whereRaw('1 = 0'),
+        };
     }
 
     /**

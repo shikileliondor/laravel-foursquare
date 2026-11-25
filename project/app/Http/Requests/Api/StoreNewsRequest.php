@@ -22,6 +22,7 @@ class StoreNewsRequest extends FormRequest
             'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['required', 'string'],
             'cover_media_id' => ['nullable', 'uuid', 'exists:media,id'],
+            'category_id' => ['nullable', 'uuid', 'exists:news_categories,id'],
             'priority' => ['sometimes', Rule::in(News::PRIORITIES)],
             'is_featured' => ['boolean'],
             'status' => ['sometimes', Rule::in(News::STATUSES)],

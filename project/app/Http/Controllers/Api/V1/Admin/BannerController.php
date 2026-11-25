@@ -14,6 +14,9 @@ class BannerController extends CrudController
 
     protected string $resource = BannerResource::class;
 
+    /** Bannières et appareils : niveau national. */
+    protected ?string $gate = 'manage-national';
+
     /** @var list<string> */
     protected array $with = ['media'];
 

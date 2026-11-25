@@ -39,7 +39,7 @@ class StructureController extends ApiController
 
     public function church(string $slug): JsonResponse
     {
-        $church = Church::query()->active()->with(['district', 'image'])->where('slug', $slug)->first();
+        $church = Church::query()->active()->with(['district', 'image'])->identifiedBy($slug)->first();
 
         if (! $church) {
             return ApiResponse::error('CHURCH_NOT_FOUND', 'Église introuvable', 404);

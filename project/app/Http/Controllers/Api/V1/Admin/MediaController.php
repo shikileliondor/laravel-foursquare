@@ -11,6 +11,7 @@ use App\Services\MediaService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class MediaController extends ApiController
 {
@@ -41,6 +42,9 @@ class MediaController extends ApiController
     public function destroy(string $id): JsonResponse
     {
         $media = Media::findOrFail($id);
+
+        Gate::authorize('delete', $media);
+
         $this->media->delete($media);
 
         AuditLog::record('deleted', $media);

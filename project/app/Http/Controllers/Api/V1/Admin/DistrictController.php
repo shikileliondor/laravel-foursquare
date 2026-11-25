@@ -51,6 +51,8 @@ class DistrictController extends CrudController
         /** @var District $district */
         $district = $this->find($id);
 
+        $this->authorizeFor('delete', $district);
+
         if ($district->churches()->exists()) {
             return ApiResponse::error(
                 'DISTRICT_HAS_CHURCHES',

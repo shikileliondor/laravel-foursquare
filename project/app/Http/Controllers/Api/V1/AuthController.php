@@ -37,7 +37,7 @@ class AuthController extends ApiController
         AuditLog::record('auth.login', $user);
 
         return ApiResponse::ok([
-            'user' => UserResource::make($user)->resolve(),
+            'user' => UserResource::make($user->load(['district', 'church']))->resolve(),
             'token' => $token,
         ]);
     }
@@ -53,6 +53,6 @@ class AuthController extends ApiController
 
     public function me(Request $request): JsonResponse
     {
-        return ApiResponse::ok(UserResource::make($request->user()));
+        return ApiResponse::ok(UserResource::make($request->user()->load(['district', 'church'])));
     }
 }

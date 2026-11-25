@@ -11,12 +11,16 @@ use App\Models\Church;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ChurchController extends ApiController
 {
     public function index(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', Church::class);
+
         $churches = Church::query()
+            ->manageableBy($request->user())
             ->with(['district', 'image'])
             ->search($request->string('search')->toString())
             ->when($request->filled('district_id'), fn ($q) => $q->where('district_id', $request->string('district_id')->toString()))
@@ -29,7 +33,11 @@ class ChurchController extends ApiController
 
     public function store(StoreChurchRequest $request): JsonResponse
     {
-        $church = Church::create($request->validated());
+        $data = $request->validated();
+
+        Gate::authorize('create', [Church::class, $data]);
+
+        $church = Church::create($data);
 
         AuditLog::record('created', $church);
 
@@ -40,13 +48,19 @@ class ChurchController extends ApiController
     {
         $church = Church::with(['district', 'image'])->findOrFail($id);
 
+        Gate::authorize('view', $church);
+
         return ApiResponse::ok(ChurchResource::make($church));
     }
 
     public function update(UpdateChurchRequest $request, string $id): JsonResponse
     {
         $church = Church::findOrFail($id);
-        $church->update($request->validated());
+        $data = $request->validated();
+
+        Gate::authorize('update', [$church, $data]);
+
+        $church->update($data);
 
         AuditLog::record('updated', $church);
 
@@ -56,6 +70,9 @@ class ChurchController extends ApiController
     public function destroy(string $id): JsonResponse
     {
         $church = Church::findOrFail($id);
+
+        Gate::authorize('delete', $church);
+
         $church->delete();
 
         AuditLog::record('deleted', $church);

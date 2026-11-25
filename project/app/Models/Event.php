@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Support\Audience;
+use App\Support\Perimeter;
 use App\Support\Sql;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
@@ -24,6 +27,7 @@ class Event extends Model
         'district_id', 'church_id', 'organizer_name', 'start_at', 'end_at',
         'venue_name', 'address', 'commune', 'latitude', 'longitude',
         'contact_phone', 'official_whatsapp', 'priority', 'is_featured', 'status', 'created_by',
+        'category_id', 'registration_enabled',
     ];
 
     /** @var array<string, string> */
@@ -31,6 +35,7 @@ class Event extends Model
         'start_at' => 'datetime',
         'end_at' => 'datetime',
         'is_featured' => 'boolean',
+        'registration_enabled' => 'boolean',
         'latitude' => 'float',
         'longitude' => 'float',
     ];
@@ -71,6 +76,52 @@ class Event extends Model
     public function church(): BelongsTo
     {
         return $this->belongsTo(Church::class);
+    }
+
+    /**
+     * @return BelongsTo<EventCategory, $this>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(EventCategory::class);
+    }
+
+    /**
+     * @return HasMany<EventRegistration, $this>
+     */
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    /**
+     * Contenu destiné aux fidèles de cette église (national, district, église).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeRelevantTo(Builder $query, ?Church $church): Builder
+    {
+        return Audience::relevantTo($query, $church);
+    }
+
+    /**
+     * Inscription possible : activée, événement publié et pas encore terminé.
+     */
+    public function registrationOpen(): bool
+    {
+        return $this->registration_enabled && $this->status === 'PUBLISHED' && $this->end_at > now();
+    }
+
+    /**
+     * Ce que l'administrateur gère, selon son périmètre.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeManageableBy(Builder $query, User $user): Builder
+    {
+        return Perimeter::restrictContent($query, $user, 'scope_type');
     }
 
     /**

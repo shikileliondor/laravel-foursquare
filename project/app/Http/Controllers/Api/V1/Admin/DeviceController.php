@@ -14,6 +14,9 @@ class DeviceController extends CrudController
 
     protected string $resource = DeviceResource::class;
 
+    /** Bannières et appareils : niveau national. */
+    protected ?string $gate = 'manage-national';
+
     /**
      * @return array<string, mixed>
      */

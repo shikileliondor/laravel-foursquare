@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Support\Audience;
+use App\Support\Perimeter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PushNotification extends Model
 {
@@ -45,4 +49,42 @@ class PushNotification extends Model
         'failed_count' => 'integer',
         'sent_at' => 'datetime',
     ];
+
+    /**
+     * @return BelongsTo<News, $this>
+     */
+    public function news(): BelongsTo
+    {
+        return $this->belongsTo(News::class);
+    }
+
+    /**
+     * @return BelongsTo<Event, $this>
+     */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * Historique visible des fidèles de cette église.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeRelevantTo(Builder $query, ?Church $church): Builder
+    {
+        return Audience::relevantTo($query, $church, 'audience', 'ALL');
+    }
+
+    /**
+     * Ce que l'administrateur gère, selon son périmètre.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeManageableBy(Builder $query, User $user): Builder
+    {
+        return Perimeter::restrictContent($query, $user, 'audience');
+    }
 }

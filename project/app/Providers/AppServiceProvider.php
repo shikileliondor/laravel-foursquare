@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -29,6 +31,17 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureRateLimiting();
+        $this->configureGates();
+    }
+
+    /**
+     * Ressources sans périmètre territorial : bannières, catégories et
+     * appareils (national), paramètres de la plateforme (super admin).
+     */
+    protected function configureGates(): void
+    {
+        Gate::define('manage-national', fn (User $user) => $user->isNationalAdmin());
+        Gate::define('manage-platform', fn (User $user) => $user->isSuperAdmin());
     }
 
     /**
@@ -44,6 +57,12 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         RateLimiter::for('admin', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
+
+        // Inscriptions publiques aux événements : limitées pour freiner les robots.
+        RateLimiter::for('registrations', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip()),
+            Limit::perHour(30)->by($request->ip()),
+        ]);
 
         RateLimiter::for('uploads', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->id ?: $request->ip()));
     }

@@ -21,6 +21,8 @@ class UpdateEventRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('events', 'slug')->ignore($this->route('event'))],
             'description' => ['sometimes', 'string'],
             'cover_media_id' => ['nullable', 'uuid', 'exists:media,id'],
+            'category_id' => ['nullable', 'uuid', 'exists:event_categories,id'],
+            'registration_enabled' => ['boolean'],
             'organizer_name' => ['nullable', 'string', 'max:255'],
             'start_at' => ['sometimes', 'date'],
             'end_at' => ['sometimes', 'date', 'after_or_equal:start_at'],

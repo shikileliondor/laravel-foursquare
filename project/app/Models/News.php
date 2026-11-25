@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Support\Audience;
+use App\Support\Perimeter;
 use App\Support\Sql;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -23,7 +25,7 @@ class News extends Model
 
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'cover_media_id', 'scope_type',
-        'district_id', 'church_id', 'priority', 'is_featured',
+        'district_id', 'church_id', 'category_id', 'priority', 'is_featured',
         'status', 'published_at', 'created_by',
     ];
 
@@ -55,6 +57,36 @@ class News extends Model
     public function church(): BelongsTo
     {
         return $this->belongsTo(Church::class);
+    }
+
+    /**
+     * @return BelongsTo<NewsCategory, $this>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(NewsCategory::class);
+    }
+
+    /**
+     * Contenu destiné aux fidèles de cette église (national, district, église).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeRelevantTo(Builder $query, ?Church $church): Builder
+    {
+        return Audience::relevantTo($query, $church);
+    }
+
+    /**
+     * Ce que l'administrateur gère, selon son périmètre.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeManageableBy(Builder $query, User $user): Builder
+    {
+        return Perimeter::restrictContent($query, $user, 'scope_type');
     }
 
     /**

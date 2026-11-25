@@ -21,6 +21,8 @@ class StoreEventRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255', 'unique:events,slug'],
             'description' => ['required', 'string'],
             'cover_media_id' => ['nullable', 'uuid', 'exists:media,id'],
+            'category_id' => ['nullable', 'uuid', 'exists:event_categories,id'],
+            'registration_enabled' => ['boolean'],
             'organizer_name' => ['nullable', 'string', 'max:255'],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after_or_equal:start_at'],
