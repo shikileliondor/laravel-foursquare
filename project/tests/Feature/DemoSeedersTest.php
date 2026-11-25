@@ -6,6 +6,8 @@ use App\Models\District;
 use App\Models\Event;
 use App\Models\Media;
 use App\Models\News;
+use App\Models\NewsCategory;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
 
 it('seeds confirmed facts and images without duplicates or invented church data', function () {
@@ -40,4 +42,17 @@ it('seeds confirmed facts and images without duplicates or invented church data'
 
     expect(Event::query()->where('slug', 'morasha-le-jet-du-manteau-2026')->firstOrFail()->start_at->year)->toBe(2026)
         ->and(Event::query()->where('title', 'Semaine Spirituelle de la Jeunesse')->exists())->toBeFalse();
+});
+
+it('seeds only the launch data outside the local environment', function () {
+    app()->detectEnvironment(fn () => 'production');
+
+    $this->artisan('db:seed', ['--force' => true])->assertSuccessful();
+
+    expect(District::query()->pluck('slug')->all())->toBe(['district-de-la-cotiere'])
+        ->and(Church::query()->pluck('slug')->all())->toBe(['eglise-foursquare-niangon-revelation'])
+        ->and(News::query()->count())->toBe(0)
+        ->and(Event::query()->count())->toBe(0)
+        ->and(Setting::read('launch_church_id'))->toBe(Church::query()->value('id'))
+        ->and(NewsCategory::query()->count())->toBeGreaterThan(0);
 });

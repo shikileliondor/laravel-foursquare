@@ -2,38 +2,25 @@
 
 namespace Database\Seeders;
 
-use App\Models\Banner;
-use App\Models\Church;
-use App\Models\District;
-use App\Models\Event;
-use App\Models\Media;
-use App\Models\News;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Le lancement (Côtière, Niangon Révélation, catégories) partout ; la
+     * démonstration seulement en local, pour ne jamais présenter de fausses
+     * actualités comme officielles en production.
+     */
     public function run(): void
     {
-        $this->call([
-            AdminSeeder::class,
-            DistrictSeeder::class,
-            ChurchSeeder::class,
-            MediaSeeder::class,
-            EventSeeder::class,
-            NewsSeeder::class,
-            BannerSeeder::class,
-        ]);
+        $this->call(LaunchSeeder::class);
 
-        $this->command->table(['Données', 'Total après seeding'], [
-            ['Administrateurs', User::query()->count()],
-            ['Districts', District::query()->count()],
-            ['Églises', Church::query()->count()],
-            ['Images', Media::query()->count()],
-            ['Événements', Event::query()->count()],
-            ['Actualités', News::query()->count()],
-            ['Bannières', Banner::query()->count()],
-        ]);
-        $this->command->warn('À valider : district des 15 autres églises ; noms des districts non listés parmi les 26 ; année des affiches Semaine Spirituelle, Offrandes et Autel des Parfums.');
+        if (app()->environment(['local', 'testing'])) {
+            $this->call(DemoSeeder::class);
+
+            return;
+        }
+
+        $this->command->info('Données de démonstration ignorées hors environnement local (php artisan db:seed --class=DemoSeeder pour les charger).');
     }
 }
