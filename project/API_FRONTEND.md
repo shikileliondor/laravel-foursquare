@@ -31,6 +31,14 @@ const home = json.data;
 
 Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants des objets et des filtres sont des UUID. Les listes publiques ne montrent que les contenus publiés et les structures actives.
 
+**Église de référence (sans compte)** : stocker l'`id` de l'église choisie et l'envoyer en `for_church_id` sur `/home`, `/news`, `/events` et `/notifications` : on reçoit le national, le district et l'église. Sans église : `/home` ne montre que le national. Au premier lancement, proposer `data.launch_church` de `/home`. Quand l'église change, renvoyer aussi `POST /devices` avec le nouveau `church_id` (notifications).
+
+Filtres Actus/Événements : Toutes = `for_church_id`, National = `scope=NATIONAL`, District = `scope=DISTRICT`, Mon église = `scope=CHURCH`. Chaque élément porte `source.label` (« Foursquare Côte d'Ivoire », nom du district ou de l'église) et `category?.name`.
+
+Historique des notifications : `GET /notifications?for_church_id=…` ; ouvrir `news_slug` ou `event_slug`. Les détails acceptent aussi l'identifiant (`/news/{id}`).
+
+Inscription à un événement si `registration_open` est vrai : `POST /events/{slug}/register` avec `full_name`, `phone`, `email?`, `church_id?`. Réponses : `201`, `409 ALREADY_REGISTERED`, `409 REGISTRATION_CLOSED`, `422` (champs invalides).
+
 Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones`, les filtres `zone_id`, le champ `zone` des églises et `zones_count` des districts ont été retirés. Portées possibles : `NATIONAL`, `DISTRICT`, `CHURCH`.
 
 ## Champs utiles au front

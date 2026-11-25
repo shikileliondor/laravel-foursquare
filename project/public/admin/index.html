@@ -500,6 +500,27 @@
                 box-shadow: var(--shadow);
             }
 
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .stat {
+                border: 1px solid #e5e5e5;
+                border-radius: 8px;
+                padding: 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .stat strong {
+                font-size: 26px;
+            }
+            .sub {
+                font-size: 15px;
+                margin: 8px 0 10px;
+            }
             .dropzone {
                 display: flex;
                 align-items: center;
@@ -770,7 +791,16 @@
 
             // --------------------------------------------------------- options
             const STATUS = ['ACTIVE', 'INACTIVE'];
+            // Remplis selon le rôle à la connexion (applyPerimeter) : le
+            // serveur refuse de toute façon ce qui sort du périmètre.
             const SCOPE = ['NATIONAL', 'DISTRICT', 'CHURCH'];
+            const AUDIENCE = ['ALL', 'DISTRICT', 'CHURCH'];
+            const ROLES = [
+                'SUPER_ADMIN',
+                'NATIONAL_ADMIN',
+                'DISTRICT_ADMIN',
+                'CHURCH_ADMIN',
+            ];
             const PRIORITY = ['NORMAL', 'IMPORTANT', 'URGENT'];
 
             // Colour for the enum values that show up in list columns.
@@ -786,6 +816,8 @@
                 URGENT: 'bad',
                 FAILED: 'bad',
                 CANCELLED: 'bad',
+                SUSPENDED: 'bad',
+                INACTIVE: 'bad',
             };
 
             const scopeFields = () => [
@@ -814,6 +846,12 @@
 
             // ------------------------------------------------------- resources
             const RESOURCES = {
+                dashboard: {
+                    label: 'Tableau de bord',
+                    group: 'Pilotage',
+                    view: 'dashboard',
+                    fields: [],
+                },
                 news: {
                     label: 'Actualités',
                     group: 'Contenu',
@@ -860,6 +898,12 @@
                         },
                         ...scopeFields(),
                         {
+                            name: 'category_id',
+                            label: 'Catégorie',
+                            type: 'ref',
+                            ref: 'news-categories',
+                        },
+                        {
                             name: 'priority',
                             label: 'Priorité',
                             type: 'select',
@@ -895,6 +939,7 @@
                         ['title', 'Titre', 'title'],
                         ['start_at', 'Début'],
                         ['time_status', 'Quand'],
+                        ['registrations_count', 'Inscrits'],
                         ['status', 'Statut'],
                     ],
                     fields: [
@@ -943,6 +988,12 @@
                         },
                         ...scopeFields(),
                         {
+                            name: 'category_id',
+                            label: 'Catégorie',
+                            type: 'ref',
+                            ref: 'event-categories',
+                        },
+                        {
                             name: 'priority',
                             label: 'Priorité',
                             type: 'select',
@@ -962,11 +1013,33 @@
                             ],
                         },
                         {
+                            name: 'registration_enabled',
+                            label: 'Inscriptions ouvertes (formulaire dans l’application)',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'is_featured',
                             label: 'Mettre à la une',
                             type: 'checkbox',
                         },
                     ],
+                },
+                registrations: {
+                    label: 'Inscriptions',
+                    group: 'Contenu',
+                    search: true,
+                    noCreate: true,
+                    noEdit: true,
+                    exportPath: '/admin/registrations/export',
+                    columns: [
+                        ['full_name', 'Nom et prénoms', 'title'],
+                        ['phone', 'Téléphone'],
+                        ['email', 'E-mail'],
+                        ['event.title', 'Événement'],
+                        ['church_name', 'Église'],
+                        ['created_at', 'Inscrit le'],
+                    ],
+                    fields: [],
                 },
                 banners: {
                     label: 'Bannières',
@@ -1150,7 +1223,7 @@
                             name: 'audience',
                             label: 'Audience',
                             type: 'select',
-                            options: ['ALL', 'DISTRICT', 'CHURCH'],
+                            options: AUDIENCE,
                             required: true,
                         },
                         {
@@ -1174,6 +1247,40 @@
                     group: 'Contenu',
                     view: 'gallery',
                     fields: [],
+                },
+                'news-categories': {
+                    label: 'Catégories d’actualités',
+                    group: 'Contenu',
+                    perm: 'categories',
+                    search: true,
+                    columns: [
+                        ['name', 'Nom', 'title'],
+                        ['display_order', 'Ordre'],
+                        ['is_active', 'Active'],
+                    ],
+                    defaults: { is_active: true },
+                    fields: [
+                        { name: 'name', label: 'Nom', required: true },
+                        { name: 'display_order', label: 'Ordre', type: 'number' },
+                        { name: 'is_active', label: 'Active', type: 'checkbox' },
+                    ],
+                },
+                'event-categories': {
+                    label: 'Catégories d’événements',
+                    group: 'Contenu',
+                    perm: 'categories',
+                    search: true,
+                    columns: [
+                        ['name', 'Nom', 'title'],
+                        ['display_order', 'Ordre'],
+                        ['is_active', 'Active'],
+                    ],
+                    defaults: { is_active: true },
+                    fields: [
+                        { name: 'name', label: 'Nom', required: true },
+                        { name: 'display_order', label: 'Ordre', type: 'number' },
+                        { name: 'is_active', label: 'Active', type: 'checkbox' },
+                    ],
                 },
                 districts: {
                     label: 'Districts',
@@ -1232,11 +1339,12 @@
                         },
                         {
                             name: 'pastor_name',
-                            label: 'Pasteur',
-                            required: true,
+                            label: 'Responsable pastoral',
+                            hint: 'Laisser vide si l’information n’est pas confirmée.',
                         },
                         { name: 'code', label: 'Code' },
                         { name: 'address', label: 'Adresse' },
+                        { name: 'city', label: 'Ville' },
                         { name: 'commune', label: 'Commune' },
                         { name: 'quartier', label: 'Quartier' },
                         {
@@ -1254,6 +1362,19 @@
                         },
                         { name: 'main_service_day', label: 'Jour de culte' },
                         { name: 'main_service_time', label: 'Heure de culte' },
+                        {
+                            name: 'service_times',
+                            label: 'Horaires des cultes',
+                            type: 'textarea',
+                            rows: 3,
+                            wide: true,
+                            hint: 'Un horaire par ligne, ex. « Dimanche : 7h30 et 10h00 ».',
+                        },
+                        { name: 'facebook_url', label: 'Facebook (URL)' },
+                        { name: 'youtube_url', label: 'YouTube (URL)' },
+                        { name: 'instagram_url', label: 'Instagram (URL)' },
+                        { name: 'tiktok_url', label: 'TikTok (URL)' },
+                        { name: 'website_url', label: 'Site web (URL)' },
                         { name: 'latitude', label: 'Latitude', type: 'number' },
                         {
                             name: 'longitude',
@@ -1302,7 +1423,214 @@
                         },
                     ],
                 },
+                users: {
+                    label: 'Administrateurs',
+                    group: 'Système',
+                    search: true,
+                    columns: [
+                        ['name', 'Nom', 'title'],
+                        ['email', 'E-mail'],
+                        ['role_label', 'Rôle'],
+                        ['district.name', 'District'],
+                        ['church.name', 'Église'],
+                        ['status', 'Statut'],
+                    ],
+                    defaults: { role: 'CHURCH_ADMIN', status: 'ACTIVE' },
+                    fields: [
+                        { name: 'name', label: 'Nom', required: true },
+                        { name: 'email', label: 'E-mail', type: 'email', required: true },
+                        {
+                            name: 'password',
+                            label: 'Mot de passe',
+                            type: 'password',
+                            hint: '12 caractères minimum, majuscules, minuscules et chiffres. Laisser vide pour ne pas le changer.',
+                        },
+                        {
+                            name: 'role',
+                            label: 'Rôle',
+                            type: 'select',
+                            required: true,
+                            options: ROLES,
+                        },
+                        {
+                            name: 'district_id',
+                            label: 'District',
+                            type: 'ref',
+                            ref: 'districts',
+                            showIf: (v) => v.role === 'DISTRICT_ADMIN',
+                        },
+                        {
+                            name: 'church_id',
+                            label: 'Église',
+                            type: 'ref',
+                            ref: 'churches',
+                            showIf: (v) => v.role === 'CHURCH_ADMIN',
+                        },
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            required: true,
+                            options: ['ACTIVE', 'SUSPENDED'],
+                        },
+                    ],
+                },
+                settings: {
+                    label: 'Paramètres',
+                    group: 'Système',
+                    view: 'settings',
+                    fields: [],
+                },
             };
+
+            // Clé de permission renvoyée par /auth/me pour chaque module.
+            const allowed = (key) =>
+                (me?.permissions || []).includes(RESOURCES[key].perm || key);
+
+            // Options et valeurs par défaut adaptées au périmètre du compte.
+            function applyPerimeter() {
+                const national = ['SUPER_ADMIN', 'NATIONAL_ADMIN'].includes(me.role);
+                const scopes =
+                    me.role === 'CHURCH_ADMIN'
+                        ? ['CHURCH']
+                        : national
+                          ? ['NATIONAL', 'DISTRICT', 'CHURCH']
+                          : ['DISTRICT', 'CHURCH'];
+                SCOPE.splice(0, SCOPE.length, ...scopes);
+                AUDIENCE.splice(
+                    0,
+                    AUDIENCE.length,
+                    ...scopes.map((s) => (s === 'NATIONAL' ? 'ALL' : s)),
+                );
+                ROLES.splice(
+                    0,
+                    ROLES.length,
+                    ...(me.role === 'SUPER_ADMIN'
+                        ? ['SUPER_ADMIN', 'NATIONAL_ADMIN', 'DISTRICT_ADMIN', 'CHURCH_ADMIN']
+                        : ['DISTRICT_ADMIN', 'CHURCH_ADMIN']),
+                );
+
+                const target = {
+                    scope_type: scopes[0],
+                    district_id: me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
+                    church_id: me.role === 'CHURCH_ADMIN' ? me.church_id : null,
+                };
+                RESOURCES.news.defaults = Object.assign({}, RESOURCES.news.defaults, target);
+                RESOURCES.events.defaults = Object.assign({}, target);
+                RESOURCES.notifications.defaults = {
+                    audience: AUDIENCE[0],
+                    district_id: target.district_id,
+                    church_id: target.church_id,
+                };
+                RESOURCES.churches.defaults = {
+                    status: 'ACTIVE',
+                    district_id: me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
+                };
+            }
+
+            // Télécharge un export protégé par le jeton (un lien simple ne
+            // transmettrait pas l'en-tête Authorization).
+            async function download(path, filename) {
+                const res = await fetch(API + path, {
+                    headers: { Authorization: 'Bearer ' + token },
+                });
+                if (!res.ok) throw new Error('Export impossible');
+                const url = URL.createObjectURL(await res.blob());
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            async function renderDashboard() {
+                $('main').innerHTML =
+                    renderHead(RESOURCES.dashboard) +
+                    '<div class="body"><div class="card" id="dash"><p class="empty">Chargement…</p></div></div>';
+
+                let d;
+                try {
+                    d = (await api('/admin/dashboard')).data;
+                } catch (err) {
+                    $('dash').innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                    return;
+                }
+
+                const stats = [
+                    ['Districts', d.districts],
+                    ['Églises', d.churches],
+                    ['Églises actives', d.active_churches],
+                    ['Actualités', d.news],
+                    ['Événements', d.events],
+                    ['Inscriptions', d.registrations],
+                ];
+
+                $('dash').innerHTML = `
+            <div class="stats">${stats
+                .map(([k, v]) => `<div class="stat"><strong>${esc(String(v))}</strong><span>${esc(k)}</span></div>`)
+                .join('')}</div>
+            <h2 class="sub">Dernières publications</h2>
+            ${
+                d.latest.length
+                    ? `<table><tbody>${d.latest
+                          .map(
+                              (p) => `<tr><td class="title">${esc(p.title)}</td><td>${p.type === 'news' ? 'Actualité' : 'Événement'}</td><td>${esc(p.scope_type)}</td><td>${cell(p, ['status'])}</td><td>${fmtDate(p.created_at)}</td></tr>`,
+                          )
+                          .join('')}</tbody></table>`
+                    : '<p class="empty">Aucune publication pour le moment.</p>'
+            }`;
+            }
+
+            async function renderSettings() {
+                $('main').innerHTML =
+                    renderHead(RESOURCES.settings) +
+                    '<div class="body"><div class="card" id="settings"><p class="empty">Chargement…</p></div></div>';
+
+                let values, churches;
+                try {
+                    [values, churches] = await Promise.all([
+                        api('/admin/settings').then((r) => r.data),
+                        refOptions('churches'),
+                    ]);
+                } catch (err) {
+                    $('settings').innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                    return;
+                }
+
+                const fields = [
+                    {
+                        name: 'launch_church_id',
+                        label: 'Église proposée au premier lancement',
+                        type: 'ref',
+                        hint: 'L’application la propose comme église de référence ; chacun peut en changer.',
+                    },
+                    { name: 'contact_email', label: 'E-mail de contact', type: 'email' },
+                    { name: 'contact_phone', label: 'Téléphone de contact' },
+                    { name: 'contact_whatsapp', label: 'WhatsApp de contact' },
+                ];
+
+                const draw = (errors = {}) => {
+                    $('settings').innerHTML = `<form id="sform" class="grid">${fields
+                        .map((f) => field(f, values[f.name] ?? '', errors[f.name]?.[0], churches))
+                        .join('')}<div class="field wide"><button class="btn primary">Enregistrer</button></div></form>`;
+                    $('sform').onsubmit = async (e) => {
+                        e.preventDefault();
+                        const body = {};
+                        fields.forEach((f) => {
+                            body[f.name] = e.target.elements[f.name].value || null;
+                        });
+                        try {
+                            values = (await api('/admin/settings', { method: 'PUT', body })).data;
+                            toast('Paramètres enregistrés');
+                            draw();
+                        } catch (err) {
+                            toast(err.message, true);
+                            draw(err.payload?.fields || {});
+                        }
+                    };
+                };
+                draw();
+            }
 
             // ------------------------------------------------------------ api
             async function api(path, { method = 'GET', body, raw } = {}) {
@@ -1683,10 +2011,21 @@
                     } catch {
                         return renderLogin();
                     }
+                    applyPerimeter();
+                }
+
+                if (!allowed(state.key)) {
+                    state = {
+                        key: Object.keys(RESOURCES).find(allowed) || 'dashboard',
+                        page: 1,
+                        search: '',
+                        editing: null,
+                    };
                 }
 
                 let group = null;
                 const links = Object.entries(RESOURCES)
+                    .filter(([k]) => allowed(k))
                     .map(([k, r]) => {
                         const header =
                             r.group === group
@@ -1705,7 +2044,9 @@
                 <div class="brand">Foursquare CI</div>
                 ${links}
                 <div class="spacer"></div>
-                <div class="me"><strong>${esc(me.name)}</strong>${esc(me.role)}</div>
+                <div class="me"><strong>${esc(me.name)}</strong>${esc(me.role_label || me.role)}${
+                    me.church ? ' — ' + esc(me.church.name) : me.district ? ' — ' + esc(me.district.name) : ''
+                }</div>
                 <button class="btn" id="logout">Déconnexion</button>
               </nav>
               <main id="main"></main>
@@ -1742,17 +2083,28 @@
                 const res = RESOURCES[key];
 
                 if (res.view === 'gallery') return renderGallery();
+                if (res.view === 'dashboard') return renderDashboard();
+                if (res.view === 'settings') return renderSettings();
 
                 $('main').innerHTML =
                     renderHead(
                         res,
-                        res.noCreate
-                            ? ''
-                            : '<button class="btn primary" id="create">Nouveau</button>',
+                        (res.exportPath
+                            ? '<button class="btn" id="export">Exporter (CSV)</button>'
+                            : '') +
+                            (res.noCreate
+                                ? ''
+                                : '<button class="btn primary" id="create">Nouveau</button>'),
                     ) +
                     '<div class="body"><div class="card" id="list"><p class="empty">Chargement…</p></div></div>';
 
                 bindSearch(renderList);
+
+                if (res.exportPath)
+                    $('export').onclick = () =>
+                        download(res.exportPath, key + '.csv').catch((err) =>
+                            toast(err.message, true),
+                        );
 
                 if (!res.noCreate)
                     $('create').onclick = () => {
@@ -1809,7 +2161,7 @@
                                   : '',
                           )
                           .join('')}
-                      <button class="btn sm" data-edit="${i}">Éditer</button>
+                      ${res.noEdit ? '' : `<button class="btn sm" data-edit="${i}">Éditer</button>`}
                       <button class="btn sm danger" data-del="${i}">Supprimer</button>
                     </td>
                   </tr>`,
@@ -2314,6 +2666,7 @@
                     return `<div class="field${wide}">${lbl}
               <select name="${f.name}" id="${id}" ${req}>
                 ${f.required ? '' : '<option value="">—</option>'}
+                ${value && !f.options.includes(value) ? `<option selected>${esc(value)}</option>` : ''}
                 ${f.options
                     .map(
                         (o) =>
@@ -2359,7 +2712,7 @@
             };
 
             const initial = location.hash.slice(1);
-            if (RESOURCES[initial]) state.key = initial;
+            state.key = RESOURCES[initial] ? initial : 'dashboard';
 
             token ? renderApp() : renderLogin();
         </script>

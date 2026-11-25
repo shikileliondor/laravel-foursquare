@@ -46,7 +46,28 @@ Les erreurs de validation renvoient `422` avec `error.code = VALIDATION_ERROR` e
 | GET     | `/districts`       | `per_page`                                                                |
 | GET     | `/churches`        | `search`, `district_id`, `commune`, `per_page`                            |
 | GET     | `/churches/{slug}` | —                                                                         |
+| GET     | `/notifications`   | `for_church_id`, `per_page` — historique des notifications envoyées        |
+| POST    | `/events/{slug}/register` | inscription sans compte (voir plus bas)                            |
 | POST    | `/devices`         | enregistrement FCM                                                        |
+
+**Église de référence** : `for_church_id` (accepté par `/home`, `/news`, `/events`, `/notifications`)
+renvoie le national, le district de l'église et l'église elle-même. Sans église choisie, `/home`
+ne montre que le national. Filtres de l'application : Toutes = `for_church_id`, National =
+`scope=NATIONAL`, District = `scope=DISTRICT`, Mon église = `scope=CHURCH` (combinés à
+`for_church_id`). `/news` et `/events` acceptent aussi `category_id`.
+
+Chaque actualité et événement porte `source` (`{ "scope": "CHURCH", "label": "Église …" }`) pour
+distinguer National / District / Église locale, et `category`. Les routes de détail acceptent le
+slug **ou** l'identifiant (pratique pour les bannières et notifications). `/home` renvoie aussi
+`church` (l'église de référence) et `launch_church` (église proposée au premier lancement, réglée
+dans les paramètres du back-office).
+
+**Inscriptions** : `POST /events/{slug}/register` avec `full_name`, `phone`, `email?`,
+`church_id?` ou `church_name?`. Possible si l'événement est publié, non terminé et
+`registration_enabled` (champ `registration_open` sur l'événement). Un numéro par événement
+(`409 ALREADY_REGISTERED`), `409 REGISTRATION_CLOSED` sinon. Limité à 5 requêtes/minute et
+30/heure par IP ; le champ `website` doit rester vide (piège à robots). Les participants ne sont
+jamais exposés par l'API publique.
 
 Seul le contenu publié est exposé : `status = PUBLISHED` pour news/events, `status = ACTIVE` pour la structure.
 Une église n'apparaît que si elle **et** son district sont actifs. `/districts` renvoie `churches_count`,
@@ -95,7 +116,31 @@ Envoyer ensuite `Authorization: Bearer <token>`.
 Préfixe `/admin`, protégés par `auth:sanctum` + rôle admin + compte `ACTIVE`.
 CRUD complet (`GET`, `POST`, `GET /{id}`, `PATCH /{id}`, `DELETE /{id}`) pour :
 
-`districts`, `churches`, `news`, `events`, `banners`, `notifications`
+`districts`, `churches`, `news`, `events`, `news-categories`, `event-categories`, `banners`,
+`notifications`, `users` (administrateurs)
+
+Plus : `GET /admin/dashboard` (statistiques du périmètre), `GET /admin/registrations`
+(`event_id`, `search`), `GET /admin/registrations/export` (CSV), `DELETE /admin/registrations/{id}`,
+`GET|PUT /admin/settings`.
+
+### Rôles et périmètres
+
+Rôles fixes, vérifiés côté serveur par des Policies et des Gates (une interface masquée ne suffit pas) :
+
+| Rôle             | Périmètre                                                                                       |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| `SUPER_ADMIN`    | tout, y compris les paramètres et les autres super administrateurs                              |
+| `NATIONAL_ADMIN` | tout le contenu, districts, églises, bannières, catégories, appareils, admins de district/église |
+| `DISTRICT_ADMIN` | son district (`district_id`) : ses églises (sans les supprimer), contenus et notifications      |
+| `CHURCH_ADMIN`   | son église (`church_id`) : sa fiche (sans changer district ni statut), contenus, inscriptions   |
+
+Les listes admin sont filtrées au périmètre ; une action hors périmètre renvoie `403`. Personne
+ne modifie son propre rôle ni ne supprime son compte ; suspendre un compte coupe ses sessions.
+`GET /auth/me` renvoie `permissions`, la liste des modules du panel ouverts au compte.
+
+Il n'y a pas d'inscription publique. Premier compte (et tout compte en ligne de commande) :
+`php artisan foursquare:create-admin` (mot de passe demandé, 12 caractères, majuscules,
+minuscules et chiffres). Ensuite, depuis le module Administrateurs du panel.
 
 `media` : `GET /admin/media`, `POST /admin/media` (champ `file`), `GET|DELETE /admin/media/{id}`.
 `devices` : lecture, mise à jour et suppression uniquement.

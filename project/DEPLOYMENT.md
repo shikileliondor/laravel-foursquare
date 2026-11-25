@@ -17,6 +17,18 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 
 6. Supprimer `foursquare-release.zip` après l'extraction.
 
+### Première mise en service de la V1 nationale
+
+Après `migrate`, toujours depuis `public_html/project` :
+
+```bash
+php artisan db:seed --force          # District de la Côtière, Niangon Révélation, catégories (aucune donnée de démo en production)
+php artisan foursquare:create-admin  # premier super administrateur, mot de passe demandé
+```
+
+Vérifier aussi qu'aucun compte inconnu n'existe (l'ancienne inscription publique donnait tous les droits) :
+`SELECT id, name, email, role, created_at FROM users;` dans phpMyAdmin, et supprimer ou suspendre ce qui n'est pas légitime.
+
 Pour une mise à jour, refaire les étapes 1, 2, 5 et 6, en conservant `.env` et les fichiers déjà présents dans `storage/`. Ne pas lancer `migrate:fresh` en production.
 
 ## Notifications push (première installation)
