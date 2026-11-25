@@ -15,6 +15,9 @@ class DistrictController extends CrudController
     protected string $resource = DistrictResource::class;
 
     /** @var list<string> */
+    protected array $withCount = ['zones'];
+
+    /** @var list<string> */
     protected array $searchable = ['name', 'code'];
 
     protected string $orderBy = 'name';
@@ -33,7 +36,7 @@ class DistrictController extends CrudController
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('districts', 'slug')->ignore($model?->getKey())],
             'code' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
-            'status' => ['nullable', Rule::in(District::STATUSES)],
+            'status' => ['sometimes', Rule::in(District::STATUSES)],
         ];
     }
 }

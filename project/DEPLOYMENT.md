@@ -19,4 +19,22 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 
 Pour une mise à jour, refaire les étapes 1, 2, 5 et 6, en conservant `.env` et les fichiers déjà présents dans `storage/`. Ne pas lancer `migrate:fresh` en production.
 
+## Notifications push (première installation)
+
+1. Déposer le JSON Firebase Admin dans `public_html/project/storage/app/firebase/`, hors de `public/`, puis mettre `FCM_CREDENTIALS=storage/app/firebase` dans `.env`. `FCM_PROJECT_ID` peut rester vide si le JSON contient `project_id`. Le ZIP ne contient jamais ce fichier, qui est ignoré par git : le déposer une fois par FTP suffit, les mises à jour ne l'effacent pas.
+2. Créer une tâche cron cPanel qui tourne toutes les minutes :
+
+   ```bash
+   cd /home/<user>/public_html/project && php artisan queue:work --stop-when-empty --quiet
+   ```
+
+   Sans ce cron, « Envoyer » laisse la notification en `PENDING` indéfiniment : le panel semble fonctionner mais rien ne part.
+3. Avant d'utiliser le panel, vérifier l'envoi depuis le terminal cPanel :
+
+   ```bash
+   php artisan fcm:test --token=<token-du-telephone>
+   ```
+
+   La commande n'écrit rien en base et se termine en erreur si rien n'est livré. « FCM non configuré » renvoie à l'étape 1.
+
 Le seul secret GitHub nécessaire au transfert est `FTP_PASSWORD`. Le secret `FTP_SERVER_DIR` n'est plus utilisé ; le ZIP arrive à la racine du compte FTP. Le secret `PRODUCTION_ENV` n'est pas copié dans le ZIP : `.env` reste à gérer sur le serveur.

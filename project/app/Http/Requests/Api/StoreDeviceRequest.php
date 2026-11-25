@@ -18,6 +18,7 @@ class StoreDeviceRequest extends FormRequest
             'platform' => ['required', Rule::in(Device::PLATFORMS)],
             'app_version' => ['nullable', 'string', 'max:30'],
             'notifications_enabled' => ['boolean'],
+            'church_id' => ['nullable', 'uuid', 'exists:churches,id'],
         ];
     }
 }

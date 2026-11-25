@@ -21,7 +21,11 @@ class HomeController extends ApiController
         $banners = Banner::query()->visible()->with('media')->orderBy('display_order')->limit(10)->get();
 
         $featuredNews = News::query()->published()->with('cover')
-            ->where('is_featured', true)->latest('published_at')->first();
+            ->where('is_featured', true)
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
 
         $featuredEvent = Event::query()->published()->with('cover')
             ->where('is_featured', true)->timeStatus('UPCOMING')->orderBy('start_at')->first();
@@ -34,7 +38,8 @@ class HomeController extends ApiController
 
         return ApiResponse::ok([
             'banners' => BannerResource::collection($banners)->resolve(),
-            'featured_news' => $featuredNews ? NewsResource::make($featuredNews)->resolve() : null,
+            'featured_news' => NewsResource::collection($featuredNews)->resolve(),
+            'featured_news_item' => $featuredNews->first() ? NewsResource::make($featuredNews->first())->resolve() : null,
             'featured_event' => $featuredEvent ? EventResource::make($featuredEvent)->resolve() : null,
             'latest_news' => NewsResource::collection($latestNews)->resolve(),
             'upcoming_events' => EventResource::collection($upcomingEvents)->resolve(),

@@ -27,6 +27,7 @@ class NewsSeeder extends Seeder
             'cover_media_id' => $convention->id,
             'scope_type' => 'NATIONAL',
             'priority' => 'IMPORTANT',
+            'is_featured' => true,
             'status' => 'PUBLISHED',
         ]);
 
@@ -37,6 +38,7 @@ class NewsSeeder extends Seeder
             'cover_media_id' => $convocation->id,
             'scope_type' => 'NATIONAL',
             'priority' => 'IMPORTANT',
+            'is_featured' => true,
             'status' => 'PUBLISHED',
         ]);
 
@@ -48,6 +50,7 @@ class NewsSeeder extends Seeder
             'scope_type' => 'CHURCH',
             'church_id' => $niangon->id,
             'priority' => 'NORMAL',
+            'is_featured' => true,
             'status' => 'PUBLISHED',
         ]);
 
@@ -59,6 +62,7 @@ class NewsSeeder extends Seeder
             'scope_type' => 'ZONE',
             'zone_id' => $revelation->id,
             'priority' => 'NORMAL',
+            'is_featured' => true,
             'status' => 'PUBLISHED',
         ]);
     }

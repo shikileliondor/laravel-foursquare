@@ -50,17 +50,28 @@ Les erreurs de validation renvoient `422` avec `error.code = VALIDATION_ERROR` e
 | POST    | `/devices`         | enregistrement FCM                                                        |
 
 Seul le contenu publié est exposé : `status = PUBLISHED` pour news/events, `status = ACTIVE` pour la structure.
-`/home` renvoie en un appel `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`.
+`/home` renvoie en un appel `banners`, `featured_news`, `featured_news_item`, `featured_event`, `latest_news`, `upcoming_events`.
+`featured_news` est une liste d'actualites a la une, triee de la plus recente a la plus ancienne, prevue pour alimenter une section defilante. `featured_news_item` reprend le premier element pour les anciens clients qui attendent une seule actualite.
 
 La recherche églises porte sur le nom, la commune, le quartier, la zone et le district.
 
 `POST /devices` :
 
 ```json
-{ "fcm_token": "...", "platform": "android|ios|web", "app_version": "1.0.0" }
+{
+    "fcm_token": "...",
+    "platform": "android|ios|web",
+    "app_version": "1.0.0",
+    "church_id": "uuid|null"
+}
 ```
 
 Le token n'est jamais renvoyé par l'API.
+
+`church_id` est facultatif mais **conditionne le ciblage** : sans lui, l'appareil ne reçoit que
+les notifications d'audience `ALL`. Le serveur en déduit seul `zone_id` et `district_id` ; ne
+les envoyez pas. Renvoyer le même `fcm_token` met l'enregistrement à jour (y compris pour
+détacher l'appareil en repassant `church_id` à `null`).
 
 ## Authentification
 
@@ -83,6 +94,10 @@ CRUD complet (`GET`, `POST`, `GET /{id}`, `PATCH /{id}`, `DELETE /{id}`) pour :
 
 `media` : `GET /admin/media`, `POST /admin/media` (champ `file`), `GET|DELETE /admin/media/{id}`.
 `devices` : lecture, mise à jour et suppression uniquement.
+
+`POST /admin/notifications/{id}/send` déclenche l'envoi FCM : passe la notification en `PENDING`
+et met le job en file. Renvoie `409 NOTIFICATION_NOT_SENDABLE` si elle est déjà `PENDING`,
+`PROCESSING` ou `SENT`. Le `PATCH` reste un simple éditeur de champs : il n'envoie jamais rien.
 
 Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 
@@ -112,14 +127,109 @@ sans build ni dépendance, qui consomme l'API v1 documentée ci-dessus.
 Connexion via `POST /auth/login`, token conservé dans le `localStorage`, envoyé en `Bearer` sur
 chaque appel. Un `401` renvoie automatiquement à l'écran de connexion.
 
-Couvre les 9 ressources (districts, zones, églises, actualités, événements, bannières,
-notifications, médias, appareils) avec liste paginée, recherche, création, édition et suppression.
+Couvre les 9 ressources (actualités, événements, bannières, notifications, médias, districts,
+zones, églises, appareils) avec liste paginée, recherche, création, édition et suppression.
 Les champs conditionnels suivent les règles du serveur : les cibles de portée n'apparaissent
 qu'avec le `scope_type` correspondant, idem pour `link_type` et `audience`. Les erreurs `422`
 sont réaffichées champ par champ.
 
+### Images
+
+Tout champ image (`cover_media_id`, `media_id`, `image_media_id`) s'édite via une vignette et une
+fenêtre de sélection : grille des médias paginée, import direct (JPG, PNG, WebP, 5 Mo max) et
+bouton « Retirer ». La section **Médias** est une galerie avec glisser-déposer, copie d'URL et
+suppression. Les listes affichent la vignette de chaque contenu.
+
+Les ressources renvoient l'identifiant du média en plus de l'objet imbriqué (`cover_media_id` à
+côté de `cover`), sans quoi le panel ne pourrait pas pré-remplir un champ image à l'édition.
+
+### Textes
+
+Les champs riches (`content` d'une actualité, `description` d'un événement) ont une barre d'outils
+qui insère les balises autorisées et un aperçu. Le serveur applique de toute façon
+`HtmlSanitizer` à l'enregistrement.
+
+### Notifications
+
+Liste avec statuts colorés, colonne `last_error` et actions directes : « Envoyer » appelle
+`POST /admin/notifications/{id}/send`, « Remettre en brouillon » annule une mise en file.
+
+La colonne **Livraison** donne le bilan réel de l'envoi : `12 livrées`, plus le cas échéant
+`2 tokens morts` et `1 échec`. Elle est indispensable parce qu'un `SENT` seul ne dit pas si un
+téléphone a reçu quoi que ce soit — un envoi dont tous les tokens étaient périmés est un `SENT`
+à zéro livraison.
+
+### Champs conditionnels
+
+Quand le panel masque une cible (changement de `link_type`, de `type` ou d'`audience`), il envoie
+`null` pour ce champ afin de nettoyer une valeur devenue obsolète. Les règles correspondantes
+acceptent donc `null` mais refusent toujours une cible qui contredit le type choisi.
+
 Pour ajouter un champ ou une ressource, il suffit d'étendre l'objet `RESOURCES` en haut du script :
 les tableaux et les formulaires en sont entièrement dérivés.
+
+## Notifications push (FCM)
+
+Ce que l'application mobile doit adapter est resume dans
+[FRONTEND.md](FRONTEND.md).
+
+Envoi via **FCM HTTP v1**, sans SDK : un JWT signé avec le compte de service est échangé contre
+un jeton OAuth (mis en cache 50 min), puis chaque appareil reçoit son propre message — l'API v1
+n'a plus d'envoi groupé. Les envois partent par lots parallèles de `FCM_CHUNK` appareils.
+
+```env
+FCM_CREDENTIALS=storage/app/firebase
+FCM_PROJECT_ID=votre-projet
+FCM_CHUNK=50
+FCM_TIMEOUT=10
+```
+
+Le JSON vient de la console Firebase (Paramètres du projet → Comptes de service → Générer une
+clé privée). **Le déposer hors de `public/`.** `FCM_CREDENTIALS` peut pointer vers ce fichier JSON
+ou vers son dossier, par exemple `storage/app/firebase`. `FCM_PROJECT_ID` est déduit du JSON s'il est vide.
+
+L'envoi est un job en file (`QUEUE_CONNECTION=database`), il faut donc un worker :
+
+```bash
+php artisan queue:work --stop-when-empty   # cron cPanel, toutes les minutes
+```
+
+Cycle d'un statut : `DRAFT` → `PENDING` (mise en file) → `PROCESSING` → `SENT` ou `FAILED`.
+`FAILED` renseigne `last_error` et incrémente `retry_count` ; l'action « Envoyer » rejoue.
+
+Chaque envoi renseigne aussi son bilan, remis à zéro à chaque nouvelle tentative :
+
+| Champ             | Sens                                                    |
+| ----------------- | ------------------------------------------------------- |
+| `delivered_count` | appareils que FCM a acceptés                            |
+| `pruned_count`    | tokens périmés, donc appareils supprimés                |
+| `failed_count`    | refus FCM qui ne justifient pas de supprimer l'appareil |
+
+**`SENT` ne signifie pas « reçu ».** Il signifie que FCM a accepté l'envoi. Lire
+`delivered_count` pour savoir si un téléphone a été joint.
+
+Un token refusé par FCM (`UNREGISTERED`, `INVALID_ARGUMENT`, `SENDER_ID_MISMATCH`) fait
+supprimer l'appareil. Si tous les appareils visés sont dans ce cas, la notification finit
+quand même en `SENT` : rien n'a échoué côté serveur, rejouer ne changerait rien.
+
+Tant que `FCM_CREDENTIALS` n'est pas renseigné, l'envoi échoue proprement en `FAILED` avec
+« FCM non configuré » dans `last_error` — aucune exception non gérée.
+
+### Vérifier la chaîne sans passer par le panel
+
+```bash
+php artisan fcm:test --token=<token-du-telephone>   # un seul appareil, même non enregistré
+php artisan fcm:test                                # les appareils enregistrés, après confirmation
+```
+
+La commande court-circuite la base et la file pour ne répondre qu'à une question : « le téléphone
+reçoit-il ? » Elle n'enregistre aucune notification dans l'historique et ne supprime aucun token,
+contrairement à un envoi réel. Elle affiche le projet Firebase utilisé et, par token, `livrée`,
+`token mort` ou `échec` avec le message de Google. Code de sortie non nul si rien n'est livré, ce
+qui la rend utilisable en vérification de déploiement.
+
+Le token du téléphone s'obtient dans la console de `flutter run` : l'application le journalise au
+démarrage (en debug uniquement), avec l'URL d'API qu'elle utilise.
 
 ## Installation locale
 

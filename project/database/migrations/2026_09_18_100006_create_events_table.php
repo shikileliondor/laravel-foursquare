@@ -19,8 +19,10 @@ return new class extends Migration
             $table->foreignUuid('zone_id')->nullable()->constrained('zones')->nullOnDelete();
             $table->foreignUuid('church_id')->nullable()->constrained('churches')->nullOnDelete();
             $table->string('organizer_name')->nullable();
-            $table->timestamp('start_at')->index();
-            $table->timestamp('end_at');
+            // dateTime, pas timestamp : MySQL refuse un second TIMESTAMP NOT NULL
+            // sans defaut explicite. Identique sur PostgreSQL et SQLite.
+            $table->dateTime('start_at')->index();
+            $table->dateTime('end_at');
             $table->string('venue_name')->nullable();
             $table->string('address')->nullable();
             $table->string('commune')->nullable();

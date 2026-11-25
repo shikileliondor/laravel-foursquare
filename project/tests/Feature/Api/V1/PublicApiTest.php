@@ -4,9 +4,11 @@ use App\Models\Church;
 use App\Models\Device;
 use App\Models\District;
 use App\Models\Event;
+use App\Models\Media;
 use App\Models\News;
 use App\Models\User;
 use App\Models\Zone;
+use Illuminate\Support\Facades\Storage;
 
 function structure(): array
 {
@@ -46,16 +48,35 @@ function publishedEvent(array $attributes = []): Event
 }
 
 it('returns the home payload in one call', function () {
-    publishedNews(['is_featured' => true]);
+    publishedNews([
+        'title' => 'Convention nationale',
+        'slug' => 'convention-nationale',
+        'is_featured' => true,
+        'published_at' => now()->subDays(2),
+    ]);
+    publishedNews([
+        'title' => 'Convocation jeunesse',
+        'slug' => 'convocation-jeunesse',
+        'is_featured' => true,
+        'published_at' => now()->subDay(),
+    ]);
+    publishedNews([
+        'title' => 'Actualite simple',
+        'slug' => 'actualite-simple',
+        'is_featured' => false,
+    ]);
     publishedEvent(['is_featured' => true]);
 
     $this->getJson('/api/v1/home')
         ->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonStructure([
-            'data' => ['banners', 'featured_news', 'featured_event', 'latest_news', 'upcoming_events'],
+            'data' => ['banners', 'featured_news', 'featured_news_item', 'featured_event', 'latest_news', 'upcoming_events'],
         ])
-        ->assertJsonPath('data.featured_news.title', 'Convention nationale')
+        ->assertJsonCount(2, 'data.featured_news')
+        ->assertJsonPath('data.featured_news.0.title', 'Convocation jeunesse')
+        ->assertJsonPath('data.featured_news.1.title', 'Convention nationale')
+        ->assertJsonPath('data.featured_news_item.title', 'Convocation jeunesse')
         ->assertJsonPath('data.featured_event.time_status', 'UPCOMING');
 });
 
@@ -68,6 +89,26 @@ it('lists published news with pagination meta', function () {
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('meta.per_page', 20)
         ->assertJsonPath('meta.total', 1);
+});
+
+it('serves media files through the public api', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('media/test.jpg', 'image-bytes');
+
+    $media = Media::create([
+        'original_name' => 'test.jpg',
+        'stored_name' => 'test.jpg',
+        'path' => 'media/test.jpg',
+        'mime_type' => 'image/jpeg',
+        'file_size' => 11,
+    ]);
+
+    expect($media->url())->toContain("/api/v1/media/{$media->id}/file");
+
+    $this->get("/api/v1/media/{$media->id}/file")
+        ->assertOk()
+        ->assertHeader('content-type', 'image/jpeg')
+        ->assertSee('image-bytes');
 });
 
 it('caps pagination at 100 per page', function () {
@@ -165,6 +206,21 @@ it('registers a device once per token', function () {
     $this->postJson('/api/v1/devices', $payload)->assertOk();
 
     expect(Device::count())->toBe(1);
+});
+
+it('reactivates a disabled device when the same token registers again', function () {
+    Device::create([
+        'fcm_token' => 'token-disabled',
+        'platform' => 'android',
+        'notifications_enabled' => false,
+    ]);
+
+    $this->postJson('/api/v1/devices', [
+        'fcm_token' => 'token-disabled',
+        'platform' => 'android',
+    ])->assertOk();
+
+    expect(Device::where('fcm_token', 'token-disabled')->value('notifications_enabled'))->toBeTrue();
 });
 
 it('rejects an unknown device platform', function () {

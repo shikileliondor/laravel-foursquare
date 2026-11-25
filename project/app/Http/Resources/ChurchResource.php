@@ -35,6 +35,7 @@ class ChurchResource extends JsonResource
             'main_service_time' => $this->main_service_time,
             'description' => $this->description,
             'status' => $this->status,
+            'image_media_id' => $this->image_media_id,
             'image' => MediaResource::make($this->whenLoaded('image')),
             'zone' => ZoneResource::make($this->whenLoaded('zone')),
         ];
