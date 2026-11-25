@@ -14,7 +14,7 @@ class StoreChurchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'zone_id' => ['required', 'uuid', 'exists:zones,id'],
+            'district_id' => ['required', 'uuid', 'exists:districts,id'],
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:churches,slug'],
             'code' => ['nullable', 'string', 'max:50'],

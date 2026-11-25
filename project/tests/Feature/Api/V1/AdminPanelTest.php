@@ -111,7 +111,6 @@ it('queues a notification the way the panel does', function () {
     $this->patchJson("/api/v1/admin/notifications/{$notification->id}", [
         'status' => 'PENDING',
         'district_id' => null,
-        'zone_id' => null,
         'church_id' => null,
     ])->assertOk()->assertJsonPath('data.status', 'PENDING');
 });

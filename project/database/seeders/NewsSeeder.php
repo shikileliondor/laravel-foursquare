@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Church;
+use App\Models\District;
 use App\Models\Media;
 use App\Models\News;
-use App\Models\Zone;
 use Illuminate\Database\Seeder;
 
 class NewsSeeder extends Seeder
@@ -18,7 +18,7 @@ class NewsSeeder extends Seeder
         $youth = Media::query()->where('path', $folder.'a.jpg')->firstOrFail();
         $morasha = Media::query()->where('path', $folder.'morasha.jpg')->firstOrFail();
         $niangon = Church::query()->where('slug', 'eglise-foursquare-niangon-revelation')->firstOrFail();
-        $revelation = Zone::query()->where('slug', 'zone-revelation')->firstOrFail();
+        $cotiere = District::query()->where('slug', 'district-de-la-cotiere')->firstOrFail();
 
         News::updateOrCreate(['slug' => 'convention-nationale-2026-annoncee'], [
             'title' => 'La Convention Nationale 2026 annoncée',
@@ -59,8 +59,8 @@ class NewsSeeder extends Seeder
             'excerpt' => 'Morasha — Le Jet du Manteau, du 10 au 12 septembre 2026.',
             'content' => 'Rencontre organisée à l’Église Foursquare Yopougon Ananeraie, non loin du Carrefour Oasis.',
             'cover_media_id' => $morasha->id,
-            'scope_type' => 'ZONE',
-            'zone_id' => $revelation->id,
+            'scope_type' => 'DISTRICT',
+            'district_id' => $cotiere->id,
             'priority' => 'NORMAL',
             'is_featured' => true,
             'status' => 'PUBLISHED',

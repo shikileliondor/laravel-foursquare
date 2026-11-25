@@ -3,17 +3,17 @@
 namespace Database\Seeders;
 
 use App\Models\Church;
-use App\Models\Zone;
+use App\Models\District;
 use Illuminate\Database\Seeder;
 
 class ChurchSeeder extends Seeder
 {
     public function run(): void
     {
-        $revelation = Zone::query()->where('slug', 'zone-revelation')->firstOrFail();
+        $cotiere = District::query()->where('slug', 'district-de-la-cotiere')->firstOrFail();
 
         Church::updateOrCreate(['slug' => 'eglise-foursquare-niangon-revelation'], [
-            'zone_id' => $revelation->id,
+            'district_id' => $cotiere->id,
             'name' => 'Église Foursquare Niangon Révélation',
             'commune' => 'Yopougon',
             'quartier' => 'Niangon',
@@ -23,7 +23,7 @@ class ChurchSeeder extends Seeder
         ]);
 
         Church::updateOrCreate(['slug' => 'eglise-foursquare-ananeraie'], [
-            'zone_id' => $revelation->id,
+            'district_id' => $cotiere->id,
             'name' => 'Église Foursquare Ananeraie',
             'commune' => 'Yopougon',
             'quartier' => 'Ananeraie',
@@ -33,9 +33,9 @@ class ChurchSeeder extends Seeder
             'status' => 'ACTIVE',
         ]);
 
-        $provisional = Zone::query()->where('slug', 'zone-a-confirmer')->firstOrFail();
+        $provisional = District::query()->where('slug', 'rattachements-a-confirmer')->firstOrFail();
 
-        // Ces églises sont identifiées, mais leur zone et leur district restent à valider.
+        // Ces églises sont identifiées, mais leur district reste à valider.
         $churches = [
             'foursquare-yopougon-sideci' => 'Foursquare Yopougon Sideci',
             'foursquare-yopougon-camp-militaire' => 'Foursquare Yopougon Camp Militaire',
@@ -55,11 +55,11 @@ class ChurchSeeder extends Seeder
         ];
 
         foreach ($churches as $slug => $name) {
-            $existingZoneId = Church::query()->where('slug', $slug)->value('zone_id');
+            $existingDistrictId = Church::query()->where('slug', $slug)->value('district_id');
 
             Church::updateOrCreate(['slug' => $slug], [
                 // Conserver tout rattachement corrigé manuellement lors d'un nouveau seeding.
-                'zone_id' => $existingZoneId ?: $provisional->id,
+                'district_id' => $existingDistrictId ?: $provisional->id,
                 'name' => $name,
                 'status' => 'ACTIVE',
             ]);

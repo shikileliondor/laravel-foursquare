@@ -17,9 +17,9 @@ class ChurchController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $churches = Church::query()
-            ->with(['zone.district', 'image'])
+            ->with(['district', 'image'])
             ->search($request->string('search')->toString())
-            ->when($request->filled('zone_id'), fn ($q) => $q->where('zone_id', $request->string('zone_id')->toString()))
+            ->when($request->filled('district_id'), fn ($q) => $q->where('district_id', $request->string('district_id')->toString()))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')->toString()))
             ->orderBy('name')
             ->paginate($this->perPage($request));
@@ -33,12 +33,12 @@ class ChurchController extends ApiController
 
         AuditLog::record('created', $church);
 
-        return ApiResponse::ok(ChurchResource::make($church->load('zone.district')), 201);
+        return ApiResponse::ok(ChurchResource::make($church->load(['district', 'image'])), 201);
     }
 
     public function show(string $id): JsonResponse
     {
-        $church = Church::with(['zone.district', 'image'])->findOrFail($id);
+        $church = Church::with(['district', 'image'])->findOrFail($id);
 
         return ApiResponse::ok(ChurchResource::make($church));
     }
@@ -50,7 +50,7 @@ class ChurchController extends ApiController
 
         AuditLog::record('updated', $church);
 
-        return ApiResponse::ok(ChurchResource::make($church->fresh(['zone.district', 'image'])));
+        return ApiResponse::ok(ChurchResource::make($church->fresh(['district', 'image'])));
     }
 
     public function destroy(string $id): JsonResponse

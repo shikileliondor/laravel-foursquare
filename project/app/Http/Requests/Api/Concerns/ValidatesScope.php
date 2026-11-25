@@ -17,9 +17,8 @@ trait ValidatesScope
         $presence = $required ? 'required' : 'sometimes';
 
         return [
-            'scope_type' => [$presence, Rule::in(['NATIONAL', 'DISTRICT', 'ZONE', 'CHURCH'])],
+            'scope_type' => [$presence, Rule::in(['NATIONAL', 'DISTRICT', 'CHURCH'])],
             'district_id' => ['nullable', 'uuid', 'exists:districts,id'],
-            'zone_id' => ['nullable', 'uuid', 'exists:zones,id'],
             'church_id' => ['nullable', 'uuid', 'exists:churches,id'],
         ];
     }
@@ -36,12 +35,11 @@ trait ValidatesScope
 
             $expected = match ($this->input('scope_type')) {
                 'DISTRICT' => 'district_id',
-                'ZONE' => 'zone_id',
                 'CHURCH' => 'church_id',
                 default => null,
             };
 
-            foreach (['district_id', 'zone_id', 'church_id'] as $field) {
+            foreach (['district_id', 'church_id'] as $field) {
                 if ($field === $expected && ! $this->filled($field)) {
                     $validator->errors()->add($field, "Le champ {$field} est requis pour ce scope.");
                 }

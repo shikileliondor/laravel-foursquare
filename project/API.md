@@ -39,21 +39,26 @@ Les erreurs de validation renvoient `422` avec `error.code = VALIDATION_ERROR` e
 | Méthode | Endpoint           | Filtres                                                                   |
 | ------- | ------------------ | ------------------------------------------------------------------------- |
 | GET     | `/home`            | —                                                                         |
-| GET     | `/news`            | `search`, `scope`, `district_id`, `zone_id`, `church_id`, `per_page`      |
+| GET     | `/news`            | `search`, `scope`, `district_id`, `church_id`, `per_page`                 |
 | GET     | `/news/{slug}`     | —                                                                         |
 | GET     | `/events`          | `search`, `status` (`upcoming` / `ongoing` / `past`), `scope`, `per_page` |
 | GET     | `/events/{slug}`   | —                                                                         |
 | GET     | `/districts`       | `per_page`                                                                |
-| GET     | `/zones`           | `district_id`, `per_page`                                                 |
-| GET     | `/churches`        | `search`, `district_id`, `zone_id`, `commune`, `per_page`                 |
+| GET     | `/churches`        | `search`, `district_id`, `commune`, `per_page`                            |
 | GET     | `/churches/{slug}` | —                                                                         |
 | POST    | `/devices`         | enregistrement FCM                                                        |
 
 Seul le contenu publié est exposé : `status = PUBLISHED` pour news/events, `status = ACTIVE` pour la structure.
+Une église n'apparaît que si elle **et** son district sont actifs. `/districts` renvoie `churches_count`,
+le nombre d'églises actives du district.
+
+Hiérarchie : Foursquare Côte d'Ivoire → districts → églises. Chaque église porte `district_id` et,
+sur les routes églises, l'objet `district`. Le niveau Zone n'existe plus (route `/zones` et filtres
+`zone_id` retirés).
 `/home` renvoie en un appel `banners`, `featured_news`, `featured_news_item`, `featured_event`, `latest_news`, `upcoming_events`.
 `featured_news` est une liste d'actualites a la une, triee de la plus recente a la plus ancienne, prevue pour alimenter une section defilante. `featured_news_item` reprend le premier element pour les anciens clients qui attendent une seule actualite.
 
-La recherche églises porte sur le nom, la commune, le quartier, la zone et le district.
+La recherche églises porte sur le nom, la commune, le quartier et le district.
 
 `POST /devices` :
 
@@ -69,9 +74,9 @@ La recherche églises porte sur le nom, la commune, le quartier, la zone et le d
 Le token n'est jamais renvoyé par l'API.
 
 `church_id` est facultatif mais **conditionne le ciblage** : sans lui, l'appareil ne reçoit que
-les notifications d'audience `ALL`. Le serveur en déduit seul `zone_id` et `district_id` ; ne
-les envoyez pas. Renvoyer le même `fcm_token` met l'enregistrement à jour (y compris pour
-détacher l'appareil en repassant `church_id` à `null`).
+les notifications d'audience `ALL`. Le serveur en déduit seul `district_id` ; ne l'envoyez pas.
+Renvoyer le même `fcm_token` met l'enregistrement à jour : sans `church_id` dans la requête,
+l'appareil garde son église ; `church_id: null` le détache.
 
 ## Authentification
 
@@ -90,7 +95,7 @@ Envoyer ensuite `Authorization: Bearer <token>`.
 Préfixe `/admin`, protégés par `auth:sanctum` + rôle admin + compte `ACTIVE`.
 CRUD complet (`GET`, `POST`, `GET /{id}`, `PATCH /{id}`, `DELETE /{id}`) pour :
 
-`districts`, `zones`, `churches`, `news`, `events`, `banners`, `notifications`
+`districts`, `churches`, `news`, `events`, `banners`, `notifications`
 
 `media` : `GET /admin/media`, `POST /admin/media` (champ `file`), `GET|DELETE /admin/media/{id}`.
 `devices` : lecture, mise à jour et suppression uniquement.
@@ -103,7 +108,12 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 
 ### Règles métier vérifiées côté serveur
 
-- **Portée** : `NATIONAL` sans cible ; `DISTRICT`/`ZONE`/`CHURCH` exigent leur seul identifiant correspondant.
+- **Portée** : `NATIONAL` sans cible ; `DISTRICT`/`CHURCH` exigent leur seul identifiant correspondant.
+- **Districts** : `DELETE` renvoie `409 DISTRICT_HAS_CHURCHES` tant que le district contient des églises.
+  Le désactiver (`status = INACTIVE`) les retire de l'API publique sans rien supprimer.
+- **Églises** : `district_id` obligatoire. Changer le district d'une église y rattache aussi ses appareils.
+- **Notifications** : une audience `DISTRICT` ou `CHURCH` dont la cible n'existe plus n'atteint personne
+  et passe en `FAILED` avec son motif.
 - **Événements** : `end_at >= start_at`. `UPCOMING`/`ONGOING`/`PAST` ne sont jamais stockés, ils sont calculés.
 - **Bannières** : `link_type` détermine le champ de lien autorisé ; les autres sont interdits.
 - **News** : le HTML est nettoyé par liste blanche (`p`, `br`, `strong`, `em`, `u`, `ul`, `ol`, `li`, `h2`-`h4`, `blockquote`, `a`). Scripts, iframes, `on*=` et `javascript:` sont supprimés.
@@ -127,8 +137,8 @@ sans build ni dépendance, qui consomme l'API v1 documentée ci-dessus.
 Connexion via `POST /auth/login`, token conservé dans le `localStorage`, envoyé en `Bearer` sur
 chaque appel. Un `401` renvoie automatiquement à l'écran de connexion.
 
-Couvre les 9 ressources (actualités, événements, bannières, notifications, médias, districts,
-zones, églises, appareils) avec liste paginée, recherche, création, édition et suppression.
+Couvre les 8 ressources (actualités, événements, bannières, notifications, médias, districts,
+églises, appareils) avec liste paginée, recherche, création, édition et suppression.
 Les champs conditionnels suivent les règles du serveur : les cibles de portée n'apparaissent
 qu'avec le `scope_type` correspondant, idem pour `link_type` et `audience`. Les erreurs `422`
 sont réaffichées champ par champ.
@@ -259,5 +269,5 @@ Passer à S3 ou Cloudinary revient à changer le disque : `MediaService` est le 
 php artisan test
 ```
 
-Couvre l'authentification, la structure (districts/zones/églises), les news, les événements,
+Couvre l'authentification, la structure (districts/églises), les news, les événements,
 les devices, la pagination, la validation des portées et des dates, l'accès admin et les erreurs JSON.

@@ -13,7 +13,7 @@ class News extends Model
 {
     use HasSlug, HasUuids;
 
-    public const SCOPES = ['NATIONAL', 'DISTRICT', 'ZONE', 'CHURCH'];
+    public const SCOPES = ['NATIONAL', 'DISTRICT', 'CHURCH'];
 
     public const PRIORITIES = ['NORMAL', 'IMPORTANT', 'URGENT'];
 
@@ -23,7 +23,7 @@ class News extends Model
 
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'cover_media_id', 'scope_type',
-        'district_id', 'zone_id', 'church_id', 'priority', 'is_featured',
+        'district_id', 'church_id', 'priority', 'is_featured',
         'status', 'published_at', 'created_by',
     ];
 
@@ -47,14 +47,6 @@ class News extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class);
-    }
-
-    /**
-     * @return BelongsTo<Zone, $this>
-     */
-    public function zone(): BelongsTo
-    {
-        return $this->belongsTo(Zone::class);
     }
 
     /**

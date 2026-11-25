@@ -11,7 +11,7 @@ class PushNotification extends Model
 
     public const TYPES = ['GENERAL', 'NEWS', 'EVENT'];
 
-    public const AUDIENCES = ['ALL', 'DISTRICT', 'ZONE', 'CHURCH'];
+    public const AUDIENCES = ['ALL', 'DISTRICT', 'CHURCH'];
 
     public const STATUSES = ['DRAFT', 'PENDING', 'PROCESSING', 'SENT', 'FAILED'];
 
@@ -19,7 +19,7 @@ class PushNotification extends Model
 
     protected $fillable = [
         'title', 'body', 'type', 'news_id', 'event_id', 'audience',
-        'district_id', 'zone_id', 'church_id', 'status', 'retry_count',
+        'district_id', 'church_id', 'status', 'retry_count',
         'delivered_count', 'pruned_count', 'failed_count',
         'last_error', 'sent_at', 'created_by',
     ];

@@ -15,7 +15,7 @@ class Device extends Model
 
     protected $fillable = [
         'fcm_token', 'platform', 'app_version', 'notifications_enabled', 'last_seen_at',
-        'district_id', 'zone_id', 'church_id',
+        'district_id', 'church_id',
     ];
 
     /** @var array<string, string> */
@@ -35,14 +35,6 @@ class Device extends Model
     }
 
     /**
-     * @return BelongsTo<Zone, $this>
-     */
-    public function zone(): BelongsTo
-    {
-        return $this->belongsTo(Zone::class);
-    }
-
-    /**
      * @return BelongsTo<Church, $this>
      */
     public function church(): BelongsTo
@@ -58,9 +50,22 @@ class Device extends Model
      */
     public function scopeForAudience(Builder $query, PushNotification $notification): Builder
     {
-        return $query->where('notifications_enabled', true)
-            ->when($notification->audience === 'DISTRICT', fn (Builder $q) => $q->where('district_id', $notification->district_id))
-            ->when($notification->audience === 'ZONE', fn (Builder $q) => $q->where('zone_id', $notification->zone_id))
-            ->when($notification->audience === 'CHURCH', fn (Builder $q) => $q->where('church_id', $notification->church_id));
+        $query->where('notifications_enabled', true);
+
+        if ($notification->audience === 'ALL') {
+            return $query;
+        }
+
+        [$column, $target] = match ($notification->audience) {
+            'DISTRICT' => ['district_id', $notification->district_id],
+            'CHURCH' => ['church_id', $notification->church_id],
+            default => [null, null],
+        };
+
+        // Cible supprimée ou audience inconnue : personne. where(colonne, null)
+        // viserait sinon tous les appareils sans église.
+        return $target === null
+            ? $query->whereRaw('1 = 0')
+            : $query->where($column, $target);
     }
 }

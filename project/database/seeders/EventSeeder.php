@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\District;
 use App\Models\Event;
 use App\Models\Media;
-use App\Models\Zone;
 use Illuminate\Database\Seeder;
 
 class EventSeeder extends Seeder
@@ -15,7 +15,7 @@ class EventSeeder extends Seeder
         $convention = Media::query()->where('path', $folder.'convention.jpg')->firstOrFail();
         $convocation = Media::query()->where('path', $folder.'asok.jpg')->firstOrFail();
         $morasha = Media::query()->where('path', $folder.'morasha.jpg')->firstOrFail();
-        $revelation = Zone::query()->where('slug', 'zone-revelation')->firstOrFail();
+        $cotiere = District::query()->where('slug', 'district-de-la-cotiere')->firstOrFail();
 
         // Les heures n'étant pas annoncées, les bornes de journée servent seulement au stockage SQL.
         Event::updateOrCreate(['slug' => 'convention-nationale-foursquare-ci-2026'], [
@@ -51,8 +51,8 @@ class EventSeeder extends Seeder
             'title' => 'Morasha — Le Jet du Manteau',
             'description' => 'Rencontre organisée par les Églises Foursquare Ananeraie et Révélation.',
             'cover_media_id' => $morasha->id,
-            'scope_type' => 'ZONE',
-            'zone_id' => $revelation->id,
+            'scope_type' => 'DISTRICT',
+            'district_id' => $cotiere->id,
             'organizer_name' => 'Églises Foursquare Ananeraie et Révélation',
             'start_at' => '2026-09-10 00:00:00',
             'end_at' => '2026-09-12 23:59:59',

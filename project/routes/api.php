@@ -25,7 +25,6 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::get('events/{slug}', [EventController::class, 'show'])->name('events.show');
 
         Route::get('districts', [StructureController::class, 'districts'])->name('districts.index');
-        Route::get('zones', [StructureController::class, 'zones'])->name('zones.index');
         Route::get('churches', [StructureController::class, 'churches'])->name('churches.index');
         Route::get('churches/{slug}', [StructureController::class, 'church'])->name('churches.show');
 
@@ -47,7 +46,6 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         ->middleware(['auth:sanctum', 'admin', 'throttle:admin'])
         ->group(function (): void {
             Route::apiResource('districts', Admin\DistrictController::class);
-            Route::apiResource('zones', Admin\ZoneController::class);
             Route::apiResource('churches', Admin\ChurchController::class);
             Route::apiResource('news', Admin\NewsController::class);
             Route::apiResource('events', Admin\EventController::class);

@@ -22,7 +22,6 @@ class DeviceResource extends JsonResource
             'app_version' => $this->app_version,
             'notifications_enabled' => $this->notifications_enabled,
             'district_id' => $this->district_id,
-            'zone_id' => $this->zone_id,
             'church_id' => $this->church_id,
             'last_seen_at' => $this->last_seen_at?->toIso8601String(),
         ];

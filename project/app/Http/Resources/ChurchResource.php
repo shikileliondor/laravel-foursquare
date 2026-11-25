@@ -18,7 +18,7 @@ class ChurchResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'zone_id' => $this->zone_id,
+            'district_id' => $this->district_id,
             'name' => $this->name,
             'slug' => $this->slug,
             'code' => $this->code,
@@ -37,7 +37,7 @@ class ChurchResource extends JsonResource
             'status' => $this->status,
             'image_media_id' => $this->image_media_id,
             'image' => MediaResource::make($this->whenLoaded('image')),
-            'zone' => ZoneResource::make($this->whenLoaded('zone')),
+            'district' => DistrictResource::make($this->whenLoaded('district')),
         ];
     }
 }

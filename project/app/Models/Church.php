@@ -18,7 +18,7 @@ class Church extends Model
     protected $table = 'churches';
 
     protected $fillable = [
-        'zone_id', 'name', 'slug', 'code', 'pastor_name', 'address', 'commune', 'quartier',
+        'district_id', 'name', 'slug', 'code', 'pastor_name', 'address', 'commune', 'quartier',
         'secretariat_phone', 'official_whatsapp', 'official_email', 'latitude', 'longitude',
         'main_service_day', 'main_service_time', 'description', 'image_media_id', 'status',
     ];
@@ -29,12 +29,24 @@ class Church extends Model
         'longitude' => 'float',
     ];
 
-    /**
-     * @return BelongsTo<Zone, $this>
-     */
-    public function zone(): BelongsTo
+    protected static function booted(): void
     {
-        return $this->belongsTo(Zone::class);
+        // Les notifications de district ciblent devices.district_id : un
+        // appareil doit suivre son église quand elle change de district.
+        static::updated(function (Church $church): void {
+            if ($church->wasChanged('district_id')) {
+                Device::query()->where('church_id', $church->id)
+                    ->update(['district_id' => $church->district_id]);
+            }
+        });
+    }
+
+    /**
+     * @return BelongsTo<District, $this>
+     */
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
     }
 
     /**
@@ -46,12 +58,15 @@ class Church extends Model
     }
 
     /**
+     * Visible publiquement : l'église et son district sont actifs.
+     *
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', 'ACTIVE');
+        return $query->where('churches.status', 'ACTIVE')
+            ->whereHas('district', fn (Builder $d) => $d->where('status', 'ACTIVE'));
     }
 
     /**
@@ -71,8 +86,7 @@ class Church extends Model
             $q->where('churches.name', $op, $like)
                 ->orWhere('churches.commune', $op, $like)
                 ->orWhere('churches.quartier', $op, $like)
-                ->orWhereHas('zone', fn (Builder $z) => $z->where('name', $op, $like)
-                    ->orWhereHas('district', fn (Builder $d) => $d->where('name', $op, $like)));
+                ->orWhereHas('district', fn (Builder $d) => $d->where('name', $op, $like));
         });
     }
 }

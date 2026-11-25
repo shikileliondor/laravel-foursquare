@@ -13,7 +13,7 @@ class Event extends Model
 {
     use HasSlug, HasUuids;
 
-    public const SCOPES = ['NATIONAL', 'DISTRICT', 'ZONE', 'CHURCH'];
+    public const SCOPES = ['NATIONAL', 'DISTRICT', 'CHURCH'];
 
     public const PRIORITIES = ['NORMAL', 'IMPORTANT', 'URGENT'];
 
@@ -21,7 +21,7 @@ class Event extends Model
 
     protected $fillable = [
         'title', 'slug', 'description', 'cover_media_id', 'scope_type',
-        'district_id', 'zone_id', 'church_id', 'organizer_name', 'start_at', 'end_at',
+        'district_id', 'church_id', 'organizer_name', 'start_at', 'end_at',
         'venue_name', 'address', 'commune', 'latitude', 'longitude',
         'contact_phone', 'official_whatsapp', 'priority', 'is_featured', 'status', 'created_by',
     ];
@@ -63,14 +63,6 @@ class Event extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class);
-    }
-
-    /**
-     * @return BelongsTo<Zone, $this>
-     */
-    public function zone(): BelongsTo
-    {
-        return $this->belongsTo(Zone::class);
     }
 
     /**

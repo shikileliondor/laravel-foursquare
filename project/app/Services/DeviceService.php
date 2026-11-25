@@ -17,18 +17,19 @@ class DeviceService
         $token = (string) $data['fcm_token'];
         unset($data['fcm_token']);
 
-        $church = filled($data['church_id'] ?? null)
-            ? Church::with('zone')->find((string) $data['church_id'])
-            : null;
+        $attributes = $data + [
+            'notifications_enabled' => $data['notifications_enabled'] ?? true,
+            'last_seen_at' => now(),
+        ];
 
-        return Device::updateOrCreate(
-            ['fcm_token' => $token],
-            $data + [
-                'zone_id' => $church?->zone_id,
-                'district_id' => $church?->zone?->district_id,
-                'notifications_enabled' => $data['notifications_enabled'] ?? true,
-                'last_seen_at' => now(),
-            ],
-        );
+        // Le district suit l'église. Sans church_id dans la requête, l'appareil
+        // garde son église et son district ; church_id à null les efface.
+        if (array_key_exists('church_id', $data)) {
+            $attributes['district_id'] = filled($data['church_id'])
+                ? Church::query()->whereKey((string) $data['church_id'])->value('district_id')
+                : null;
+        }
+
+        return Device::updateOrCreate(['fcm_token' => $token], $attributes);
     }
 }

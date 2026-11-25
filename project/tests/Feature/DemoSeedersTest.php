@@ -6,7 +6,6 @@ use App\Models\District;
 use App\Models\Event;
 use App\Models\Media;
 use App\Models\News;
-use App\Models\Zone;
 use Illuminate\Support\Facades\Storage;
 
 it('seeds confirmed facts and images without duplicates or invented church data', function () {
@@ -17,7 +16,6 @@ it('seeds confirmed facts and images without duplicates or invented church data'
     $this->seed();
 
     expect(District::query()->count())->toBe(12)
-        ->and(Zone::query()->count())->toBe(2)
         ->and(Church::query()->count())->toBe(17)
         ->and(Media::query()->count())->toBe(8)
         ->and(Event::query()->count())->toBe(3)
@@ -28,14 +26,13 @@ it('seeds confirmed facts and images without duplicates or invented church data'
     $ananeraie = Church::query()->where('slug', 'eglise-foursquare-ananeraie')->firstOrFail();
     $unconfirmed = Church::query()->where('slug', 'foursquare-yopougon-sideci')->firstOrFail();
 
-    expect($niangon->zone->slug)->toBe('zone-revelation')
-        ->and($niangon->zone->district->slug)->toBe('district-de-la-cotiere')
+    expect($niangon->district->slug)->toBe('district-de-la-cotiere')
         ->and($niangon->pastor_name)->toBeNull()
         ->and($niangon->secretariat_phone)->toBeNull()
         ->and($niangon->latitude)->toBeNull()
-        ->and($ananeraie->zone_id)->toBe($niangon->zone_id)
+        ->and($ananeraie->district_id)->toBe($niangon->district_id)
         ->and($ananeraie->secretariat_phone)->toBe('0757014548')
-        ->and($unconfirmed->zone->slug)->toBe('zone-a-confirmer')
+        ->and($unconfirmed->district->slug)->toBe('rattachements-a-confirmer')
         ->and($unconfirmed->pastor_name)->toBeNull();
 
     expect(Storage::disk('public')->exists('media/seed/convention.jpg'))->toBeTrue()

@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Church;
 use App\Models\District;
 use App\Models\News;
 use App\Models\User;
-use App\Models\Zone;
 use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
@@ -142,14 +142,42 @@ it('runs the district crud', function () {
     expect(District::count())->toBe(0);
 });
 
-it('creates a zone attached to a district', function () {
+it('creates a church attached directly to a district', function () {
     $district = District::create(['name' => 'Abidjan Sud']);
 
     $this->actingAs($this->admin, 'sanctum')
-        ->postJson('/api/v1/admin/zones', ['district_id' => $district->id, 'name' => 'Yopougon'])
-        ->assertCreated();
+        ->postJson('/api/v1/admin/churches', [
+            'district_id' => $district->id,
+            'name' => 'Église Yopougon',
+            'pastor_name' => 'Pasteur Koffi',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.district_id', $district->id)
+        ->assertJsonPath('data.district.name', 'Abidjan Sud');
+});
 
-    expect(Zone::first()->district->name)->toBe('Abidjan Sud');
+it('refuses to delete a district that still has churches', function () {
+    $district = District::create(['name' => 'Abidjan Sud']);
+    Church::create(['district_id' => $district->id, 'name' => 'Église Yopougon']);
+
+    $this->actingAs($this->admin, 'sanctum')
+        ->deleteJson("/api/v1/admin/districts/{$district->id}")
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'DISTRICT_HAS_CHURCHES');
+
+    expect(District::count())->toBe(1)
+        ->and(Church::count())->toBe(1);
+});
+
+it('rejects the removed zone level in scopes and routes', function () {
+    $this->actingAs($this->admin, 'sanctum')
+        ->postJson('/api/v1/admin/news', ['title' => 'Annonce', 'content' => 'Texte', 'scope_type' => 'ZONE'])
+        ->assertStatus(422)
+        ->assertJsonPath('error.fields.scope_type.0', fn (string $message) => $message !== '');
+
+    $this->actingAs($this->admin, 'sanctum')
+        ->getJson('/api/v1/admin/zones')
+        ->assertNotFound();
 });
 
 it('returns a typed 404 for a missing admin record', function () {

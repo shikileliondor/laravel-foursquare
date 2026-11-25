@@ -14,7 +14,7 @@ class UpdateChurchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'zone_id' => ['sometimes', 'uuid', 'exists:zones,id'],
+            'district_id' => ['sometimes', 'uuid', 'exists:districts,id'],
             'name' => ['sometimes', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('churches', 'slug')->ignore($this->route('church'))],
             'code' => ['nullable', 'string', 'max:50'],

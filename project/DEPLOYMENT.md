@@ -8,7 +8,7 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 2. Déplacer le ZIP dans `public_html/project`, puis choisir **Extraire** dans ce dossier. Vérifier que `public_html/project/artisan`, `public_html/project/app` et `public_html/project/public` existent directement, sans dossier supplémentaire créé par l'extraction.
 3. Créer ou conserver `public_html/project/.env` avec les paramètres de production. Le ZIP ne contient pas ce fichier. Garder la même `APP_KEY` lors des mises à jour.
 4. Régler la racine web du sous-domaine sur `public_html/project/public`. Utiliser PHP **8.4.1 ou plus** et rendre `storage/` et `bootstrap/cache/` inscriptibles.
-5. Dans le terminal cPanel, depuis `public_html/project`, lancer :
+5. **Sauvegarder la base** avant toute migration : phpMyAdmin → base de production → **Exporter** (format SQL), et garder le fichier. Certaines migrations sont irréversibles (ex. suppression des zones) : en cas de problème, on restaure cette sauvegarde. Ensuite, dans le terminal cPanel, depuis `public_html/project`, lancer :
 
    ```bash
    php artisan migrate --force

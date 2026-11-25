@@ -21,22 +21,23 @@ const home = json.data;
 | Écran / besoin | Requête | Données principales |
 | --- | --- | --- |
 | Accueil | `GET /home` | `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data` |
-| Actualités | `GET /news` | Liste paginée ; filtres `search`, `scope`, `district_id`, `zone_id`, `church_id` |
+| Actualités | `GET /news` | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id` |
 | Actualité | `GET /news/{slug}` | Détail, notamment `content` |
-| Événements | `GET /events` | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `zone_id`, `church_id` |
+| Événements | `GET /events` | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
 | Événement | `GET /events/{slug}` | Détail de l'événement |
-| Districts | `GET /districts` | Liste paginée ; chaque district a `id`, `name`, `zones_count` |
-| Zones | `GET /zones?district_id={uuid}` | Liste paginée ; chaque zone a `id`, `name`, `district`, `churches_count` |
-| Églises | `GET /churches` | Liste paginée ; filtres `search`, `district_id`, `zone_id`, `commune` |
-| Église | `GET /churches/{slug}` | Détail, dont `zone`, `image`, coordonnées et contacts éventuels |
+| Districts | `GET /districts` | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives) |
+| Églises | `GET /churches` | Liste paginée ; filtres `search`, `district_id`, `commune` |
+| Église | `GET /churches/{slug}` | Détail, dont `district`, `image`, coordonnées et contacts éventuels |
 
 Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants des objets et des filtres sont des UUID. Les listes publiques ne montrent que les contenus publiés et les structures actives.
+
+Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones`, les filtres `zone_id`, le champ `zone` des églises et `zones_count` des districts ont été retirés. Portées possibles : `NATIONAL`, `DISTRICT`, `CHURCH`.
 
 ## Champs utiles au front
 
 - Actualité : `title`, `slug`, `excerpt`, `published_at`, `cover?.url`. `content` est présent sur la route de détail ; on peut aussi demander `?full=1` sur `/news`.
 - Événement : `title`, `slug`, `description`, `start_at`, `end_at`, `time_status` (`UPCOMING`, `ONGOING`, `PAST`), `venue_name`, `commune`, `cover?.url`.
-- Église : `name`, `slug`, `pastor_name`, `address`, `commune`, `quartier`, `zone`, `image?.url`, `latitude`, `longitude`, `secretariat_phone`, `official_whatsapp`.
+- Église : `name`, `slug`, `pastor_name`, `address`, `commune`, `quartier`, `district?.name`, `image?.url`, `latitude`, `longitude`, `secretariat_phone`, `official_whatsapp`.
 - Bannière : `title`, `subtitle`, `media?.url`, `button_text`, `link_type`, puis `news_id`, `event_id`, `church_id` ou `external_url` selon le lien. Les liens internes donnent un **ID**, tandis que les routes de détail publiques demandent un **slug** : retrouver le slug dans des données déjà chargées ou prévoir une évolution de l'API.
 - Une image peut être absente et `media.url` peut être relatif : le résoudre par rapport à l'origine de l'API. Les dates sont au format ISO 8601.
 
@@ -44,6 +45,6 @@ Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants de
 
 `POST /auth/login` avec `{ "email": "...", "password": "..." }` renvoie `data.user` et `data.token`. Envoyer ensuite `Authorization: Bearer <token>` à `GET /auth/me`, `POST /auth/logout` et aux routes `/admin/*`. Ne pas utiliser ces routes pour le site public.
 
-Les ressources admin `districts`, `zones`, `churches`, `news`, `events`, `banners` et `notifications` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
+Les ressources admin `districts`, `churches`, `news`, `events`, `banners` et `notifications` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
 
 Afficher les états de chargement, les listes vides et `error.message`. Gérer `401` comme une déconnexion admin, `404` comme un contenu introuvable et `422` avec `error.fields`. Les champs optionnels peuvent être `null` : ne pas inventer de contenu. Pour les autres détails, voir [API.md](API.md).

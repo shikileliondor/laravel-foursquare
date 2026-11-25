@@ -146,9 +146,18 @@ class SendPushNotification implements ShouldQueue
      */
     private function emptyAudienceReason(PushNotification $notification): string
     {
+        $target = match ($notification->audience) {
+            'DISTRICT' => $notification->district_id,
+            'CHURCH' => $notification->church_id,
+            default => 'ALL',
+        };
+
+        if ($target === null) {
+            return 'Le district ou l\'église visé n\'existe plus : choisissez une nouvelle audience avant de renvoyer.';
+        }
+
         return match ($notification->audience) {
             'DISTRICT' => 'Aucun appareil rattaché à ce district. L\'application doit transmettre church_id à l\'enregistrement pour que le ciblage fonctionne.',
-            'ZONE' => 'Aucun appareil rattaché à cette zone. L\'application doit transmettre church_id à l\'enregistrement pour que le ciblage fonctionne.',
             'CHURCH' => 'Aucun appareil rattaché à cette église. L\'application doit transmettre church_id à l\'enregistrement pour que le ciblage fonctionne.',
             default => 'Aucun appareil enregistré avec les notifications activées. Lancez l\'application mobile pour qu\'elle transmette son token à POST /api/v1/devices.',
         };

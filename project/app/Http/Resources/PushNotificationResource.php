@@ -25,7 +25,6 @@ class PushNotificationResource extends JsonResource
             'event_id' => $this->event_id,
             'audience' => $this->audience,
             'district_id' => $this->district_id,
-            'zone_id' => $this->zone_id,
             'church_id' => $this->church_id,
             'status' => $this->status,
             'retry_count' => $this->retry_count,

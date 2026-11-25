@@ -19,7 +19,6 @@ class EventController extends ApiController
             ->timeStatus($request->string('status')->toString())
             ->when($request->filled('scope'), fn ($q) => $q->where('scope_type', strtoupper($request->string('scope')->toString())))
             ->when($request->filled('district_id'), fn ($q) => $q->where('district_id', $request->string('district_id')->toString()))
-            ->when($request->filled('zone_id'), fn ($q) => $q->where('zone_id', $request->string('zone_id')->toString()))
             ->when($request->filled('church_id'), fn ($q) => $q->where('church_id', $request->string('church_id')->toString()))
             ->orderBy('start_at')
             ->paginate($this->perPage($request));

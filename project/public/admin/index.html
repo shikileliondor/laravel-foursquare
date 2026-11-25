@@ -770,7 +770,7 @@
 
             // --------------------------------------------------------- options
             const STATUS = ['ACTIVE', 'INACTIVE'];
-            const SCOPE = ['NATIONAL', 'DISTRICT', 'ZONE', 'CHURCH'];
+            const SCOPE = ['NATIONAL', 'DISTRICT', 'CHURCH'];
             const PRIORITY = ['NORMAL', 'IMPORTANT', 'URGENT'];
 
             // Colour for the enum values that show up in list columns.
@@ -802,13 +802,6 @@
                     type: 'ref',
                     ref: 'districts',
                     showIf: (v) => v.scope_type === 'DISTRICT',
-                },
-                {
-                    name: 'zone_id',
-                    label: 'Zone',
-                    type: 'ref',
-                    ref: 'zones',
-                    showIf: (v) => v.scope_type === 'ZONE',
                 },
                 {
                     name: 'church_id',
@@ -1157,7 +1150,7 @@
                             name: 'audience',
                             label: 'Audience',
                             type: 'select',
-                            options: ['ALL', 'DISTRICT', 'ZONE', 'CHURCH'],
+                            options: ['ALL', 'DISTRICT', 'CHURCH'],
                             required: true,
                         },
                         {
@@ -1166,13 +1159,6 @@
                             type: 'ref',
                             ref: 'districts',
                             showIf: (v) => v.audience === 'DISTRICT',
-                        },
-                        {
-                            name: 'zone_id',
-                            label: 'Zone',
-                            type: 'ref',
-                            ref: 'zones',
-                            showIf: (v) => v.audience === 'ZONE',
                         },
                         {
                             name: 'church_id',
@@ -1196,46 +1182,10 @@
                     columns: [
                         ['name', 'Nom', 'title'],
                         ['code', 'Code'],
-                        ['zones_count', 'Zones'],
-                        ['status', 'Statut'],
-                    ],
-                    fields: [
-                        { name: 'name', label: 'Nom', required: true },
-                        { name: 'code', label: 'Code' },
-                        {
-                            name: 'description',
-                            label: 'Description',
-                            type: 'textarea',
-                            rows: 3,
-                            wide: true,
-                        },
-                        {
-                            name: 'status',
-                            label: 'Statut',
-                            type: 'select',
-                            required: true,
-                            options: STATUS,
-                        },
-                    ],
-                },
-                zones: {
-                    label: 'Zones',
-                    group: 'Structure',
-                    search: true,
-                    columns: [
-                        ['name', 'Nom', 'title'],
-                        ['district.name', 'District'],
                         ['churches_count', 'Églises'],
                         ['status', 'Statut'],
                     ],
                     fields: [
-                        {
-                            name: 'district_id',
-                            label: 'District',
-                            type: 'ref',
-                            ref: 'districts',
-                            required: true,
-                        },
                         { name: 'name', label: 'Nom', required: true },
                         { name: 'code', label: 'Code' },
                         {
@@ -1261,16 +1211,16 @@
                     columns: [
                         ['image.url', '', 'thumb'],
                         ['name', 'Nom', 'title'],
-                        ['zone.name', 'Zone'],
+                        ['district.name', 'District'],
                         ['commune', 'Commune'],
                         ['status', 'Statut'],
                     ],
                     fields: [
                         {
-                            name: 'zone_id',
-                            label: 'Zone',
+                            name: 'district_id',
+                            label: 'District',
                             type: 'ref',
-                            ref: 'zones',
+                            ref: 'districts',
                             required: true,
                         },
                         { name: 'name', label: 'Nom', required: true },

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureIsAdmin
 {
-    public const ROLES = ['SUPER_ADMIN', 'NATIONAL_ADMIN', 'DISTRICT_ADMIN', 'ZONE_ADMIN', 'CHURCH_ADMIN'];
+    public const ROLES = ['SUPER_ADMIN', 'NATIONAL_ADMIN', 'DISTRICT_ADMIN', 'CHURCH_ADMIN'];
 
     public function handle(Request $request, Closure $next): Response
     {

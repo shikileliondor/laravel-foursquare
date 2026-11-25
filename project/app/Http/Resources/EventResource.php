@@ -23,7 +23,6 @@ class EventResource extends JsonResource
             'description' => $this->description,
             'scope_type' => $this->scope_type,
             'district_id' => $this->district_id,
-            'zone_id' => $this->zone_id,
             'church_id' => $this->church_id,
             'organizer_name' => $this->organizer_name,
             'start_at' => $this->start_at->toIso8601String(),

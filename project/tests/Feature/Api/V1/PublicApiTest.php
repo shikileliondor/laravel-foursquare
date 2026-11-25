@@ -7,21 +7,19 @@ use App\Models\Event;
 use App\Models\Media;
 use App\Models\News;
 use App\Models\User;
-use App\Models\Zone;
 use Illuminate\Support\Facades\Storage;
 
 function structure(): array
 {
     $district = District::create(['name' => 'Abidjan Sud']);
-    $zone = Zone::create(['district_id' => $district->id, 'name' => 'Yopougon']);
     $church = Church::create([
-        'zone_id' => $zone->id,
+        'district_id' => $district->id,
         'name' => 'Église Yopougon Centre',
         'pastor_name' => 'Pasteur Koffi',
         'commune' => 'Yopougon',
     ]);
 
-    return [$district, $zone, $church];
+    return [$district, $church];
 }
 
 function publishedNews(array $attributes = []): News
@@ -163,35 +161,52 @@ it('shows an event by slug', function () {
         ->assertJsonPath('data.slug', $event->slug);
 });
 
-it('lists districts', function () {
-    structure();
+it('lists districts with their count of active churches', function () {
+    [$district] = structure();
+    Church::create(['district_id' => $district->id, 'name' => 'Église fermée', 'status' => 'INACTIVE']);
 
     $this->getJson('/api/v1/districts')
         ->assertOk()
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.zones_count', 1);
+        ->assertJsonPath('data.0.churches_count', 1)
+        ->assertJsonMissingPath('data.0.zones_count');
 });
 
-it('filters zones by district', function () {
+it('filters churches by district', function () {
     [$district] = structure();
     $other = District::create(['name' => 'Abidjan Nord']);
-    Zone::create(['district_id' => $other->id, 'name' => 'Abobo']);
+    Church::create(['district_id' => $other->id, 'name' => 'Église Abobo']);
 
-    $this->getJson("/api/v1/zones?district_id={$district->id}")
+    $this->getJson("/api/v1/churches?district_id={$district->id}")
         ->assertOk()
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.name', 'Yopougon');
+        ->assertJsonPath('data.0.name', 'Église Yopougon Centre')
+        ->assertJsonPath('data.0.district.name', 'Abidjan Sud')
+        ->assertJsonMissingPath('data.0.zone');
 });
 
-it('searches churches by commune and zone', function () {
+it('searches churches by commune and district', function () {
     structure();
 
     $this->getJson('/api/v1/churches?search=yopougon')->assertOk()->assertJsonCount(1, 'data');
+    $this->getJson('/api/v1/churches?search=abidjan%20sud')->assertOk()->assertJsonCount(1, 'data');
     $this->getJson('/api/v1/churches?search=introuvable')->assertOk()->assertJsonCount(0, 'data');
 });
 
+it('hides the churches of an inactive district', function () {
+    [$district, $church] = structure();
+    $district->update(['status' => 'INACTIVE']);
+
+    $this->getJson('/api/v1/churches')->assertOk()->assertJsonCount(0, 'data');
+    $this->getJson("/api/v1/churches/{$church->slug}")->assertNotFound();
+});
+
+it('no longer serves the zone level', function () {
+    $this->getJson('/api/v1/zones')->assertNotFound();
+});
+
 it('shows a church without leaking a personal number', function () {
-    [, , $church] = structure();
+    [, $church] = structure();
 
     $this->getJson("/api/v1/churches/{$church->slug}")
         ->assertOk()

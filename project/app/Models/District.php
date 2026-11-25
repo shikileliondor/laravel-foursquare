@@ -17,11 +17,11 @@ class District extends Model
     protected $fillable = ['name', 'slug', 'code', 'description', 'status'];
 
     /**
-     * @return HasMany<Zone, $this>
+     * @return HasMany<Church, $this>
      */
-    public function zones(): HasMany
+    public function churches(): HasMany
     {
-        return $this->hasMany(Zone::class);
+        return $this->hasMany(Church::class);
     }
 
     /**

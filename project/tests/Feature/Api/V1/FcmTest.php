@@ -6,7 +6,6 @@ use App\Models\Device;
 use App\Models\District;
 use App\Models\PushNotification;
 use App\Models\User;
-use App\Models\Zone;
 use App\Services\FcmClient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -19,8 +18,7 @@ beforeEach(function () {
     ]));
 
     $this->district = District::create(['name' => 'District Abidjan Nord']);
-    $this->zone = Zone::create(['district_id' => $this->district->id, 'name' => 'Zone Abobo']);
-    $this->church = Church::create(['zone_id' => $this->zone->id, 'name' => 'Église Centrale']);
+    $this->church = Church::create(['district_id' => $this->district->id, 'name' => 'Église Centrale']);
 });
 
 /** Cle RSA de test : openssl_sign n'a besoin d'aucune configuration systeme. */
@@ -89,7 +87,7 @@ function makeNotification(array $attributes = []): PushNotification
     ], $attributes));
 }
 
-it('registers a device and derives its zone and district from its church', function () {
+it('registers a device and derives its district from its church', function () {
     $this->postJson('/api/v1/devices', [
         'fcm_token' => 'token-abc',
         'platform' => 'android',
@@ -97,9 +95,56 @@ it('registers a device and derives its zone and district from its church', funct
     ])
         ->assertCreated()
         ->assertJsonPath('data.church_id', $this->church->id)
-        ->assertJsonPath('data.zone_id', $this->zone->id)
         ->assertJsonPath('data.district_id', $this->district->id)
-        ->assertJsonPath('data.notifications_enabled', true);
+        ->assertJsonPath('data.notifications_enabled', true)
+        ->assertJsonMissingPath('data.zone_id');
+});
+
+it('keeps the church and district of a device that re-registers without church_id', function () {
+    $this->postJson('/api/v1/devices', ['fcm_token' => 'token-abc', 'platform' => 'android', 'church_id' => $this->church->id]);
+
+    $this->postJson('/api/v1/devices', ['fcm_token' => 'token-abc', 'platform' => 'android'])
+        ->assertOk()
+        ->assertJsonPath('data.church_id', $this->church->id)
+        ->assertJsonPath('data.district_id', $this->district->id);
+});
+
+it('clears the church and district when the app sends church_id null', function () {
+    $this->postJson('/api/v1/devices', ['fcm_token' => 'token-abc', 'platform' => 'android', 'church_id' => $this->church->id]);
+
+    $this->postJson('/api/v1/devices', ['fcm_token' => 'token-abc', 'platform' => 'android', 'church_id' => null])
+        ->assertOk()
+        ->assertJsonPath('data.church_id', null)
+        ->assertJsonPath('data.district_id', null);
+});
+
+it('moves the devices of a church to its new district', function () {
+    $device = Device::create(['fcm_token' => 'member', 'platform' => 'android', 'church_id' => $this->church->id, 'district_id' => $this->district->id]);
+    $other = District::create(['name' => 'District Abidjan Sud']);
+
+    $this->patchJson("/api/v1/admin/churches/{$this->church->id}", ['district_id' => $other->id])
+        ->assertOk()
+        ->assertJsonPath('data.district.name', 'District Abidjan Sud');
+
+    expect($device->fresh()->district_id)->toBe($other->id);
+});
+
+it('reaches nobody when the targeted district no longer exists', function () {
+    fakeServiceAccount();
+    fakeFcm();
+
+    // Un appareil sans église a district_id à null : il ne doit pas être pris
+    // pour l'audience d'un district supprimé.
+    Device::create(['fcm_token' => 'no-church', 'platform' => 'android']);
+
+    $notification = makeNotification(['audience' => 'DISTRICT', 'district_id' => null, 'status' => 'PENDING']);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    expect($notification->fresh()->status)->toBe('FAILED')
+        ->and($notification->fresh()->last_error)->toContain("n'existe plus");
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com'));
 });
 
 it('queues the notification when the admin hits send', function () {
@@ -142,7 +187,7 @@ it('only reaches the devices of the targeted church', function () {
     fakeServiceAccount();
     fakeFcm();
 
-    Device::create(['fcm_token' => 'inside', 'platform' => 'android', 'church_id' => $this->church->id, 'zone_id' => $this->zone->id, 'district_id' => $this->district->id]);
+    Device::create(['fcm_token' => 'inside', 'platform' => 'android', 'church_id' => $this->church->id, 'district_id' => $this->district->id]);
     Device::create(['fcm_token' => 'outside', 'platform' => 'ios']);
 
     $notification = makeNotification([

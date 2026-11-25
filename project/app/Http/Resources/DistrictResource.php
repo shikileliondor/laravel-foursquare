@@ -23,7 +23,7 @@ class DistrictResource extends JsonResource
             'code' => $this->code,
             'description' => $this->description,
             'status' => $this->status,
-            'zones_count' => $this->whenCounted('zones'),
+            'churches_count' => $this->whenCounted('churches'),
         ];
     }
 }

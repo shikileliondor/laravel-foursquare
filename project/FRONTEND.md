@@ -14,7 +14,7 @@ requise, sans quoi le ciblage des notifications ne fonctionnera pas.
 ## En une minute
 
 - **Envoyez `church_id` à l'enregistrement.** Sans lui, l'appareil ne reçoit que les notifications
-  adressées à tout le monde — celles de district, de zone ou d'église ne lui parviendront jamais.
+  adressées à tout le monde — celles de district ou d'église ne lui parviendront jamais.
 - **Ré-enregistrez l'appareil à chaque rafraîchissement du token.** Le serveur supprime désormais
   tout appareil dont FCM refuse le token.
 - **Lisez `data.type` pour router le tap.** Le message transporte l'identifiant de l'actualité ou
@@ -51,17 +51,17 @@ Endpoint public, non authentifié, limité à 60 requêtes/minute par IP. Renvoy
 
 ### ⚠️ Sans `church_id`, le ciblage ne marche pas
 
-C'est le seul rattachement que l'application transmet. Le serveur en déduit seul la zone et le
-district — **ne les envoyez pas**, ils seront ignorés.
+C'est le seul rattachement que l'application transmet. Le serveur en déduit seul le district —
+**ne l'envoyez pas**, il sera ignoré.
 
 Dès que l'utilisateur choisit ou change son église, renvoyez `POST /devices` avec le même token.
-Pour détacher un appareil, repassez `church_id` à `null`.
+Sans `church_id` dans la requête, l'appareil garde son église ; pour le détacher, envoyez
+`church_id: null`.
 
 | Audience de la notification | Atteint l'appareil si…                       |
 | --------------------------- | -------------------------------------------- |
 | `ALL`                       | toujours — aucun rattachement nécessaire     |
 | `DISTRICT`                  | l'église déclarée appartient à ce district   |
-| `ZONE`                      | l'église déclarée appartient à cette zone    |
 | `CHURCH`                    | l'église déclarée est exactement celle visée |
 
 Dans tous les cas, un appareil dont `notifications_enabled` vaut `false` est ignoré.
@@ -79,14 +79,13 @@ Dans tous les cas, un appareil dont `notifications_enabled` vaut `false` est ign
         "app_version": "1.0.0",
         "notifications_enabled": true,
         "district_id": "01a0b904-d7f6-73a1-bff6-740a3ee42e42",
-        "zone_id": "01a0b904-d818-7127-8588-60837428a0dd",
         "church_id": "01a0b904-d822-73dd-9aa6-4ff1ed2c260f",
         "last_seen_at": "2026-09-19T09:50:45+00:00"
     }
 }
 ```
 
-`district_id` et `zone_id` sont remplis par le serveur à partir de `church_id`.
+`district_id` est rempli par le serveur à partir de `church_id`.
 
 > **Corrigé** — à la création, la réponse renvoyait `notifications_enabled: null` alors que la
 > valeur stockée était `true`. Si votre code traitait ce `null` comme « désactivé », il verra
@@ -147,8 +146,8 @@ exposé, ce qui empêchait de pré-remplir un champ image.
 | Actualité, Événement | `cover_media_id`                                | identifiant de l'image, à côté de l'objet `cover`    |
 | Église               | `image_media_id`                                | idem, à côté de `image`                              |
 | Bannière             | `media_id`, `is_active`, `starts_at`, `ends_at` | la fenêtre de visibilité n'était pas exposée du tout |
-| Appareil             | `district_id`, `zone_id`, `church_id`           | rattachement, déduit par le serveur                  |
-| District, Zone       | `zones_count`, `churches_count`                 | déclarés mais jamais renseignés jusqu'ici            |
+| Appareil             | `district_id`, `church_id`                      | rattachement, déduit par le serveur                  |
+| District             | `churches_count`                                | nombre d'églises actives                             |
 | Notification         | `last_error`                                    | motif d'un envoi en échec                            |
 
 ---

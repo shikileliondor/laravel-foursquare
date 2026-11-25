@@ -24,7 +24,6 @@ class NewsResource extends JsonResource
             'content' => $this->when($request->routeIs('*.show') || $request->boolean('full'), $this->content),
             'scope_type' => $this->scope_type,
             'district_id' => $this->district_id,
-            'zone_id' => $this->zone_id,
             'church_id' => $this->church_id,
             'priority' => $this->priority,
             'is_featured' => $this->is_featured,
