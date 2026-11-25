@@ -68,13 +68,19 @@ jobs:
             exit 1
           fi
 
+      # Le compte FTP `ajoutapifoursquare` s'ouvre directement sur le dossier
+      # de l'API (celui qui contient artisan, app/ et public/) : le ZIP y
+      # arrive prêt à être extrait sur place. Hôte web42.lws-hosting.com :
+      # ftp.studiobeyam.net est le même serveur mais présente le certificat
+      # de web42, la vérification TLS échouerait.
       - name: Upload ZIP via explicit FTPS
         env:
+          FTP_USER: ajoutapifoursquare@studiobeyam.net
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -euo pipefail
           : "${FTP_PASSWORD:?Set FTP_PASSWORD in the production environment}"
-          lftp -u 'c2860566c@winestock.studiobeyam.net',"$FTP_PASSWORD" -p 21 ftp://web42.lws-hosting.com -e "
+          lftp -u "$FTP_USER","$FTP_PASSWORD" -p 21 ftp://web42.lws-hosting.com -e "
             set cmd:fail-exit yes
             set ftp:ssl-force true
             set ftp:ssl-protect-data true
