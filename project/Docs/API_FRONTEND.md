@@ -59,3 +59,53 @@ Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones
 Les ressources admin `districts`, `churches`, `news`, `events`, `banners` et `notifications` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
 
 Afficher les états de chargement, les listes vides et `error.message`. Gérer `401` comme une déconnexion admin, `404` comme un contenu introuvable et `422` avec `error.fields`. Les champs optionnels peuvent être `null` : ne pas inventer de contenu. Pour les autres détails, voir [API.md](API.md).
+
+## Confidentialité et consentements
+
+L’application génère une fois un UUID aléatoire `subject_id`, le conserve dans son stockage sécurisé et l’utilise uniquement pour les événements de consentement. Chaque action utilise aussi un nouvel UUID `action_id` afin qu’une nouvelle tentative réseau ne crée pas de doublon.
+
+Accorder un consentement :
+
+```http
+POST /privacy/consents
+```
+
+```json
+{
+    "action_id": "UUID unique de cette action",
+    "subject_id": "UUID stable de cette installation",
+    "purpose": "PUSH_NOTIFICATIONS",
+    "policy_version": "2026-11-26",
+    "platform": "android",
+    "church_id": null,
+    "event_id": null
+}
+```
+
+Retirer un consentement avec un **nouvel** `action_id` :
+
+```http
+POST /privacy/consents/withdrawals
+```
+
+Les finalités acceptées sont `CHURCH_PERSONALIZATION`, `PUSH_NOTIFICATIONS` et `EVENT_CHURCH_ASSOCIATION`. Les plateformes sont `android`, `ios` et `web`. `church_id` et `event_id` sont facultatifs et servent à conserver le contexte exact du consentement. Un même `action_id` rejoué renvoie le premier enregistrement sans créer de doublon.
+
+Demande d’accès, rectification, suppression, opposition ou portabilité :
+
+```http
+POST /privacy/data-requests
+```
+
+```json
+{
+    "type": "DELETION",
+    "full_name": "Jean Kouassi",
+    "phone": "+2250708091011",
+    "email": null,
+    "event_id": null,
+    "details": "Inscription concernée et informations utiles.",
+    "privacy_notice_version": "2026-11-26"
+}
+```
+
+`phone` ou `email` est obligatoire. La réponse `201` contient une référence `DCP-...` à afficher et à faire conserver à l’utilisateur. L’API ne permet volontairement pas de relire publiquement la demande ni les données personnelles associées.

@@ -815,6 +815,13 @@
                 UPCOMING: 'warn',
                 URGENT: 'bad',
                 FAILED: 'bad',
+                RECEIVED: 'warn',
+                VERIFYING: 'warn',
+                IN_PROGRESS: 'warn',
+                COMPLETED: 'ok',
+                GRANTED: 'ok',
+                WITHDRAWN: 'bad',
+                REJECTED: 'bad',
                 CANCELLED: 'bad',
                 SUSPENDED: 'bad',
                 INACTIVE: 'bad',
@@ -1438,6 +1445,64 @@
                             type: 'checkbox',
                         },
                     ],
+                },
+                'privacy-requests': {
+                    label: 'Demandes de données',
+                    group: 'Confidentialité',
+                    perm: 'privacy',
+                    search: true,
+                    noCreate: true,
+                    noDelete: true,
+                    columns: [
+                        ['reference', 'Référence', 'title'],
+                        ['type', 'Type'],
+                        ['full_name', 'Nom et prénoms'],
+                        ['phone', 'Téléphone'],
+                        ['email', 'E-mail'],
+                        ['status', 'Statut'],
+                        ['created_at', 'Reçue le'],
+                    ],
+                    fields: [
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            required: true,
+                            options: [
+                                'RECEIVED',
+                                'VERIFYING',
+                                'IN_PROGRESS',
+                                'COMPLETED',
+                                'REJECTED',
+                            ],
+                        },
+                        {
+                            name: 'resolution_note',
+                            label: 'Note de traitement',
+                            type: 'textarea',
+                            rows: 4,
+                            wide: true,
+                            hint: 'Vérification d’identité, actions faites, réponse envoyée. Les données elles-mêmes se modifient dans Inscriptions ou Appareils.',
+                        },
+                    ],
+                },
+                'privacy-consents': {
+                    label: 'Consentements',
+                    group: 'Confidentialité',
+                    perm: 'privacy',
+                    search: true,
+                    noCreate: true,
+                    noEdit: true,
+                    noDelete: true,
+                    columns: [
+                        ['purpose', 'Finalité', 'title'],
+                        ['action', 'Action'],
+                        ['platform', 'Plateforme'],
+                        ['church.name', 'Église'],
+                        ['policy_version', 'Version'],
+                        ['occurred_at', 'Le'],
+                    ],
+                    fields: [],
                 },
                 users: {
                     label: 'Administrateurs',
@@ -2227,7 +2292,7 @@
                           )
                           .join('')}
                       ${res.noEdit ? '' : `<button class="btn sm" data-edit="${i}">Éditer</button>`}
-                      <button class="btn sm danger" data-del="${i}">Supprimer</button>
+                      ${res.noDelete ? '' : `<button class="btn sm danger" data-del="${i}">Supprimer</button>`}
                     </td>
                   </tr>`,
                     )

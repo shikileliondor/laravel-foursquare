@@ -227,6 +227,34 @@ acceptent donc `null` mais refusent toujours une cible qui contredit le type cho
 Pour ajouter un champ ou une ressource, il suffit d'étendre l'objet `RESOURCES` en haut du script :
 les tableaux et les formulaires en sont entièrement dérivés.
 
+## Confidentialité
+
+| Méthode | Route                           | Usage                                 |
+| ------- | ------------------------------- | ------------------------------------- |
+| `POST`  | `/privacy/consents`             | Enregistrer un consentement explicite |
+| `POST`  | `/privacy/consents/withdrawals` | Enregistrer son retrait               |
+| `POST`  | `/privacy/data-requests`        | Exercer un droit relatif aux données  |
+
+Ces routes sont publiques, limitées en débit et protégées par un champ anti-robots `website`, qui
+doit rester absent. Les événements de consentement sont immuables et idempotents grâce à
+`action_id`. L'identifiant pseudonyme `subject_id` est généré et conservé par l'application ; il
+n'est jamais renvoyé dans la réponse. Les finalités, exemples de corps JSON et règles d'intégration
+sont détaillés dans [API_FRONTEND.md](API_FRONTEND.md).
+
+Côté administration (admins nationaux uniquement, rubrique « Confidentialité » du panel) :
+
+| Méthode | Route                          | Usage                                                  |
+| ------- | ------------------------------ | ------------------------------------------------------ |
+| `GET`   | `/admin/privacy-requests`      | Lister les demandes (`search`, `status`)               |
+| `GET`   | `/admin/privacy-requests/{id}` | Détail d'une demande                                   |
+| `PATCH` | `/admin/privacy-requests/{id}` | `status` et `resolution_note` ; horodate la clôture    |
+| `GET`   | `/admin/privacy-consents`      | Journal des consentements, en lecture seule (`search`) |
+| `GET`   | `/admin/privacy-consents/{id}` | Détail d'un événement de consentement                  |
+
+Aucune suppression n'est exposée : les preuves de consentement et le suivi des demandes sont
+conservés. Passer une demande à `COMPLETED` ou `REJECTED` enregistre `completed_at` et
+l'administrateur qui l'a traitée ; chaque modification est tracée dans le journal d'audit.
+
 ## Notifications push (FCM)
 
 Ce que l'application mobile doit adapter est resume dans

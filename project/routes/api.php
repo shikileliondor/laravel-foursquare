@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\PrivacyConsentController;
+use App\Http\Controllers\Api\V1\PrivacyDataRequestController;
 use App\Http\Controllers\Api\V1\StructureController;
 use App\Http\Middleware\CachePublicResponse;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +47,15 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
     Route::post('events/{event}/register', [EventRegistrationController::class, 'store'])
         ->middleware('throttle:registrations')->name('events.register');
 
+    Route::prefix('privacy')->name('privacy.')->group(function (): void {
+        Route::post('consents', [PrivacyConsentController::class, 'grant'])
+            ->middleware('throttle:privacy-consents')->name('consents.store');
+        Route::post('consents/withdrawals', [PrivacyConsentController::class, 'withdraw'])
+            ->middleware('throttle:privacy-consents')->name('consents.withdraw');
+        Route::post('data-requests', [PrivacyDataRequestController::class, 'store'])
+            ->middleware('throttle:privacy-requests')->name('data-requests.store');
+    });
+
     // ------------------------------------------------------------------ auth
     Route::prefix('auth')->name('auth.')->group(function (): void {
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:auth')->name('login');
@@ -76,6 +87,10 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
                 ->name('notifications.send');
             Route::apiResource('devices', Admin\DeviceController::class)->only(['index', 'show', 'update', 'destroy']);
             Route::apiResource('users', Admin\UserController::class);
+            Route::apiResource('privacy-requests', Admin\PrivacyRequestController::class)
+                ->only(['index', 'show', 'update'])->parameters(['privacy-requests' => 'privacyRequest']);
+            Route::apiResource('privacy-consents', Admin\PrivacyConsentController::class)
+                ->only(['index', 'show'])->parameters(['privacy-consents' => 'privacyConsent']);
 
             Route::get('registrations', [Admin\RegistrationController::class, 'index'])->name('registrations.index');
             Route::get('registrations/export', [Admin\RegistrationController::class, 'export'])->name('registrations.export');

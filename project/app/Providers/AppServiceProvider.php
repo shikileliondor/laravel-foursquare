@@ -66,6 +66,16 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(30)->by($request->ip()),
         ]);
 
+        RateLimiter::for('privacy-consents', fn (Request $request) => [
+            Limit::perMinute(10)->by($request->ip()),
+            Limit::perHour(60)->by($request->ip()),
+        ]);
+
+        RateLimiter::for('privacy-requests', fn (Request $request) => [
+            Limit::perMinute(3)->by($request->ip()),
+            Limit::perHour(10)->by($request->ip()),
+        ]);
+
         RateLimiter::for('uploads', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->id ?: $request->ip()));
     }
 
