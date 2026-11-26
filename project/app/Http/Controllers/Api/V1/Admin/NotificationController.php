@@ -73,7 +73,8 @@ class NotificationController extends CrudController
     }
 
     /**
-     * Met la notification en file et declenche l'envoi FCM.
+     * Declenche l'envoi FCM : tout de suite par defaut, ou via la file si
+     * FCM_QUEUE est active (voir config/fcm.php).
      *
      * Volontairement separe du PATCH : changer un champ ne doit jamais partir
      * vers les telephones par effet de bord.
@@ -96,7 +97,20 @@ class NotificationController extends CrudController
 
         AuditLog::record('queued', $notification);
 
-        SendPushNotification::dispatch($notification->id);
+        if (config()->boolean('fcm.queue')) {
+            SendPushNotification::dispatch($notification->id);
+        } else {
+            // Sans worker : l'envoi se fait pendant la requete. Il doit aller
+            // au bout meme si la page se ferme ou si PHP limite la duree.
+            if (function_exists('ignore_user_abort')) {
+                ignore_user_abort(true);
+            }
+            if (function_exists('set_time_limit')) {
+                @set_time_limit(300);
+            }
+
+            SendPushNotification::dispatchSync($notification->id);
+        }
 
         return ApiResponse::ok(PushNotificationResource::make($notification->fresh()));
     }

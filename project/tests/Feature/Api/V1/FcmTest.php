@@ -147,7 +147,22 @@ it('reaches nobody when the targeted district no longer exists', function () {
     Http::assertNotSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com'));
 });
 
-it('queues the notification when the admin hits send', function () {
+it('sends right away when the admin hits send, without any worker', function () {
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'phone', 'platform' => 'android']);
+    $notification = makeNotification();
+
+    $this->postJson("/api/v1/admin/notifications/{$notification->id}/send")
+        ->assertOk()
+        ->assertJsonPath('data.status', 'SENT')
+        ->assertJsonPath('data.delivered_count', 1);
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com'));
+});
+
+it('queues the notification instead when FCM_QUEUE is on', function () {
+    config(['fcm.queue' => true]);
     Queue::fake();
     $notification = makeNotification();
 

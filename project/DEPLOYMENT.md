@@ -22,7 +22,7 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 
 Configuration à faire une fois : la racine web du sous-domaine `api.studiobeyam.net` pointe sur le sous-dossier `public/` du dossier de l'API ; PHP **8.4.1 ou plus** ; `storage/` et `bootstrap/cache/` inscriptibles ; `.env` de production (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://api.studiobeyam.net`, base MySQL de l'hébergement, même `APP_KEY` à chaque mise à jour, `PUBLIC_CACHE_STORE=file` pour servir les lectures publiques sans MySQL). Après une modification du `.env`, relancer `php artisan optimize`.
 
-Deux tâches cron cPanel, toutes les minutes, depuis le dossier de l'API : `php artisan queue:work --stop-when-empty --quiet` (notifications, voir plus bas) et `php artisan schedule:run` (tâches planifiées, dont la libération des notifications bloquées).
+Tâches cron cPanel, facultatives pour l'instant : `php artisan schedule:run` toutes les minutes (tâches planifiées), et `php artisan queue:work --stop-when-empty --quiet` seulement si `FCM_QUEUE=true` (voir plus bas).
 
 ### Première mise en service de la V1 nationale
 
@@ -41,13 +41,15 @@ Pour une mise à jour, refaire les étapes 1 à 5. Ne pas lancer `migrate:fresh`
 ## Notifications push (première installation)
 
 1. Déposer le JSON Firebase Admin dans `storage/app/firebase/` du dossier de l'API, hors de `public/`, puis mettre `FCM_CREDENTIALS=storage/app/firebase` dans `.env`. `FCM_PROJECT_ID` peut rester vide si le JSON contient `project_id`. Le ZIP ne contient jamais ce fichier, qui est ignoré par git : le déposer une fois par FTP suffit, les mises à jour ne l'effacent pas.
-2. Créer une tâche cron cPanel qui tourne toutes les minutes :
+2. Lancer `php artisan optimize` pour prendre en compte le `.env`. Sans cron ni worker, « Envoyer » dans le panel envoie tout de suite : la notification passe directement à `SENT` (ou `FAILED`, avec la raison dans la colonne Erreur).
+
+    Quand le parc d'appareils deviendra grand, mettre `FCM_QUEUE=true` dans `.env` pour que l'envoi ne bloque plus la page, et créer la tâche cron qui vide la file, toutes les minutes :
 
     ```bash
     cd <chemin du dossier de l'API> && php artisan queue:work --stop-when-empty --quiet
     ```
 
-    Sans ce cron, « Envoyer » laisse la notification en `PENDING` indéfiniment : le panel semble fonctionner mais rien ne part.
+    Avec `FCM_QUEUE=true` et sans ce cron, « Envoyer » laisse la notification en `PENDING` indéfiniment.
 
 3. Avant d'utiliser le panel, vérifier l'envoi depuis le terminal cPanel :
 
