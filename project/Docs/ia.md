@@ -97,6 +97,7 @@ Reste à faire pour ce lot : lancer `npm run check`, Pint, PHPStan et la suite c
 ## 10. À faire ensuite
 
 - Production : déposer la clé Firebase dans `storage/app/firebase/`, ajouter `FCM_CREDENTIALS` et `PUBLIC_CACHE_STORE=file` au `.env`, lancer `php artisan optimize`. La tâche cron `php artisan schedule:run` est facultative pour l'instant.
+- Production : configurer obligatoirement le cron `php artisan schedule:run` toutes les minutes afin d’envoyer le verset du jour à 07 h 00, heure d’Abidjan.
 - Production : supprimer les données de démonstration encore visibles (districts inventés comme « Abidjan 1 » ou « Bouaké », « Rattachements à confirmer » et ses 15 églises, actualités, événements et bannières de démonstration), après sauvegarde et avec l'accord de l'utilisateur.
 - Production : vérifier la table `users` (l'ancienne inscription publique donnait tous les droits) et créer les comptes admin.
 - Flutter : brancher `for_church_id`, mettre les images en cache disque (`cached_network_image`), basculer iOS et web sur le projet Firebase `foursquaremobileapi`.

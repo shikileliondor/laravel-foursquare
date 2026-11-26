@@ -2,6 +2,7 @@
 
 use App\Jobs\SendPushNotification;
 use App\Models\Church;
+use App\Models\DailyVerse;
 use App\Models\Device;
 use App\Models\District;
 use App\Models\PushNotification;
@@ -221,6 +222,29 @@ it('only reaches the devices of the targeted church', function () {
 
     Http::assertNotSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com')
         && $request['message']['token'] === 'outside');
+});
+
+it('includes the daily verse target in the FCM data payload', function () {
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'verse-reader', 'platform' => 'android']);
+    $verse = DailyVerse::create([
+        'text' => 'Texte fourni.',
+        'reference' => 'Référence fournie',
+        'bible_version' => 'Version fournie',
+        'publication_date' => today(),
+    ]);
+    $notification = makeNotification([
+        'type' => 'DAILY_VERSE',
+        'daily_verse_id' => $verse->id,
+        'status' => 'PENDING',
+    ]);
+
+    (new SendPushNotification($notification->id))->handle(app(FcmClient::class));
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com')
+        && $request['message']['data']['type'] === 'DAILY_VERSE'
+        && $request['message']['data']['daily_verse_id'] === $verse->id);
 });
 
 it('disables a device whose token FCM no longer knows', function () {

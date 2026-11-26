@@ -22,7 +22,7 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 
 Configuration à faire une fois : la racine web du sous-domaine `api.studiobeyam.net` pointe sur le sous-dossier `public/` du dossier de l'API ; PHP **8.4.1 ou plus** ; `storage/` et `bootstrap/cache/` inscriptibles ; `.env` de production (`APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://api.studiobeyam.net`, base MySQL de l'hébergement, même `APP_KEY` à chaque mise à jour, `PUBLIC_CACHE_STORE=file` pour servir les lectures publiques sans MySQL). Après une modification du `.env`, relancer `php artisan optimize`.
 
-Tâches cron cPanel, facultatives pour l'instant : `php artisan schedule:run` toutes les minutes (tâches planifiées), et `php artisan queue:work --stop-when-empty --quiet` seulement si `FCM_QUEUE=true` (voir plus bas).
+Tâche cron cPanel obligatoire pour publier la notification du verset du jour à 07 h 00, heure d’Abidjan : `php artisan schedule:run` toutes les minutes. Ajouter aussi `php artisan queue:work --stop-when-empty --quiet` toutes les minutes uniquement si `FCM_QUEUE=true` (voir plus bas).
 
 ### Première mise en service de la V1 nationale
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DeviceController;
+use App\Http\Controllers\Api\V1\DiscoverController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\EventRegistrationController;
 use App\Http\Controllers\Api\V1\HomeController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PrivacyConsentController;
 use App\Http\Controllers\Api\V1\PrivacyDataRequestController;
 use App\Http\Controllers\Api\V1\StructureController;
+use App\Http\Controllers\Api\V1\VerseController;
 use App\Http\Middleware\CachePublicResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +36,10 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::get('churches/{slug}', [StructureController::class, 'church'])->name('churches.show');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('verses', [VerseController::class, 'index'])->name('verses.index');
+        Route::get('verses/today', [VerseController::class, 'today'])->name('verses.today');
+        Route::get('discover', [DiscoverController::class, 'index'])->name('discover.index');
+        Route::get('discover/{key}', [DiscoverController::class, 'show'])->name('discover.show');
     });
 
     // Images immuables, gardées en cache par les téléphones. Pas de limitation
@@ -83,6 +89,10 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
                 ->parameters(['event-categories' => 'category']);
             Route::apiResource('banners', Admin\BannerController::class);
             Route::apiResource('notifications', Admin\NotificationController::class);
+            Route::apiResource('verses', Admin\DailyVerseController::class);
+            Route::apiResource('discover-sections', Admin\DiscoverSectionController::class)
+                ->only(['index', 'show', 'update']);
+            Route::apiResource('national-leaders', Admin\NationalLeaderController::class);
             Route::post('notifications/{notification}/send', [Admin\NotificationController::class, 'send'])
                 ->name('notifications.send');
             Route::apiResource('devices', Admin\DeviceController::class)->only(['index', 'show', 'update', 'destroy']);

@@ -23,7 +23,11 @@ const home = json.data;
 
 | Écran / besoin | Requête                | Données principales                                                                                             |
 | -------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Accueil        | `GET /home`            | `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data`                      |
+| Accueil        | `GET /home`            | `daily_verse`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data`       |
+| Versets        | `GET /verses`          | Historique paginé des versets publiés, du plus récent au plus ancien                                            |
+| Verset du jour | `GET /verses/today`    | Verset national du jour ou `data: null`                                                                         |
+| Découvrir      | `GET /discover`        | Rubriques institutionnelles publiées, dans leur ordre d’affichage                                               |
+| Rubrique       | `GET /discover/{key}`  | Texte, images et responsables publiés pour `national-office`                                                    |
 | Actualités     | `GET /news`            | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                           |
 | Actualité      | `GET /news/{slug}`     | Détail, notamment `content`                                                                                     |
 | Événements     | `GET /events`          | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
@@ -56,7 +60,9 @@ Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones
 
 `POST /auth/login` avec `{ "email": "...", "password": "..." }` renvoie `data.user` et `data.token`. Envoyer ensuite `Authorization: Bearer <token>` à `GET /auth/me`, `POST /auth/logout` et aux routes `/admin/*`. Ne pas utiliser ces routes pour le site public.
 
-Les ressources admin `districts`, `churches`, `news`, `events`, `banners` et `notifications` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
+Les ressources admin `districts`, `churches`, `news`, `events`, `banners`, `notifications`, `verses` et `national-leaders` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `discover-sections` expose uniquement liste, détail et modification, car ses six rubriques sont fixes. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
+
+Le champ `daily_verse` de `/home` est national et ne dépend jamais de `for_church_id`. Une notification de type `DAILY_VERSE` contient `daily_verse_id`; ouvrir cette notification mène à l’historique des versets.
 
 Afficher les états de chargement, les listes vides et `error.message`. Gérer `401` comme une déconnexion admin, `404` comme un contenu introuvable et `422` avec `error.fields`. Les champs optionnels peuvent être `null` : ne pas inventer de contenu. Pour les autres détails, voir [API.md](API.md).
 

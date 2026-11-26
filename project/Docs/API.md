@@ -5,6 +5,18 @@ Guide court à transmettre à l'IA frontend : [API_FRONTEND.md](API_FRONTEND.md)
 Backend Laravel, JSON only. Consommé par l'application Flutter et, plus tard, un panel React.
 Base : `https://api.studiobeyam.net/api/v1`
 
+## Verset du jour et espace institutionnel
+
+- `GET /verses/today` : verset dont `publication_date` est aujourd’hui, ou `null`.
+- `GET /verses` : historique paginé, sans les versets programmés dans le futur.
+- `GET /discover` et `GET /discover/{key}` : rubriques institutionnelles publiées. Les clés fixes sont `history`, `vision-missions`, `doctrine`, `national-office`, `organization` et `districts-churches`.
+- `/home` ajoute `daily_verse`, identique pour tous les utilisateurs.
+- Administration nationale : CRUD `/admin/verses`, mise à jour `/admin/discover-sections/{id}` et CRUD `/admin/national-leaders`.
+- `php artisan verses:publish-daily` est planifié à 07 h 00, heure d’Abidjan. Il crée au plus une notification `DAILY_VERSE` nationale par verset.
+- Un verset contient `text`, `reference`, `bible_version` et `publication_date` (`YYYY-MM-DD`, unique). Les dates futures permettent la programmation.
+- Une rubrique institutionnelle accepte `content`, `image_media_id`, `illustration_media_id` et `status` (`DRAFT` ou `PUBLISHED`).
+- Un responsable national contient `name`, `position`, `photo_media_id`, `display_order` et `is_published`.
+
 ## Format des réponses
 
 Succès :
@@ -117,7 +129,10 @@ Préfixe `/admin`, protégés par `auth:sanctum` + rôle admin + compte `ACTIVE`
 CRUD complet (`GET`, `POST`, `GET /{id}`, `PATCH /{id}`, `DELETE /{id}`) pour :
 
 `districts`, `churches`, `news`, `events`, `news-categories`, `event-categories`, `banners`,
-`notifications`, `users` (administrateurs)
+`notifications`, `users` (administrateurs), `verses` et `national-leaders`.
+
+Les six rubriques fixes de `discover-sections` exposent uniquement la liste, le détail et la
+modification : elles ne peuvent pas être créées ni supprimées.
 
 Plus : `GET /admin/dashboard` (statistiques du périmètre), `GET /admin/registrations`
 (`event_id`, `search`), `GET /admin/registrations/export` (CSV), `DELETE /admin/registrations/{id}`,
@@ -159,6 +174,9 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 - **Églises** : `district_id` obligatoire. Changer le district d'une église y rattache aussi ses appareils.
 - **Notifications** : une audience `DISTRICT` ou `CHURCH` dont la cible n'existe plus n'atteint personne
   et passe en `FAILED` avec son motif.
+- **Versets** : une seule publication par date ; les dates futures restent invisibles dans l'API publique.
+- **Découvrir Foursquare** : seuls les administrateurs nationaux et super administrateurs peuvent gérer
+  les six rubriques fixes et les responsables nationaux.
 - **Événements** : `end_at >= start_at`. `UPCOMING`/`ONGOING`/`PAST` ne sont jamais stockés, ils sont calculés.
 - **Bannières** : `link_type` détermine le champ de lien autorisé ; les autres sont interdits.
 - **News** : le HTML est nettoyé par liste blanche (`p`, `br`, `strong`, `em`, `u`, `ul`, `ol`, `li`, `h2`-`h4`, `blockquote`, `a`). Scripts, iframes, `on*=` et `javascript:` sont supprimés.
@@ -186,8 +204,10 @@ sans build ni dépendance, qui consomme l'API v1 documentée ci-dessus.
 Connexion via `POST /auth/login`, token conservé dans le `localStorage`, envoyé en `Bearer` sur
 chaque appel. Un `401` renvoie automatiquement à l'écran de connexion.
 
-Couvre les 8 ressources (actualités, événements, bannières, notifications, médias, districts,
-églises, appareils) avec liste paginée, recherche, création, édition et suppression.
+Couvre notamment les actualités, versets, rubriques Découvrir Foursquare, responsables nationaux,
+événements, bannières, notifications, médias, catégories, districts, églises, appareils,
+administrateurs et paramètres. Les opérations proposées respectent les droits et les capacités de
+chaque ressource ; les six rubriques institutionnelles sont seulement modifiables.
 Les champs conditionnels suivent les règles du serveur : les cibles de portée n'apparaissent
 qu'avec le `scope_type` correspondant, idem pour `link_type` et `audience`. Les erreurs `422`
 sont réaffichées champ par champ.

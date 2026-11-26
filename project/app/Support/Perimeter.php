@@ -119,7 +119,7 @@ final class Perimeter
         }
 
         if ($role->isNational()) {
-            array_push($modules, 'banners', 'categories', 'devices', 'users', 'privacy');
+            array_push($modules, 'banners', 'categories', 'devices', 'users', 'privacy', 'verses', 'discover', 'national-leaders');
         }
 
         if ($role === AdminRole::SuperAdmin) {

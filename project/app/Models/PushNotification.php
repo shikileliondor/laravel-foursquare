@@ -14,7 +14,7 @@ class PushNotification extends Model
 {
     use HasUuids, RefreshesPublicCache;
 
-    public const TYPES = ['GENERAL', 'NEWS', 'EVENT'];
+    public const TYPES = ['GENERAL', 'NEWS', 'EVENT', 'DAILY_VERSE'];
 
     public const AUDIENCES = ['ALL', 'DISTRICT', 'CHURCH'];
 
@@ -23,7 +23,7 @@ class PushNotification extends Model
     protected $table = 'push_notifications';
 
     protected $fillable = [
-        'title', 'body', 'type', 'news_id', 'event_id', 'audience',
+        'title', 'body', 'type', 'news_id', 'event_id', 'daily_verse_id', 'audience',
         'district_id', 'church_id', 'status', 'retry_count',
         'delivered_count', 'pruned_count', 'failed_count',
         'last_error', 'sent_at', 'created_by',
@@ -57,6 +57,14 @@ class PushNotification extends Model
     public function news(): BelongsTo
     {
         return $this->belongsTo(News::class);
+    }
+
+    /**
+     * @return BelongsTo<DailyVerse, $this>
+     */
+    public function dailyVerse(): BelongsTo
+    {
+        return $this->belongsTo(DailyVerse::class);
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\PublishDailyVerse;
 use App\Console\Commands\ReclaimStuckNotifications;
 use App\Models\TeamInvitation;
 use Illuminate\Support\Facades\Schedule;
@@ -16,3 +17,9 @@ Schedule::call(function () {
 Schedule::command(ReclaimStuckNotifications::class)
     ->everyFifteenMinutes()
     ->description('Release push notifications stuck in PENDING or PROCESSING');
+
+Schedule::command(PublishDailyVerse::class)
+    ->dailyAt('07:00')
+    ->timezone('Africa/Abidjan')
+    ->withoutOverlapping()
+    ->description('Publish the daily national verse notification');

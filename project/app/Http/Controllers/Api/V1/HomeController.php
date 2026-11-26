@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\ChurchResource;
+use App\Http\Resources\DailyVerseResource;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Banner;
 use App\Models\Church;
+use App\Models\DailyVerse;
 use App\Models\Event;
 use App\Models\News;
 use App\Models\Setting;
@@ -43,6 +45,9 @@ class HomeController extends ApiController
         $upcomingEvents = $events()->timeStatus('UPCOMING')->orderBy('start_at')->limit(10)->get();
 
         return ApiResponse::ok([
+            'daily_verse' => ($verse = DailyVerse::query()->whereDate('publication_date', today())->first())
+                ? DailyVerseResource::make($verse)->resolve()
+                : null,
             'church' => $church ? ChurchResource::make($church->load(['district', 'image']))->resolve() : null,
             'launch_church' => $this->launchChurch(),
             'banners' => BannerResource::collection($banners)->resolve(),

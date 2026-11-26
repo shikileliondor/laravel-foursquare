@@ -937,6 +937,118 @@
                         },
                     ],
                 },
+                verses: {
+                    label: 'Versets du jour',
+                    group: 'Contenu',
+                    search: true,
+                    columns: [
+                        ['publication_date', 'Publication'],
+                        ['reference', 'Référence', 'title'],
+                        ['bible_version', 'Version'],
+                        ['notification_created_at', 'Notification créée le'],
+                    ],
+                    fields: [
+                        {
+                            name: 'text',
+                            label: 'Texte biblique',
+                            type: 'textarea',
+                            rows: 7,
+                            required: true,
+                            wide: true,
+                        },
+                        {
+                            name: 'reference',
+                            label: 'Référence',
+                            required: true,
+                        },
+                        {
+                            name: 'bible_version',
+                            label: 'Version de la Bible',
+                            required: true,
+                        },
+                        {
+                            name: 'publication_date',
+                            label: 'Date de publication',
+                            type: 'date',
+                            required: true,
+                        },
+                    ],
+                },
+                'discover-sections': {
+                    label: 'Découvrir Foursquare',
+                    group: 'Contenu',
+                    perm: 'discover',
+                    noCreate: true,
+                    noDelete: true,
+                    columns: [
+                        ['image.url', '', 'thumb'],
+                        ['title', 'Rubrique', 'title'],
+                        ['status', 'Statut'],
+                    ],
+                    fields: [
+                        {
+                            name: 'content',
+                            label: 'Contenu',
+                            type: 'richtext',
+                            wide: true,
+                        },
+                        {
+                            name: 'image_media_id',
+                            label: 'Image principale',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'illustration_media_id',
+                            label: 'Illustration',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            options: ['DRAFT', 'PUBLISHED'],
+                            required: true,
+                        },
+                    ],
+                },
+                'national-leaders': {
+                    label: 'Bureau national',
+                    group: 'Contenu',
+                    columns: [
+                        ['photo.url', '', 'thumb'],
+                        ['name', 'Nom', 'title'],
+                        ['position', 'Fonction'],
+                        ['display_order', 'Ordre'],
+                        ['is_published', 'Publié'],
+                    ],
+                    defaults: { display_order: 0, is_published: false },
+                    fields: [
+                        { name: 'name', label: 'Nom', required: true },
+                        {
+                            name: 'position',
+                            label: 'Fonction',
+                            required: true,
+                        },
+                        {
+                            name: 'photo_media_id',
+                            label: 'Photo',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'display_order',
+                            label: 'Ordre d’affichage',
+                            type: 'number',
+                        },
+                        {
+                            name: 'is_published',
+                            label: 'Publié',
+                            type: 'checkbox',
+                        },
+                    ],
+                },
                 events: {
                     label: 'Événements',
                     group: 'Contenu',
