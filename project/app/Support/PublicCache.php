@@ -6,6 +6,7 @@ use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Cache court des réponses de l'API publique.
@@ -35,9 +36,18 @@ class PublicCache
         return (string) static::store()->rememberForever(self::VERSION_KEY, fn (): string => Str::random(16));
     }
 
+    /**
+     * Au mieux : un cache impossible à écrire (droits du dossier, base) ne doit
+     * jamais faire échouer l'enregistrement d'un contenu dans le panel. Au pire,
+     * l'ancienne réponse reste servie jusqu'à expiration (TTL).
+     */
     public static function bump(): void
     {
-        static::store()->forever(self::VERSION_KEY, Str::random(16));
+        try {
+            static::store()->forever(self::VERSION_KEY, Str::random(16));
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /**

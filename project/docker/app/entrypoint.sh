@@ -17,6 +17,10 @@ if [ "${1:-}" = "apache2-foreground" ]; then
     else
         php artisan migrate --force --seed
     fi
+
+    # Les commandes ci-dessus tournent en root : Apache (www-data) doit
+    # pouvoir réécrire le cache, les journaux et les vues compilées.
+    chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 fi
 
 exec "$@"

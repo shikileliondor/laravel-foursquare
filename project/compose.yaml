@@ -44,6 +44,8 @@ services:
 
     queue:
         <<: *laravel
+        # Même utilisateur qu'Apache : les fichiers de cache restent modifiables.
+        user: www-data
         command: ['php', 'artisan', 'queue:work', '--tries=3', '--timeout=90']
         depends_on:
             app:
@@ -51,6 +53,7 @@ services:
 
     scheduler:
         <<: *laravel
+        user: www-data
         command: ['php', 'artisan', 'schedule:work']
         depends_on:
             app:

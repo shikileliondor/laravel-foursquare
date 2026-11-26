@@ -50,6 +50,14 @@ abstract class CrudController extends ApiController
     protected bool $stampsCreator = false;
 
     /**
+     * Valeur enregistrée quand le panel envoie un champ facultatif vide (null)
+     * pour une colonne qui n'accepte pas null.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $emptyDefaults = [];
+
+    /**
      * @return array<string, mixed>
      */
     abstract protected function rules(Request $request, ?Model $model = null): array;
@@ -81,7 +89,7 @@ abstract class CrudController extends ApiController
 
         $this->authorizeFor('create', null, $data);
 
-        $data = $this->prepare($data, $request);
+        $data = $this->prepare($this->fillEmptyDefaults($data), $request);
 
         if ($this->stampsCreator) {
             $data['created_by'] = $request->user()->id;
@@ -110,7 +118,7 @@ abstract class CrudController extends ApiController
 
         $this->authorizeFor('update', $item, $data);
 
-        $item->update($this->prepare($data, $request, $item));
+        $item->update($this->prepare($this->fillEmptyDefaults($data), $request, $item));
 
         AuditLog::record('updated', $item);
 
@@ -163,6 +171,21 @@ abstract class CrudController extends ApiController
      */
     protected function prepare(array $data, Request $request, ?Model $model = null): array
     {
+        return $data;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function fillEmptyDefaults(array $data): array
+    {
+        foreach ($this->emptyDefaults as $field => $default) {
+            if (array_key_exists($field, $data) && $data[$field] === null) {
+                $data[$field] = $default;
+            }
+        }
+
         return $data;
     }
 

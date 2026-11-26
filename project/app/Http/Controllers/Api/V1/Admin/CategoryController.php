@@ -21,6 +21,9 @@ abstract class CategoryController extends CrudController
 
     protected string $orderDirection = 'asc';
 
+    /** Ordre laissé vide dans le panel : affichée en premier. */
+    protected array $emptyDefaults = ['display_order' => 0];
+
     /**
      * @return array<string, mixed>
      */
@@ -32,7 +35,7 @@ abstract class CategoryController extends CrudController
         return [
             'name' => [$required, 'string', 'max:100'],
             'slug' => ['nullable', 'string', 'max:120', Rule::unique($table, 'slug')->ignore($model?->getKey())],
-            'display_order' => ['sometimes', 'integer', 'min:0'],
+            'display_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

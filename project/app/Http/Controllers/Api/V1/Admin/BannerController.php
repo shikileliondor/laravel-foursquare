@@ -29,6 +29,9 @@ class BannerController extends CrudController
 
     protected bool $stampsCreator = true;
 
+    /** Ordre laissé vide dans le panel : affichée en premier. */
+    protected array $emptyDefaults = ['display_order' => 0];
+
     /**
      * @return array<string, mixed>
      */
