@@ -7,6 +7,7 @@ Je développe actuellement une application mobile destinée aux Églises Foursqu
 Le projet existe déjà et dispose d'une interface mobile fonctionnelle affichant actuellement des données de démonstration.
 
 Stack technique :
+
 - Application mobile : Flutter.
 - Backend et API REST : Laravel.
 - Base de données : MySQL.

@@ -10,24 +10,27 @@ Construis le front Foursquare Côte d'Ivoire avec cette API Laravel. Base de pro
 
 ```js
 const base = 'https://api.studiobeyam.net/api/v1';
-const response = await fetch(`${base}/home`, { headers: { Accept: 'application/json' } });
+const response = await fetch(`${base}/home`, {
+    headers: { Accept: 'application/json' },
+});
 const json = await response.json();
-if (!response.ok || !json.success) throw new Error(json.error?.message ?? 'Erreur API');
+if (!response.ok || !json.success)
+    throw new Error(json.error?.message ?? 'Erreur API');
 const home = json.data;
 ```
 
 ## Routes publiques
 
-| Écran / besoin | Requête | Données principales |
-| --- | --- | --- |
-| Accueil | `GET /home` | `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data` |
-| Actualités | `GET /news` | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id` |
-| Actualité | `GET /news/{slug}` | Détail, notamment `content` |
-| Événements | `GET /events` | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
-| Événement | `GET /events/{slug}` | Détail de l'événement |
-| Districts | `GET /districts` | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives) |
-| Églises | `GET /churches` | Liste paginée ; filtres `search`, `district_id`, `commune` |
-| Église | `GET /churches/{slug}` | Détail, dont `district`, `image`, coordonnées et contacts éventuels |
+| Écran / besoin | Requête                | Données principales                                                                                             |
+| -------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Accueil        | `GET /home`            | `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data`                      |
+| Actualités     | `GET /news`            | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                           |
+| Actualité      | `GET /news/{slug}`     | Détail, notamment `content`                                                                                     |
+| Événements     | `GET /events`          | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
+| Événement      | `GET /events/{slug}`   | Détail de l'événement                                                                                           |
+| Districts      | `GET /districts`       | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives)                              |
+| Églises        | `GET /churches`        | Liste paginée ; filtres `search`, `district_id`, `commune`                                                      |
+| Église         | `GET /churches/{slug}` | Détail, dont `district`, `image`, coordonnées et contacts éventuels                                             |
 
 Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants des objets et des filtres sont des UUID. Les listes publiques ne montrent que les contenus publiés et les structures actives.
 

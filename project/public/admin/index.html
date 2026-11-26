@@ -1261,8 +1261,16 @@
                     defaults: { is_active: true },
                     fields: [
                         { name: 'name', label: 'Nom', required: true },
-                        { name: 'display_order', label: 'Ordre', type: 'number' },
-                        { name: 'is_active', label: 'Active', type: 'checkbox' },
+                        {
+                            name: 'display_order',
+                            label: 'Ordre',
+                            type: 'number',
+                        },
+                        {
+                            name: 'is_active',
+                            label: 'Active',
+                            type: 'checkbox',
+                        },
                     ],
                 },
                 'event-categories': {
@@ -1278,8 +1286,16 @@
                     defaults: { is_active: true },
                     fields: [
                         { name: 'name', label: 'Nom', required: true },
-                        { name: 'display_order', label: 'Ordre', type: 'number' },
-                        { name: 'is_active', label: 'Active', type: 'checkbox' },
+                        {
+                            name: 'display_order',
+                            label: 'Ordre',
+                            type: 'number',
+                        },
+                        {
+                            name: 'is_active',
+                            label: 'Active',
+                            type: 'checkbox',
+                        },
                     ],
                 },
                 districts: {
@@ -1438,7 +1454,12 @@
                     defaults: { role: 'CHURCH_ADMIN', status: 'ACTIVE' },
                     fields: [
                         { name: 'name', label: 'Nom', required: true },
-                        { name: 'email', label: 'E-mail', type: 'email', required: true },
+                        {
+                            name: 'email',
+                            label: 'E-mail',
+                            type: 'email',
+                            required: true,
+                        },
                         {
                             name: 'password',
                             label: 'Mot de passe',
@@ -1489,7 +1510,9 @@
 
             // Options et valeurs par défaut adaptées au périmètre du compte.
             function applyPerimeter() {
-                const national = ['SUPER_ADMIN', 'NATIONAL_ADMIN'].includes(me.role);
+                const national = ['SUPER_ADMIN', 'NATIONAL_ADMIN'].includes(
+                    me.role,
+                );
                 const scopes =
                     me.role === 'CHURCH_ADMIN'
                         ? ['CHURCH']
@@ -1506,16 +1529,26 @@
                     0,
                     ROLES.length,
                     ...(me.role === 'SUPER_ADMIN'
-                        ? ['SUPER_ADMIN', 'NATIONAL_ADMIN', 'DISTRICT_ADMIN', 'CHURCH_ADMIN']
+                        ? [
+                              'SUPER_ADMIN',
+                              'NATIONAL_ADMIN',
+                              'DISTRICT_ADMIN',
+                              'CHURCH_ADMIN',
+                          ]
                         : ['DISTRICT_ADMIN', 'CHURCH_ADMIN']),
                 );
 
                 const target = {
                     scope_type: scopes[0],
-                    district_id: me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
+                    district_id:
+                        me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
                     church_id: me.role === 'CHURCH_ADMIN' ? me.church_id : null,
                 };
-                RESOURCES.news.defaults = Object.assign({}, RESOURCES.news.defaults, target);
+                RESOURCES.news.defaults = Object.assign(
+                    {},
+                    RESOURCES.news.defaults,
+                    target,
+                );
                 RESOURCES.events.defaults = Object.assign({}, target);
                 RESOURCES.notifications.defaults = {
                     audience: AUDIENCE[0],
@@ -1524,7 +1557,8 @@
                 };
                 RESOURCES.churches.defaults = {
                     status: 'ACTIVE',
-                    district_id: me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
+                    district_id:
+                        me.role === 'DISTRICT_ADMIN' ? me.district_id : null,
                 };
             }
 
@@ -1552,7 +1586,8 @@
                 try {
                     d = (await api('/admin/dashboard')).data;
                 } catch (err) {
-                    $('dash').innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                    $('dash').innerHTML =
+                        `<p class="empty">${esc(err.message)}</p>`;
                     return;
                 }
 
@@ -1567,14 +1602,18 @@
 
                 $('dash').innerHTML = `
             <div class="stats">${stats
-                .map(([k, v]) => `<div class="stat"><strong>${esc(String(v))}</strong><span>${esc(k)}</span></div>`)
+                .map(
+                    ([k, v]) =>
+                        `<div class="stat"><strong>${esc(String(v))}</strong><span>${esc(k)}</span></div>`,
+                )
                 .join('')}</div>
             <h2 class="sub">Dernières publications</h2>
             ${
                 d.latest.length
                     ? `<table><tbody>${d.latest
                           .map(
-                              (p) => `<tr><td class="title">${esc(p.title)}</td><td>${p.type === 'news' ? 'Actualité' : 'Événement'}</td><td>${esc(p.scope_type)}</td><td>${cell(p, ['status'])}</td><td>${fmtDate(p.created_at)}</td></tr>`,
+                              (p) =>
+                                  `<tr><td class="title">${esc(p.title)}</td><td>${p.type === 'news' ? 'Actualité' : 'Événement'}</td><td>${esc(p.scope_type)}</td><td>${cell(p, ['status'])}</td><td>${fmtDate(p.created_at)}</td></tr>`,
                           )
                           .join('')}</tbody></table>`
                     : '<p class="empty">Aucune publication pour le moment.</p>'
@@ -1593,7 +1632,8 @@
                         refOptions('churches'),
                     ]);
                 } catch (err) {
-                    $('settings').innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                    $('settings').innerHTML =
+                        `<p class="empty">${esc(err.message)}</p>`;
                     return;
                 }
 
@@ -1604,23 +1644,43 @@
                         type: 'ref',
                         hint: 'L’application la propose comme église de référence ; chacun peut en changer.',
                     },
-                    { name: 'contact_email', label: 'E-mail de contact', type: 'email' },
+                    {
+                        name: 'contact_email',
+                        label: 'E-mail de contact',
+                        type: 'email',
+                    },
                     { name: 'contact_phone', label: 'Téléphone de contact' },
                     { name: 'contact_whatsapp', label: 'WhatsApp de contact' },
                 ];
 
                 const draw = (errors = {}) => {
-                    $('settings').innerHTML = `<form id="sform" class="grid">${fields
-                        .map((f) => field(f, values[f.name] ?? '', errors[f.name]?.[0], churches))
-                        .join('')}<div class="field wide"><button class="btn primary">Enregistrer</button></div></form>`;
+                    $('settings').innerHTML =
+                        `<form id="sform" class="grid">${fields
+                            .map((f) =>
+                                field(
+                                    f,
+                                    values[f.name] ?? '',
+                                    errors[f.name]?.[0],
+                                    churches,
+                                ),
+                            )
+                            .join(
+                                '',
+                            )}<div class="field wide"><button class="btn primary">Enregistrer</button></div></form>`;
                     $('sform').onsubmit = async (e) => {
                         e.preventDefault();
                         const body = {};
                         fields.forEach((f) => {
-                            body[f.name] = e.target.elements[f.name].value || null;
+                            body[f.name] =
+                                e.target.elements[f.name].value || null;
                         });
                         try {
-                            values = (await api('/admin/settings', { method: 'PUT', body })).data;
+                            values = (
+                                await api('/admin/settings', {
+                                    method: 'PUT',
+                                    body,
+                                })
+                            ).data;
                             toast('Paramètres enregistrés');
                             draw();
                         } catch (err) {
@@ -2016,7 +2076,8 @@
 
                 if (!allowed(state.key)) {
                     state = {
-                        key: Object.keys(RESOURCES).find(allowed) || 'dashboard',
+                        key:
+                            Object.keys(RESOURCES).find(allowed) || 'dashboard',
                         page: 1,
                         search: '',
                         editing: null,
@@ -2045,7 +2106,11 @@
                 ${links}
                 <div class="spacer"></div>
                 <div class="me"><strong>${esc(me.name)}</strong>${esc(me.role_label || me.role)}${
-                    me.church ? ' — ' + esc(me.church.name) : me.district ? ' — ' + esc(me.district.name) : ''
+                    me.church
+                        ? ' — ' + esc(me.church.name)
+                        : me.district
+                          ? ' — ' + esc(me.district.name)
+                          : ''
                 }</div>
                 <button class="btn" id="logout">Déconnexion</button>
               </nav>

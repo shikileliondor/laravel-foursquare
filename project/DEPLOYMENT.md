@@ -11,12 +11,12 @@ Après chaque push sur `main`, GitHub lance les tests, prépare `foursquare-rele
 3. Choisir **Extraire** sur le ZIP, dans ce même dossier, en écrasant les fichiers existants. `artisan`, `app/` et `public/` doivent rester directement dans le dossier, sans sous-dossier créé par l'extraction. Le ZIP ne contient ni `.env` ni les fichiers de `storage/` : ils sont conservés.
 4. Dans le terminal cPanel, depuis le dossier de l'API :
 
-   ```bash
-   php artisan migrate --force
-   php artisan optimize:clear
-   php artisan optimize      # met en cache configuration, routes et vues : chaque requête démarre plus vite
-   php artisan storage:link  # uniquement si le lien n'existe pas déjà
-   ```
+    ```bash
+    php artisan migrate --force
+    php artisan optimize:clear
+    php artisan optimize      # met en cache configuration, routes et vues : chaque requête démarre plus vite
+    php artisan storage:link  # uniquement si le lien n'existe pas déjà
+    ```
 
 5. Supprimer `foursquare-release.zip`.
 
@@ -43,17 +43,18 @@ Pour une mise à jour, refaire les étapes 1 à 5. Ne pas lancer `migrate:fresh`
 1. Déposer le JSON Firebase Admin dans `storage/app/firebase/` du dossier de l'API, hors de `public/`, puis mettre `FCM_CREDENTIALS=storage/app/firebase` dans `.env`. `FCM_PROJECT_ID` peut rester vide si le JSON contient `project_id`. Le ZIP ne contient jamais ce fichier, qui est ignoré par git : le déposer une fois par FTP suffit, les mises à jour ne l'effacent pas.
 2. Créer une tâche cron cPanel qui tourne toutes les minutes :
 
-   ```bash
-   cd <chemin du dossier de l'API> && php artisan queue:work --stop-when-empty --quiet
-   ```
+    ```bash
+    cd <chemin du dossier de l'API> && php artisan queue:work --stop-when-empty --quiet
+    ```
 
-   Sans ce cron, « Envoyer » laisse la notification en `PENDING` indéfiniment : le panel semble fonctionner mais rien ne part.
+    Sans ce cron, « Envoyer » laisse la notification en `PENDING` indéfiniment : le panel semble fonctionner mais rien ne part.
+
 3. Avant d'utiliser le panel, vérifier l'envoi depuis le terminal cPanel :
 
-   ```bash
-   php artisan fcm:test --token=<token-du-telephone>
-   ```
+    ```bash
+    php artisan fcm:test --token=<token-du-telephone>
+    ```
 
-   La commande n'écrit rien en base et se termine en erreur si rien n'est livré. « FCM non configuré » renvoie à l'étape 1.
+    La commande n'écrit rien en base et se termine en erreur si rien n'est livré. « FCM non configuré » renvoie à l'étape 1.
 
 Le seul secret GitHub nécessaire au transfert est `FTP_PASSWORD` (environnement `production`) : le mot de passe du compte FTP `ajoutapifoursquare@studiobeyam.net`. Le secret `FTP_SERVER_DIR` n'est plus utilisé. Le secret `PRODUCTION_ENV` n'est pas copié dans le ZIP : `.env` reste à gérer sur le serveur.

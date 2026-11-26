@@ -36,19 +36,19 @@ Les erreurs de validation renvoient `422` avec `error.code = VALIDATION_ERROR` e
 
 ## Endpoints publics
 
-| Méthode | Endpoint           | Filtres                                                                   |
-| ------- | ------------------ | ------------------------------------------------------------------------- |
-| GET     | `/home`            | —                                                                         |
-| GET     | `/news`            | `search`, `scope`, `district_id`, `church_id`, `per_page`                 |
-| GET     | `/news/{slug}`     | —                                                                         |
-| GET     | `/events`          | `search`, `status` (`upcoming` / `ongoing` / `past`), `scope`, `per_page` |
-| GET     | `/events/{slug}`   | —                                                                         |
-| GET     | `/districts`       | `per_page`                                                                |
-| GET     | `/churches`        | `search`, `district_id`, `commune`, `per_page`                            |
-| GET     | `/churches/{slug}` | —                                                                         |
-| GET     | `/notifications`   | `for_church_id`, `per_page` — historique des notifications envoyées        |
-| POST    | `/events/{slug}/register` | inscription sans compte (voir plus bas)                            |
-| POST    | `/devices`         | enregistrement FCM                                                        |
+| Méthode | Endpoint                  | Filtres                                                                   |
+| ------- | ------------------------- | ------------------------------------------------------------------------- |
+| GET     | `/home`                   | —                                                                         |
+| GET     | `/news`                   | `search`, `scope`, `district_id`, `church_id`, `per_page`                 |
+| GET     | `/news/{slug}`            | —                                                                         |
+| GET     | `/events`                 | `search`, `status` (`upcoming` / `ongoing` / `past`), `scope`, `per_page` |
+| GET     | `/events/{slug}`          | —                                                                         |
+| GET     | `/districts`              | `per_page`                                                                |
+| GET     | `/churches`               | `search`, `district_id`, `commune`, `per_page`                            |
+| GET     | `/churches/{slug}`        | —                                                                         |
+| GET     | `/notifications`          | `for_church_id`, `per_page` — historique des notifications envoyées       |
+| POST    | `/events/{slug}/register` | inscription sans compte (voir plus bas)                                   |
+| POST    | `/devices`                | enregistrement FCM                                                        |
 
 **Église de référence** : `for_church_id` (accepté par `/home`, `/news`, `/events`, `/notifications`)
 renvoie le national, le district de l'église et l'église elle-même. Sans église choisie, `/home`
@@ -127,12 +127,12 @@ Plus : `GET /admin/dashboard` (statistiques du périmètre), `GET /admin/registr
 
 Rôles fixes, vérifiés côté serveur par des Policies et des Gates (une interface masquée ne suffit pas) :
 
-| Rôle             | Périmètre                                                                                       |
-| ---------------- | ----------------------------------------------------------------------------------------------- |
-| `SUPER_ADMIN`    | tout, y compris les paramètres et les autres super administrateurs                              |
+| Rôle             | Périmètre                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------ |
+| `SUPER_ADMIN`    | tout, y compris les paramètres et les autres super administrateurs                               |
 | `NATIONAL_ADMIN` | tout le contenu, districts, églises, bannières, catégories, appareils, admins de district/église |
-| `DISTRICT_ADMIN` | son district (`district_id`) : ses églises (sans les supprimer), contenus et notifications      |
-| `CHURCH_ADMIN`   | son église (`church_id`) : sa fiche (sans changer district ni statut), contenus, inscriptions   |
+| `DISTRICT_ADMIN` | son district (`district_id`) : ses églises (sans les supprimer), contenus et notifications       |
+| `CHURCH_ADMIN`   | son église (`church_id`) : sa fiche (sans changer district ni statut), contenus, inscriptions    |
 
 Les listes admin sont filtrées au périmètre ; une action hors périmètre renvoie `403`. Personne
 ne modifie son propre rôle ni ne supprime son compte ; suspendre un compte coupe ses sessions.
@@ -167,14 +167,14 @@ Les identifiants admin sont des UUID (sauf `users`, resté en entier).
 
 ### Limites de débit
 
-| Groupe          | Limite                        |
-| --------------- | ----------------------------- |
-| API publique    | 300 req/min par IP, hors réponses servies par le cache |
-| Images (`/media/{id}/file`) | aucune limite |
-| Login           | 5 req/min par IP et par email |
-| Inscriptions aux événements | 5 req/min et 30 req/h par IP |
-| Mutations admin | 120 req/min par admin         |
-| Uploads         | 20 req/min par admin          |
+| Groupe                      | Limite                                                 |
+| --------------------------- | ------------------------------------------------------ |
+| API publique                | 300 req/min par IP, hors réponses servies par le cache |
+| Images (`/media/{id}/file`) | aucune limite                                          |
+| Login                       | 5 req/min par IP et par email                          |
+| Inscriptions aux événements | 5 req/min et 30 req/h par IP                           |
+| Mutations admin             | 120 req/min par admin                                  |
+| Uploads                     | 20 req/min par admin                                   |
 
 Les lectures publiques (`GET`, sauf les recherches `search`) sont mises en cache 60 secondes, et le cache est vidé dès qu'un contenu change dans le panel. L'en-tête `X-Cache` vaut `HIT` ou `MISS`. Les images sont renvoyées avec `Cache-Control: immutable` : côté app, un cache disque (par exemple `cached_network_image` en Flutter) évite de les retélécharger.
 

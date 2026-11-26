@@ -40,10 +40,10 @@ Si l'app refuse le HTTP (`Cleartext HTTP traffic ... not permitted`), ajouter `a
 
 ## Commandes utiles
 
-| Besoin | Commande |
-| --- | --- |
-| État des services | `docker compose ps` |
-| Journaux | `docker compose logs -f app queue`, et `storage/logs/laravel.log` pour Laravel |
-| Artisan | `docker compose exec app php artisan <commande>` |
-| Arrêter, relancer | `docker compose stop`, puis `docker compose up -d` |
+| Besoin                   | Commande                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| État des services        | `docker compose ps`                                                                                            |
+| Journaux                 | `docker compose logs -f app queue`, et `storage/logs/laravel.log` pour Laravel                                 |
+| Artisan                  | `docker compose exec app php artisan <commande>`                                                               |
+| Arrêter, relancer        | `docker compose stop`, puis `docker compose up -d`                                                             |
 | Repartir d'une base vide | `docker compose down -v`, puis `docker compose up -d` : efface la base Docker, les dépendances se réinstallent |
