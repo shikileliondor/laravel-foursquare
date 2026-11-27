@@ -2,70 +2,28 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SendPushNotification;
 use App\Models\DailyVerse;
-use App\Models\PushNotification;
+use App\Services\DailyVersePublisher;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class PublishDailyVerse extends Command
 {
     protected $signature = 'verses:publish-daily';
 
-    protected $description = 'Create and send today\'s national verse notification once';
+    protected $description = 'Send today\'s national verse notification if it has not left yet';
 
-    public function handle(): int
+    public function handle(DailyVersePublisher $publisher): int
     {
-        $result = DB::transaction(function (): ?array {
-            $verse = DailyVerse::query()->whereDate('publication_date', today())->lockForUpdate()->first();
+        $verse = DailyVerse::query()->whereDate('publication_date', today())->first();
 
-            if (! $verse || $verse->notification_created_at !== null) {
-                return null;
-            }
-
-            $notification = PushNotification::query()->firstOrCreate(
-                ['daily_verse_id' => $verse->id],
-                [
-                    'title' => 'Verset du jour',
-                    'body' => $verse->reference.' — '.$verse->bible_version,
-                    'type' => 'DAILY_VERSE',
-                    'audience' => 'ALL',
-                    'status' => 'PENDING',
-                ],
-            );
-
-            if (! $notification->wasRecentlyCreated) {
-                $notification->update(['status' => 'PENDING', 'last_error' => null]);
-            }
-
-            $verse->update(['notification_created_at' => now()]);
-
-            return [$verse->id, $notification];
-        });
-
-        if (! $result) {
+        if (! $verse) {
             return self::SUCCESS;
         }
 
-        [$verseId, $notification] = $result;
+        $notification = $publisher->publish($verse);
 
-        try {
-            config()->boolean('fcm.queue')
-                ? SendPushNotification::dispatch($notification->id)
-                : SendPushNotification::dispatchSync($notification->id);
-        } catch (Throwable $e) {
-            DB::transaction(function () use ($verseId, $notification, $e): void {
-                DailyVerse::query()->whereKey($verseId)->update(['notification_created_at' => null]);
-                $notification->update([
-                    'status' => 'FAILED',
-                    'last_error' => mb_substr($e->getMessage(), 0, 1000),
-                    'retry_count' => $notification->retry_count + 1,
-                ]);
-            });
-
-            report($e);
-            $this->components->error('La notification du verset n’a pas pu être mise en file. Une prochaine exécution réessaiera.');
+        if ($notification?->status === 'FAILED') {
+            $this->components->error('La notification du verset n’a pas pu partir : '.$notification->last_error);
 
             return self::FAILURE;
         }

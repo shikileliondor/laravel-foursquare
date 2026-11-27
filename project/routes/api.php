@@ -90,6 +90,8 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
             Route::apiResource('banners', Admin\BannerController::class);
             Route::apiResource('notifications', Admin\NotificationController::class);
             Route::apiResource('verses', Admin\DailyVerseController::class);
+            Route::post('verses/{verse}/send', [Admin\DailyVerseController::class, 'send'])
+                ->name('verses.send');
             Route::apiResource('discover-sections', Admin\DiscoverSectionController::class)
                 ->only(['index', 'show', 'update']);
             Route::apiResource('national-leaders', Admin\NationalLeaderController::class);

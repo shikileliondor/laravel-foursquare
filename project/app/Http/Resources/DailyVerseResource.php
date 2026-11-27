@@ -26,6 +26,18 @@ class DailyVerseResource extends JsonResource
                 $request->routeIs('v1.admin.*'),
                 $this->notification_created_at?->toIso8601String(),
             ),
+            'notification' => $this->when(
+                $request->routeIs('v1.admin.*') && $this->relationLoaded('notification'),
+                fn () => $this->notification ? [
+                    'id' => $this->notification->id,
+                    'status' => $this->notification->status,
+                    'delivered_count' => $this->notification->delivered_count,
+                    'pruned_count' => $this->notification->pruned_count,
+                    'failed_count' => $this->notification->failed_count,
+                    'sent_at' => $this->notification->sent_at?->toIso8601String(),
+                    'last_error' => $this->notification->last_error,
+                ] : null,
+            ),
         ];
     }
 }

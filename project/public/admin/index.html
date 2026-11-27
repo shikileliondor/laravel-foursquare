@@ -4,45 +4,72 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex, nofollow" />
-        <title>Foursquare CI — Admin</title>
+        <title>Foursquare CI — Administration</title>
         <style>
             :root {
                 color-scheme: light dark;
-                --bg: #f5f6f8;
+                --red: #e31e2d;
+                --blue: #2449b8;
+                --gold: #f2b705;
+                --purple: #7e2a8c;
+                --green: #1fa855;
+                --navy: #0e1a3d;
+                --navy-2: #16244f;
+
+                --bg: #f4f6fb;
                 --surface: #fff;
-                --surface-2: #f0f2f5;
-                --line: #e2e5ea;
-                --line-strong: #cfd4dc;
-                --text: #171a1f;
-                --muted: #6a7280;
-                --accent: #2f6df6;
+                --surface-2: #f7f8fc;
+                --surface-3: #eef1f7;
+                --line: #e4e8f0;
+                --line-strong: #cfd6e3;
+                --text: #0e1630;
+                --text-2: #3b4459;
+                --muted: #6b7489;
+                --accent: #2449b8;
+                --accent-soft: #e8eefc;
                 --on-accent: #fff;
-                --ok: #17713c;
-                --ok-bg: #e7f5ec;
-                --warn: #855200;
-                --warn-bg: #fcf1df;
-                --bad: #b5372c;
-                --bad-bg: #fdeceb;
-                --radius: 8px;
-                --shadow: 0 1px 2px rgb(16 24 40 / 6%);
+                --ok: #157a3e;
+                --ok-bg: #e3f6ea;
+                --warn: #8a5a00;
+                --warn-bg: #fff4d1;
+                --bad: #c0182a;
+                --bad-bg: #fde8ea;
+                --info: #2449b8;
+                --info-bg: #e8eefc;
+                --radius: 10px;
+                --radius-lg: 14px;
+                --shadow-sm: 0 1px 2px rgb(14 22 48 / 6%);
+                --shadow:
+                    0 1px 2px rgb(14 22 48 / 5%), 0 6px 20px rgb(14 22 48 / 6%);
+                --shadow-lg: 0 24px 60px rgb(14 22 48 / 22%);
+                --side: 264px;
+                --font:
+                    'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI',
+                    sans-serif;
             }
 
             @media (prefers-color-scheme: dark) {
                 :root {
-                    --bg: #0f1216;
-                    --surface: #161a20;
-                    --surface-2: #1b2027;
-                    --line: #262c35;
-                    --line-strong: #39414d;
-                    --text: #e5eaf1;
-                    --muted: #8b95a3;
-                    --accent: #4d8bff;
-                    --ok: #5ac47c;
-                    --ok-bg: #11271a;
-                    --warn: #dfa831;
-                    --warn-bg: #2a2212;
-                    --bad: #f0796f;
-                    --bad-bg: #2d1716;
+                    --bg: #0b1020;
+                    --surface: #121a2e;
+                    --surface-2: #161f37;
+                    --surface-3: #1d2742;
+                    --line: #24304d;
+                    --line-strong: #34425f;
+                    --text: #e8ecf6;
+                    --text-2: #c2c9da;
+                    --muted: #8a94ab;
+                    --accent: #6d8ff0;
+                    --accent-soft: #1b2850;
+                    --ok: #5fd08a;
+                    --ok-bg: #10291c;
+                    --warn: #f2c14e;
+                    --warn-bg: #2c2410;
+                    --bad: #ff7b86;
+                    --bad-bg: #33141a;
+                    --info: #8ea9ff;
+                    --info-bg: #1b2850;
+                    --shadow-sm: none;
                     --shadow: none;
                 }
             }
@@ -55,19 +82,21 @@
                 margin: 0;
                 background: var(--bg);
                 color: var(--text);
-                font:
-                    14px/1.55 system-ui,
-                    -apple-system,
-                    'Segoe UI',
-                    sans-serif;
+                font: 14px/1.55 var(--font);
                 -webkit-font-smoothing: antialiased;
             }
 
             h1,
             h2,
-            h3 {
+            h3,
+            p {
                 margin: 0;
-                letter-spacing: -0.01em;
+            }
+
+            h1,
+            h2,
+            h3 {
+                letter-spacing: -0.015em;
             }
 
             a {
@@ -84,6 +113,50 @@
                 outline-offset: 2px;
             }
 
+            .i {
+                width: 18px;
+                height: 18px;
+                flex: none;
+            }
+
+            /* Sinon `.btn { display: inline-flex }` l'emporte sur l'attribut. */
+            [hidden] {
+                display: none !important;
+            }
+
+            .sr {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+            }
+
+            .fourbar {
+                display: flex;
+                height: 4px;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+            .fourbar i {
+                flex: 1;
+            }
+
+            .fourbar i:nth-child(1) {
+                background: var(--red);
+            }
+            .fourbar i:nth-child(2) {
+                background: var(--blue);
+            }
+            .fourbar i:nth-child(3) {
+                background: var(--gold);
+            }
+            .fourbar i:nth-child(4) {
+                background: var(--purple);
+            }
+
             /* ------------------------------------------------------ controls */
             button {
                 font: inherit;
@@ -92,32 +165,49 @@
             .btn {
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
-                padding: 7px 13px;
+                justify-content: center;
+                gap: 7px;
+                height: 38px;
+                margin: 0;
+                padding: 0 15px;
                 border: 1px solid var(--line-strong);
                 border-radius: var(--radius);
                 background: var(--surface);
                 color: var(--text);
+                font-size: 13.5px;
+                font-weight: 600;
+                letter-spacing: normal;
+                text-decoration: none;
                 cursor: pointer;
                 white-space: nowrap;
                 transition:
-                    background 0.12s,
-                    border-color 0.12s;
+                    background 0.15s,
+                    border-color 0.15s,
+                    box-shadow 0.15s,
+                    color 0.15s;
+            }
+
+            .btn .i {
+                width: 16px;
+                height: 16px;
             }
 
             .btn:hover:not(:disabled) {
-                background: var(--surface-2);
+                background: var(--surface-3);
             }
 
             .btn.primary {
                 background: var(--accent);
                 border-color: var(--accent);
                 color: var(--on-accent);
+                box-shadow:
+                    0 1px 2px rgb(36 73 184 / 25%),
+                    0 4px 12px rgb(36 73 184 / 18%);
             }
 
             .btn.primary:hover:not(:disabled) {
-                filter: brightness(1.08);
                 background: var(--accent);
+                filter: brightness(1.08);
             }
 
             .btn.ghost {
@@ -128,33 +218,100 @@
 
             .btn.ghost:hover:not(:disabled) {
                 color: var(--text);
-                background: var(--surface-2);
+                background: var(--surface-3);
             }
 
             .btn.danger {
                 color: var(--bad);
             }
 
+            .btn.danger:hover:not(:disabled) {
+                background: var(--bad-bg);
+                border-color: transparent;
+            }
+
+            .btn.light {
+                border-color: #fff;
+                background: #fff;
+                color: var(--navy);
+            }
+
+            .btn.light:hover:not(:disabled) {
+                background: #eef1f7;
+            }
+
             .btn.sm {
-                padding: 4px 9px;
-                font-size: 13px;
+                height: 31px;
+                padding: 0 11px;
+                font-size: 12.5px;
+                border-radius: 8px;
             }
 
             .btn:disabled {
-                opacity: 0.45;
+                opacity: 0.5;
+                cursor: default;
+            }
+
+            .iconbtn {
+                display: inline-grid;
+                place-items: center;
+                width: 34px;
+                height: 34px;
+                padding: 0;
+                border: 1px solid transparent;
+                border-radius: 9px;
+                background: transparent;
+                color: var(--muted);
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+
+            .iconbtn .i {
+                width: 17px;
+                height: 17px;
+            }
+
+            .iconbtn:hover:not(:disabled) {
+                background: var(--surface-3);
+                color: var(--text);
+            }
+
+            .iconbtn.danger:hover:not(:disabled) {
+                background: var(--bad-bg);
+                color: var(--bad);
+            }
+
+            .iconbtn:disabled {
+                opacity: 0.35;
                 cursor: default;
             }
 
             input,
             select,
             textarea {
-                font: inherit;
                 width: 100%;
-                padding: 7px 10px;
+                min-height: 40px;
+                padding: 8px 12px;
                 border: 1px solid var(--line-strong);
                 border-radius: var(--radius);
                 background: var(--surface);
                 color: var(--text);
+                font: inherit;
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s;
+            }
+
+            input:hover,
+            select:hover,
+            textarea:hover {
+                border-color: color-mix(
+                    in srgb,
+                    var(--accent) 35%,
+                    var(--line-strong)
+                );
             }
 
             input:focus,
@@ -162,46 +319,68 @@
             textarea:focus {
                 outline: none;
                 border-color: var(--accent);
-                box-shadow: 0 0 0 3px
-                    color-mix(in srgb, var(--accent) 18%, transparent);
+                box-shadow: 0 0 0 4px
+                    color-mix(in srgb, var(--accent) 16%, transparent);
             }
 
             textarea {
                 min-height: 130px;
+                line-height: 1.6;
                 resize: vertical;
             }
 
             label {
                 display: block;
-                margin-bottom: 5px;
-                color: var(--muted);
-                font-size: 12px;
+                margin-bottom: 6px;
+                color: var(--text-2);
+                font-size: 12.5px;
                 font-weight: 600;
-                letter-spacing: 0.02em;
+            }
+
+            .req {
+                color: var(--red);
             }
 
             .hint {
-                margin: 5px 0 0;
+                margin: 6px 0 0;
                 color: var(--muted);
                 font-size: 12px;
             }
 
             .err {
-                margin: 5px 0 0;
+                margin: 6px 0 0;
                 color: var(--bad);
                 font-size: 12px;
+                font-weight: 600;
+            }
+
+            .field.has-err input,
+            .field.has-err select,
+            .field.has-err textarea {
+                border-color: var(--bad);
             }
 
             /* --------------------------------------------------------- badge */
             .badge {
-                display: inline-block;
-                padding: 1px 8px;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 3px 10px;
                 border-radius: 999px;
-                border: 1px solid transparent;
-                background: var(--surface-2);
-                color: var(--muted);
+                background: var(--surface-3);
+                color: var(--text-2);
                 font-size: 12px;
                 font-weight: 600;
+                line-height: 1.45;
+                white-space: nowrap;
+            }
+
+            .badge.dot::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: currentColor;
             }
 
             .badge.ok {
@@ -219,154 +398,503 @@
                 color: var(--bad);
             }
 
-            /* --------------------------------------------------------- login */
-            #login {
-                width: min(360px, calc(100vw - 32px));
-                margin: 14vh auto;
-                padding: 28px;
-                background: var(--surface);
-                border: 1px solid var(--line);
-                border-radius: 12px;
-                box-shadow: var(--shadow);
+            .badge.info {
+                background: var(--info-bg);
+                color: var(--info);
             }
 
-            #login h1 {
-                font-size: 17px;
-            }
-
-            #login p {
-                margin: 2px 0 22px;
+            .muted-sm {
                 color: var(--muted);
-                font-size: 13px;
+                font-size: 12.5px;
+                white-space: nowrap;
+            }
+
+            /* --------------------------------------------------------- login */
+            .login {
+                display: grid;
+                grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+                min-height: 100vh;
+            }
+
+            .login-brand {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 22px;
+                padding: 56px clamp(32px, 6vw, 88px);
+                background:
+                    radial-gradient(
+                        circle at 15% 10%,
+                        rgb(36 73 184 / 55%),
+                        transparent 45%
+                    ),
+                    radial-gradient(
+                        circle at 90% 90%,
+                        rgb(126 42 140 / 45%),
+                        transparent 45%
+                    ),
+                    var(--navy);
+                color: #fff;
+                overflow: hidden;
+            }
+
+            .login-brand img {
+                width: 96px;
+                height: 96px;
+                padding: 6px;
+                border-radius: 22px;
+                background: #fff;
+                box-shadow: 0 18px 40px rgb(0 0 0 / 30%);
+            }
+
+            .login-brand h1 {
+                font-size: clamp(28px, 3.4vw, 40px);
+                font-weight: 700;
+                line-height: 1.15;
+            }
+
+            .login-brand p {
+                max-width: 420px;
+                color: #c3cbe4;
+                font-size: 15px;
+            }
+
+            .login-brand .fourbar {
+                width: 160px;
+            }
+
+            .login-main {
+                display: grid;
+                place-items: center;
+                padding: 40px 24px;
+            }
+
+            #login {
+                width: min(400px, 100%);
+            }
+
+            #login h2 {
+                font-size: 24px;
+                font-weight: 700;
+            }
+
+            #login > p {
+                margin: 6px 0 28px;
+                color: var(--muted);
             }
 
             #login .field {
-                margin-bottom: 14px;
+                margin-bottom: 16px;
             }
 
             #login .btn {
                 width: 100%;
-                justify-content: center;
+                height: 44px;
+                margin-top: 6px;
+            }
+
+            .alert {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                margin-bottom: 16px;
+                padding: 10px 12px;
+                border-radius: var(--radius);
+                background: var(--bad-bg);
+                color: var(--bad);
+                font-size: 13px;
+                font-weight: 600;
             }
 
             /* --------------------------------------------------------- shell */
             #app {
                 display: grid;
-                grid-template-columns: 220px minmax(0, 1fr);
+                grid-template-columns: var(--side) minmax(0, 1fr);
                 min-height: 100vh;
             }
 
-            nav {
+            .side {
                 position: sticky;
                 top: 0;
-                height: 100vh;
                 display: flex;
                 flex-direction: column;
-                gap: 2px;
-                padding: 18px 12px;
-                background: var(--surface);
-                border-right: 1px solid var(--line);
+                height: 100vh;
+                padding: 20px 14px 14px;
+                background: var(--navy);
+                color: #c4cce6;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #2a3a6a transparent;
             }
 
-            nav .brand {
-                padding: 0 8px 18px;
-                font-size: 14px;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-            }
-
-            nav .group {
-                margin: 14px 0 4px;
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
                 padding: 0 8px;
-                color: var(--muted);
-                font-size: 11px;
+            }
+
+            .brand img {
+                width: 42px;
+                height: 42px;
+                padding: 3px;
+                border-radius: 11px;
+                background: #fff;
+            }
+
+            .brand strong {
+                display: block;
+                color: #fff;
+                font-size: 15px;
                 font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.06em;
             }
 
-            nav a {
-                padding: 6px 8px;
-                border-radius: 6px;
-                color: var(--text);
-                text-decoration: none;
-                font-size: 13.5px;
-            }
-
-            nav a:hover {
-                background: var(--surface-2);
-            }
-
-            nav a.active {
-                background: var(--accent);
-                color: var(--on-accent);
-                font-weight: 600;
-            }
-
-            nav .spacer {
-                flex: 1;
-            }
-
-            nav .me {
-                margin-top: 12px;
-                padding: 10px 8px;
-                border-top: 1px solid var(--line);
-                color: var(--muted);
+            .brand span {
+                color: #8d99c2;
                 font-size: 12px;
             }
 
-            nav .me strong {
-                display: block;
-                color: var(--text);
+            .side .fourbar {
+                margin: 18px 8px 6px;
+                height: 3px;
+                opacity: 0.9;
+            }
+
+            .side h6 {
+                margin: 20px 10px 6px;
+                color: #7783ad;
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+            }
+
+            .side a {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                margin: 1px 0;
+                padding: 9px 10px;
+                border-radius: 10px;
+                color: #c4cce6;
+                font-size: 13.5px;
+                font-weight: 500;
+                text-decoration: none;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+
+            .side a .i {
+                opacity: 0.8;
+            }
+
+            .side a:hover {
+                background: rgb(255 255 255 / 6%);
+                color: #fff;
+            }
+
+            .side a.active {
+                background: rgb(255 255 255 / 11%);
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .side a.active .i {
+                opacity: 1;
+                color: var(--gold);
+            }
+
+            .side a.active::before {
+                content: '';
+                position: absolute;
+                top: 9px;
+                bottom: 9px;
+                left: -14px;
+                width: 3px;
+                border-radius: 0 3px 3px 0;
+                background: var(--red);
+            }
+
+            .side .user {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: auto;
+                padding: 10px;
+                border-radius: 12px;
+                background: rgb(255 255 255 / 6%);
+            }
+
+            .side .grow {
+                flex: 1;
+                min-height: 18px;
+            }
+
+            .avatar {
+                display: grid;
+                place-items: center;
+                width: 36px;
+                height: 36px;
+                flex: none;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--red), var(--purple));
+                color: #fff;
                 font-size: 13px;
+                font-weight: 700;
+            }
+
+            .who {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .who strong,
+            .who span {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .who strong {
+                color: #fff;
+                font-size: 13px;
+            }
+
+            .who span {
+                color: #8d99c2;
+                font-size: 11.5px;
+            }
+
+            .side .iconbtn {
+                color: #8d99c2;
+            }
+
+            .side .iconbtn:hover {
+                background: rgb(255 255 255 / 10%);
+                color: #fff;
+            }
+
+            .scrim {
+                display: none;
             }
 
             main {
                 min-width: 0;
-                padding-bottom: 48px;
             }
 
-            .head {
+            .topbar {
                 position: sticky;
                 top: 0;
-                z-index: 3;
+                z-index: 6;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 18px 26px;
-                background: color-mix(in srgb, var(--bg) 88%, transparent);
-                backdrop-filter: blur(8px);
-                border-bottom: 1px solid var(--line);
+                gap: 14px;
+                min-height: 78px;
+                padding: 16px 32px;
+                background: color-mix(in srgb, var(--bg) 86%, transparent);
+                backdrop-filter: blur(12px);
             }
 
-            .head h1 {
+            .topbar .titles {
                 flex: 1;
-                font-size: 18px;
+                min-width: 0;
             }
 
-            .head input[type='search'] {
-                width: 210px;
+            .topbar h1 {
+                overflow: hidden;
+                font-size: 22px;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .topbar p {
+                margin-top: 2px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .topbar .acts {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .menu-btn {
+                display: none;
+            }
+
+            .tabs {
+                display: flex;
+                gap: 6px;
+                margin: 0 32px;
+                border-bottom: 1px solid var(--line);
+                overflow-x: auto;
+            }
+
+            .tabs a {
+                margin-bottom: -1px;
+                padding: 10px 12px;
+                border-bottom: 2px solid transparent;
+                color: var(--muted);
+                font-size: 13.5px;
+                font-weight: 600;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+            .tabs a:hover {
+                color: var(--text);
+            }
+
+            .tabs a.active {
+                border-bottom-color: var(--accent);
+                color: var(--accent);
             }
 
             .body {
-                padding: 22px 26px;
+                padding: 22px 32px 56px;
             }
 
             .card {
                 background: var(--surface);
                 border: 1px solid var(--line);
-                border-radius: 10px;
-                box-shadow: var(--shadow);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-sm);
                 overflow: hidden;
             }
 
+            .card-head {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 16px 18px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .card-head h2 {
+                flex: 1;
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .card-head a {
+                font-size: 13px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            /* ---------------------------------------------- states & loading */
             .empty {
-                padding: 48px 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                padding: 56px 20px;
+                color: var(--muted);
                 text-align: center;
+            }
+
+            .empty .i {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 6px;
+                padding: 9px;
+                border-radius: 12px;
+                background: var(--surface-3);
                 color: var(--muted);
             }
 
+            .empty strong {
+                color: var(--text);
+                font-size: 15px;
+            }
+
+            .empty .btn {
+                margin-top: 10px;
+            }
+
+            .skel {
+                padding: 6px 0;
+            }
+
+            .sk-row {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr 0.6fr;
+                gap: 20px;
+                padding: 17px 18px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .sk-row:last-child {
+                border-bottom: 0;
+            }
+
+            .sk-row span,
+            .sk-block {
+                display: block;
+                height: 12px;
+                border-radius: 6px;
+                background: linear-gradient(
+                    90deg,
+                    var(--surface-3),
+                    var(--surface-2),
+                    var(--surface-3)
+                );
+                background-size: 200% 100%;
+                animation: shimmer 1.2s infinite linear;
+            }
+
+            @keyframes shimmer {
+                to {
+                    background-position: -200% 0;
+                }
+            }
+
             /* --------------------------------------------------------- table */
+            .listbar {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .searchbox {
+                position: relative;
+                flex: 0 1 340px;
+            }
+
+            .searchbox .i {
+                position: absolute;
+                top: 50%;
+                left: 12px;
+                width: 16px;
+                height: 16px;
+                color: var(--muted);
+                transform: translateY(-50%);
+                pointer-events: none;
+            }
+
+            .searchbox input {
+                padding-left: 37px;
+                background: var(--surface-2);
+            }
+
+            .listbar .total {
+                margin-left: auto;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .tablewrap {
+                overflow-x: auto;
+            }
+
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -374,9 +902,9 @@
 
             th,
             td {
-                padding: 10px 14px;
-                text-align: left;
+                padding: 12px 16px;
                 border-bottom: 1px solid var(--line);
+                text-align: left;
                 vertical-align: middle;
             }
 
@@ -385,11 +913,17 @@
             }
 
             th {
+                background: var(--surface-2);
                 color: var(--muted);
                 font-size: 11px;
                 font-weight: 700;
-                text-transform: uppercase;
                 letter-spacing: 0.06em;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+
+            tbody tr {
+                transition: background 0.12s;
             }
 
             tbody tr:hover {
@@ -397,20 +931,28 @@
             }
 
             td.title {
+                color: var(--text);
                 font-weight: 600;
             }
 
             td.acts {
+                width: 1%;
                 text-align: right;
                 white-space: nowrap;
             }
 
+            .rowacts {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
             .rowthumb {
-                width: 54px;
-                height: 38px;
-                border-radius: 5px;
+                width: 56px;
+                height: 40px;
                 border: 1px solid var(--line);
-                background: var(--surface-2);
+                border-radius: 8px;
+                background: var(--surface-3);
                 overflow: hidden;
             }
 
@@ -420,11 +962,27 @@
                 object-fit: cover;
             }
 
+            .excerpt {
+                display: block;
+                min-width: 220px;
+                max-width: 360px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .daycell {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+                white-space: nowrap;
+            }
+
             .pager {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 12px 14px;
+                gap: 6px;
+                padding: 12px 16px;
                 border-top: 1px solid var(--line);
                 color: var(--muted);
                 font-size: 13px;
@@ -437,8 +995,8 @@
             /* ------------------------------------------------------- gallery */
             .gallery {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 14px;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 16px;
             }
 
             .tile {
@@ -447,32 +1005,38 @@
                 width: 100%;
                 padding: 0;
                 border: 1px solid var(--line);
-                border-radius: 9px;
+                border-radius: 12px;
                 background: var(--surface);
                 overflow: hidden;
                 cursor: pointer;
                 text-align: left;
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s,
+                    transform 0.15s;
             }
 
             .tile img {
                 width: 100%;
                 aspect-ratio: 4 / 3;
                 object-fit: cover;
-                background: var(--surface-2);
+                background: var(--surface-3);
             }
 
             .tile .name {
                 display: block;
-                padding: 7px 9px;
+                padding: 8px 10px;
+                overflow: hidden;
                 color: var(--muted);
                 font-size: 12px;
-                white-space: nowrap;
-                overflow: hidden;
                 text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .tile:hover {
                 border-color: var(--line-strong);
+                box-shadow: var(--shadow);
+                transform: translateY(-1px);
             }
 
             .tile[aria-pressed='true'] {
@@ -482,11 +1046,11 @@
 
             .tile .tools {
                 position: absolute;
-                inset: auto 6px 34px auto;
+                inset: auto 8px 40px auto;
                 display: flex;
                 gap: 6px;
                 opacity: 0;
-                transition: opacity 0.12s;
+                transition: opacity 0.15s;
             }
 
             .tile:hover .tools,
@@ -495,109 +1059,623 @@
             }
 
             .tools .btn {
-                padding: 3px 8px;
+                height: 28px;
+                padding: 0 9px;
                 font-size: 12px;
                 box-shadow: var(--shadow);
             }
 
-            .stats {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-            .stat {
-                border: 1px solid #e5e5e5;
-                border-radius: 8px;
-                padding: 14px;
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .stat strong {
-                font-size: 26px;
-            }
-            .sub {
-                font-size: 15px;
-                margin: 8px 0 10px;
-            }
             .dropzone {
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                min-height: 120px;
+                gap: 8px;
+                min-height: 140px;
+                padding: 20px;
                 border: 1.5px dashed var(--line-strong);
-                border-radius: 9px;
+                border-radius: var(--radius-lg);
+                background: var(--surface);
                 color: var(--muted);
-                cursor: pointer;
                 text-align: center;
                 font-size: 13px;
+                cursor: pointer;
+                transition:
+                    border-color 0.15s,
+                    color 0.15s,
+                    background 0.15s;
+            }
+
+            .dropzone .i {
+                width: 28px;
+                height: 28px;
+            }
+
+            .dropzone strong {
+                color: var(--text);
+                font-size: 14px;
             }
 
             .dropzone:hover,
             .dropzone.over {
                 border-color: var(--accent);
+                background: var(--accent-soft);
                 color: var(--accent);
             }
 
+            /* ----------------------------------------------------- dashboard */
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 16px;
+                margin-bottom: 22px;
+            }
+
+            .stat {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 18px;
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                background: var(--surface);
+                box-shadow: var(--shadow-sm);
+                color: inherit;
+                text-decoration: none;
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s,
+                    transform 0.15s;
+            }
+
+            a.stat:hover {
+                border-color: var(--line-strong);
+                box-shadow: var(--shadow);
+                transform: translateY(-1px);
+            }
+
+            .stat strong {
+                display: block;
+                font-size: 26px;
+                font-weight: 700;
+                line-height: 1.15;
+            }
+
+            .stat span {
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .tone {
+                display: grid;
+                place-items: center;
+                width: 44px;
+                height: 44px;
+                flex: none;
+                border-radius: 12px;
+                background: color-mix(in srgb, var(--tone) 13%, transparent);
+                color: var(--tone);
+            }
+
+            .tone .i {
+                width: 21px;
+                height: 21px;
+            }
+
+            .tone.sm {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+            }
+
+            .tone.sm .i {
+                width: 17px;
+                height: 17px;
+            }
+
+            .t-red {
+                --tone: var(--red);
+            }
+            .t-blue {
+                --tone: var(--blue);
+            }
+            .t-gold {
+                --tone: #c58f00;
+            }
+            .t-purple {
+                --tone: var(--purple);
+            }
+            .t-green {
+                --tone: var(--green);
+            }
+            .t-navy {
+                --tone: #3a4d8f;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .t-blue,
+                .t-navy {
+                    --tone: #8ea9ff;
+                }
+                .t-purple {
+                    --tone: #d48ae0;
+                }
+                .t-red {
+                    --tone: #ff7b86;
+                }
+                .t-gold {
+                    --tone: var(--gold);
+                }
+            }
+
+            .dash-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+                gap: 20px;
+                align-items: start;
+            }
+
+            .col {
+                display: grid;
+                gap: 20px;
+            }
+
+            .feed {
+                margin: 0;
+                padding: 6px 0;
+                list-style: none;
+            }
+
+            .feed li {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                padding: 11px 18px;
+            }
+
+            .feed li + li {
+                border-top: 1px solid var(--line);
+            }
+
+            .feed .txt {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .feed strong {
+                display: block;
+                overflow: hidden;
+                font-weight: 600;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .feed .txt span {
+                color: var(--muted);
+                font-size: 12.5px;
+            }
+
+            .quick {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                padding: 12px 18px;
+                border: 0;
+                border-top: 1px solid var(--line);
+                background: transparent;
+                color: var(--text);
+                font-weight: 600;
+                text-align: left;
+                cursor: pointer;
+                transition: background 0.12s;
+            }
+
+            .quick:first-child {
+                border-top: 0;
+            }
+
+            .quick:hover {
+                background: var(--surface-2);
+            }
+
+            .quick .label {
+                flex: 1;
+            }
+
+            .quick > .i:last-child {
+                width: 16px;
+                height: 16px;
+                color: var(--muted);
+            }
+
+            /* ------------------------------------------------- verse visuals */
+            .verse-card {
+                position: relative;
+                padding: 22px;
+                border-radius: var(--radius-lg);
+                background:
+                    radial-gradient(
+                        circle at 100% 0%,
+                        rgb(126 42 140 / 55%),
+                        transparent 55%
+                    ),
+                    linear-gradient(140deg, var(--navy), #1f3375);
+                color: #fff;
+                overflow: hidden;
+            }
+
+            .verse-card::after {
+                content: '\201C';
+                position: absolute;
+                top: -28px;
+                right: 14px;
+                color: rgb(255 255 255 / 8%);
+                font:
+                    700 150px/1 Georgia,
+                    serif;
+                pointer-events: none;
+            }
+
+            .verse-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                color: var(--gold);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+            }
+
+            .eyebrow .i {
+                width: 15px;
+                height: 15px;
+            }
+
+            .link-light {
+                position: relative;
+                z-index: 1;
+                color: #c3cbe4;
+                font-size: 12.5px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .link-light:hover {
+                color: #fff;
+            }
+
+            .verse-card blockquote {
+                position: relative;
+                margin: 14px 0 12px;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.6;
+                white-space: pre-line;
+            }
+
+            .verse-ref {
+                color: #c3cbe4;
+                font-size: 13px;
+            }
+
+            .verse-ref strong {
+                color: #fff;
+            }
+
+            .verse-foot {
+                position: relative;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .verse-empty {
+                margin: 14px 0;
+                color: #c3cbe4;
+            }
+
+            .verse-sched {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                margin-top: 16px;
+                padding-top: 14px;
+                border-top: 1px solid rgb(255 255 255 / 12%);
+                color: #c3cbe4;
+                font-size: 12.5px;
+            }
+
+            .verse-sched .i {
+                width: 15px;
+                height: 15px;
+            }
+
+            .verse-card .badge {
+                background: rgb(255 255 255 / 12%);
+                color: #fff;
+            }
+
+            .verse-card .badge.ok {
+                background: rgb(31 168 85 / 28%);
+                color: #c4f5d6;
+            }
+
+            .verse-card .badge.bad {
+                background: rgb(227 30 45 / 30%);
+                color: #ffd0d4;
+            }
+
+            .verse-card .badge.warn {
+                background: rgb(242 183 5 / 25%);
+                color: #ffe9a8;
+            }
+
+            .push {
+                display: flex;
+                gap: 12px;
+                padding: 13px 14px;
+                border: 1px solid var(--line);
+                border-radius: 16px;
+                background: var(--surface-2);
+                box-shadow: var(--shadow-sm);
+            }
+
+            .push img {
+                width: 34px;
+                height: 34px;
+                flex: none;
+                padding: 2px;
+                border-radius: 9px;
+                background: #fff;
+            }
+
+            .push-body {
+                min-width: 0;
+                flex: 1;
+            }
+
+            .push-meta {
+                display: flex;
+                justify-content: space-between;
+                color: var(--muted);
+                font-size: 11.5px;
+            }
+
+            .push strong {
+                display: block;
+                margin-top: 2px;
+                font-size: 13.5px;
+            }
+
+            .push p {
+                display: -webkit-box;
+                margin-top: 2px;
+                overflow: hidden;
+                color: var(--text-2);
+                font-size: 13px;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 4;
+            }
+
+            .note {
+                display: flex;
+                gap: 9px;
+                padding: 11px 13px;
+                border-radius: var(--radius);
+                background: var(--surface-3);
+                color: var(--text-2);
+                font-size: 12.5px;
+                font-weight: 500;
+            }
+
+            .note .i {
+                width: 16px;
+                height: 16px;
+                margin-top: 1px;
+            }
+
+            .note.info {
+                background: var(--info-bg);
+                color: var(--info);
+            }
+
+            .note.ok {
+                background: var(--ok-bg);
+                color: var(--ok);
+            }
+
+            .note.warn {
+                background: var(--warn-bg);
+                color: var(--warn);
+            }
+
             /* ---------------------------------------------------------- form */
+            .form-layout {
+                display: grid;
+                gap: 20px;
+                align-items: start;
+            }
+
+            .form-layout.has-preview {
+                grid-template-columns: minmax(0, 1fr) 360px;
+            }
+
+            .form-card {
+                overflow: visible;
+            }
+
             .grid {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 16px;
-                padding: 20px;
+                gap: 18px 20px;
+                padding: 24px;
             }
 
             .grid .wide {
                 grid-column: 1 / -1;
             }
 
+            .fsec {
+                grid-column: 1 / -1;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 8px;
+                padding-top: 20px;
+                border-top: 1px solid var(--line);
+                color: var(--text);
+                font-size: 14px;
+                font-weight: 700;
+            }
+
+            .fsec::before {
+                content: '';
+                width: 4px;
+                height: 16px;
+                border-radius: 4px;
+                background: var(--accent);
+            }
+
+            .grid > .fsec:first-child {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: 0;
+            }
+
             .check {
                 display: flex;
                 align-items: center;
-                gap: 9px;
+                gap: 12px;
+                min-height: 40px;
+                padding: 9px 12px;
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                background: var(--surface-2);
             }
 
             .check input {
+                position: relative;
+                width: 38px;
+                min-height: 0;
+                height: 22px;
+                flex: none;
+                padding: 0;
+                border: 0;
+                border-radius: 999px;
+                background: var(--line-strong);
+                cursor: pointer;
+                appearance: none;
+                transition: background 0.15s;
+            }
+
+            .check input::before {
+                content: '';
+                position: absolute;
+                top: 3px;
+                left: 3px;
                 width: 16px;
                 height: 16px;
+                border-radius: 50%;
+                background: #fff;
+                box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+                transition: transform 0.15s;
+            }
+
+            .check input:checked {
+                background: var(--accent);
+            }
+
+            .check input:checked::before {
+                transform: translateX(16px);
             }
 
             .check label {
                 margin: 0;
+                color: var(--text);
                 font-size: 13.5px;
                 font-weight: 500;
-                color: var(--text);
+                cursor: pointer;
             }
 
             .actions {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                grid-column: 1 / -1;
                 display: flex;
+                align-items: center;
                 gap: 10px;
-                margin-top: 4px;
-                padding-top: 18px;
+                margin: 6px -24px -24px;
+                padding: 14px 24px;
                 border-top: 1px solid var(--line);
+                border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+                background: color-mix(in srgb, var(--surface) 92%, transparent);
+                backdrop-filter: blur(8px);
             }
 
             .actions .spacer {
                 flex: 1;
             }
 
+            .preview-card {
+                position: sticky;
+                top: 92px;
+                display: grid;
+                gap: 12px;
+                padding: 18px;
+            }
+
+            .pv-head {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 700;
+            }
+
+            .pv-label {
+                margin-top: 4px;
+                color: var(--muted);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.07em;
+                text-transform: uppercase;
+            }
+
+            .preview-card .verse-card {
+                padding: 18px;
+            }
+
+            .preview-card .verse-card blockquote {
+                font-size: 14.5px;
+            }
+
             /* image field */
             .imgfield {
                 display: flex;
-                gap: 14px;
                 align-items: flex-start;
+                gap: 16px;
             }
 
             .imgprev {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 168px;
-                height: 116px;
+                width: 180px;
+                height: 124px;
                 flex: none;
-                border: 1px solid var(--line);
-                border-radius: 9px;
+                border: 1px dashed var(--line-strong);
+                border-radius: 12px;
                 background: var(--surface-2);
                 color: var(--muted);
                 font-size: 12px;
@@ -613,8 +1691,8 @@
             .imgacts {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 8px;
                 align-items: flex-start;
+                gap: 8px;
             }
 
             .imgacts .hint {
@@ -625,21 +1703,36 @@
             .toolbar {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 5px;
-                margin-bottom: 7px;
+                gap: 4px;
+                margin-bottom: 8px;
+                padding: 5px;
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                background: var(--surface-2);
             }
 
             .toolbar .btn {
-                padding: 3px 9px;
+                height: 28px;
+                padding: 0 10px;
+                border-color: transparent;
+                background: transparent;
                 font-size: 12.5px;
             }
 
+            .toolbar .btn:hover {
+                background: var(--surface);
+            }
+
+            .toolbar [data-preview] {
+                margin-left: auto;
+            }
+
             .preview {
+                min-height: 130px;
                 padding: 14px 16px;
                 border: 1px solid var(--line);
                 border-radius: var(--radius);
                 background: var(--surface-2);
-                min-height: 130px;
             }
 
             .preview > :first-child {
@@ -654,22 +1747,24 @@
             .overlay {
                 position: fixed;
                 inset: 0;
-                z-index: 20;
+                z-index: 40;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
-                background: rgb(9 12 16 / 55%);
+                background: rgb(9 14 30 / 55%);
+                backdrop-filter: blur(3px);
             }
 
             .modal {
                 display: flex;
                 flex-direction: column;
-                width: min(860px, 100%);
-                max-height: min(640px, 100%);
-                background: var(--bg);
+                width: min(900px, 100%);
+                max-height: min(680px, 100%);
                 border: 1px solid var(--line);
-                border-radius: 12px;
+                border-radius: 18px;
+                background: var(--bg);
+                box-shadow: var(--shadow-lg);
                 overflow: hidden;
             }
 
@@ -678,7 +1773,7 @@
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                padding: 13px 16px;
+                padding: 14px 18px;
                 background: var(--surface);
             }
 
@@ -692,12 +1787,12 @@
 
             .modal header h2 {
                 flex: 1;
-                font-size: 15px;
+                font-size: 16px;
             }
 
             .modal .content {
                 flex: 1;
-                padding: 16px;
+                padding: 18px;
                 overflow: auto;
             }
 
@@ -713,62 +1808,143 @@
             /* --------------------------------------------------------- toast */
             #toast {
                 position: fixed;
-                right: 18px;
-                bottom: 18px;
-                z-index: 40;
-                display: none;
-                max-width: 340px;
-                padding: 11px 16px;
+                right: 22px;
+                bottom: 22px;
+                z-index: 50;
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                max-width: 380px;
+                padding: 13px 16px;
                 border: 1px solid var(--line);
-                border-left: 3px solid var(--accent);
-                border-radius: var(--radius);
+                border-radius: 12px;
                 background: var(--surface);
-                box-shadow: 0 6px 20px rgb(16 24 40 / 14%);
+                box-shadow: var(--shadow-lg);
+                font-weight: 500;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(10px);
+                transition:
+                    opacity 0.2s,
+                    transform 0.2s;
             }
 
-            #toast.bad {
-                border-left-color: var(--bad);
+            #toast.show {
+                opacity: 1;
+                pointer-events: auto;
+                transform: none;
             }
 
-            @media (max-width: 780px) {
-                #app {
-                    grid-template-columns: 1fr;
+            #toast .i {
+                margin-top: 1px;
+                color: var(--ok);
+            }
+
+            #toast.bad .i {
+                color: var(--bad);
+            }
+
+            /* ---------------------------------------------------- responsive */
+            @media (max-width: 1180px) {
+                .dash-grid,
+                .form-layout.has-preview {
+                    grid-template-columns: minmax(0, 1fr);
                 }
 
-                nav {
+                .preview-card {
                     position: static;
-                    height: auto;
-                    flex-direction: row;
-                    flex-wrap: wrap;
-                    align-items: center;
-                    padding: 10px;
-                    border-right: 0;
-                    border-bottom: 1px solid var(--line);
+                }
+            }
+
+            @media (max-width: 960px) {
+                #app {
+                    grid-template-columns: minmax(0, 1fr);
                 }
 
-                nav .brand,
-                nav .group,
-                nav .spacer,
-                nav .me {
+                .side {
+                    position: fixed;
+                    inset: 0 auto 0 0;
+                    z-index: 30;
+                    width: var(--side);
+                    transform: translateX(-100%);
+                    transition: transform 0.22s ease;
+                }
+
+                body.nav-open .side {
+                    transform: none;
+                    box-shadow: var(--shadow-lg);
+                }
+
+                body.nav-open .scrim {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 25;
+                    display: block;
+                    background: rgb(9 14 30 / 45%);
+                }
+
+                .menu-btn {
+                    display: inline-grid;
+                }
+
+                .topbar {
+                    padding: 12px 16px;
+                    min-height: 64px;
+                }
+
+                .topbar h1 {
+                    font-size: 19px;
+                }
+
+                .tabs {
+                    margin: 0 16px;
+                }
+
+                .body {
+                    padding: 16px 16px 40px;
+                }
+
+                .login {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+
+                .login-brand {
+                    gap: 14px;
+                    padding: 36px 24px;
+                }
+
+                .login-brand img {
+                    width: 64px;
+                    height: 64px;
+                    border-radius: 16px;
+                }
+            }
+
+            @media (max-width: 640px) {
+                .topbar p {
                     display: none;
                 }
 
-                .head,
-                .body {
-                    padding: 14px 16px;
-                }
-
-                .head input[type='search'] {
-                    width: 130px;
+                .topbar .acts .btn span {
+                    display: none;
                 }
 
                 .grid {
-                    grid-template-columns: 1fr;
-                    padding: 16px;
+                    grid-template-columns: minmax(0, 1fr);
+                    padding: 18px;
+                }
+
+                .actions {
+                    margin: 6px -18px -18px;
+                    padding: 12px 18px;
                 }
 
                 .imgfield {
                     flex-direction: column;
+                }
+
+                .listbar .total {
+                    display: none;
                 }
             }
         </style>
@@ -776,18 +1952,92 @@
     <body>
         <div id="root"></div>
         <div id="modal"></div>
-        <div id="toast"></div>
+        <div id="toast" role="status" aria-live="polite"></div>
 
         <script>
-            const BASE = location.pathname.replace(/\/admin\/?$/, '');
+            const BASE = location.pathname.replace(
+                /\/admin(\/(index\.html)?)?$/,
+                '',
+            );
             const API = location.origin + BASE + '/api/v1';
+            // Chemins absolus : le panel peut être ouvert sur /admin sans « / ».
+            const ASSET = location.origin + BASE + '/admin/';
             const ACCEPT = 'image/jpeg,image/png,image/webp';
             const $ = (id) => document.getElementById(id);
             const root = $('root');
 
+            document.head.insertAdjacentHTML(
+                'beforeend',
+                `<link rel="icon" href="${ASSET}logo.jpg"><style>${[
+                    ['Regular', 400],
+                    ['SemiBold', 600],
+                    ['Bold', 700],
+                ]
+                    .map(
+                        ([file, weight]) =>
+                            `@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:${weight};font-display:swap;src:url('${ASSET}fonts/PlusJakartaSans-${file}.ttf') format('truetype')}`,
+                    )
+                    .join('')}</style>`,
+            );
+
             let token = localStorage.getItem('fq_token');
             let me = null;
             let state = { key: 'news', page: 1, search: '', editing: null };
+
+            // ----------------------------------------------------------- icons
+            // Tracés Lucide (ISC), dessinés en ligne : aucune dépendance.
+            const ICONS = {
+                dashboard:
+                    '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+                newspaper:
+                    '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+                calendar:
+                    '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+                megaphone:
+                    '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+                bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+                'book-open':
+                    '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+                compass:
+                    '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+                church: '<path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"/><path d="M14 22v-4a2 2 0 0 0-4 0v4"/><path d="M18 22V5l-6-3-6 3v17"/><path d="M12 7v5"/><path d="M10 9h4"/>',
+                'map-pin':
+                    '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+                image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+                tag: '<path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/>',
+                users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+                shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+                settings:
+                    '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+                'log-out':
+                    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+                plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+                search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+                pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+                trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+                send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+                download:
+                    '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+                upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+                menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+                'chevron-left': '<path d="m15 18-6-6 6-6"/>',
+                'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+                'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+                x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+                inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+                'alert-circle':
+                    '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+                'check-circle':
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+                clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+                eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+                undo: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+                clipboard:
+                    '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+            };
+
+            const icon = (name) =>
+                `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
             // --------------------------------------------------------- options
             const STATUS = ['ACTIVE', 'INACTIVE'];
@@ -803,7 +2053,59 @@
             ];
             const PRIORITY = ['NORMAL', 'IMPORTANT', 'URGENT'];
 
-            // Colour for the enum values that show up in list columns.
+            // Libellés français des valeurs techniques renvoyées par l'API.
+            const LABELS = {
+                PUBLISHED: 'Publié',
+                DRAFT: 'Brouillon',
+                ARCHIVED: 'Archivé',
+                CANCELLED: 'Annulé',
+                ACTIVE: 'Actif',
+                INACTIVE: 'Inactif',
+                SUSPENDED: 'Suspendu',
+                PENDING: 'En attente',
+                PROCESSING: 'Envoi en cours',
+                SENT: 'Envoyée',
+                FAILED: 'Échec',
+                NATIONAL: 'National',
+                DISTRICT: 'District',
+                CHURCH: 'Église',
+                ALL: 'Tout le pays',
+                NORMAL: 'Normale',
+                IMPORTANT: 'Importante',
+                URGENT: 'Urgente',
+                UPCOMING: 'À venir',
+                ONGOING: 'En cours',
+                PAST: 'Passé',
+                NONE: 'Aucun',
+                NEWS: 'Actualité',
+                EVENT: 'Événement',
+                EXTERNAL: 'Lien externe',
+                GENERAL: 'Général',
+                DAILY_VERSE: 'Verset du jour',
+                RECEIVED: 'Reçue',
+                VERIFYING: 'Vérification',
+                IN_PROGRESS: 'En traitement',
+                COMPLETED: 'Traitée',
+                REJECTED: 'Rejetée',
+                ACCESS: 'Accès',
+                RECTIFICATION: 'Rectification',
+                DELETION: 'Suppression',
+                OPPOSITION: 'Opposition',
+                PORTABILITY: 'Portabilité',
+                GRANTED: 'Accordé',
+                WITHDRAWN: 'Retiré',
+                CHURCH_PERSONALIZATION: 'Église de référence',
+                PUSH_NOTIFICATIONS: 'Notifications push',
+                EVENT_CHURCH_ASSOCIATION: 'Église liée aux inscriptions',
+                SUPER_ADMIN: 'Super administrateur',
+                NATIONAL_ADMIN: 'Administrateur national',
+                DISTRICT_ADMIN: 'Administrateur de district',
+                CHURCH_ADMIN: 'Administrateur d’église',
+            };
+
+            const human = (v) => LABELS[v] || v;
+
+            // Couleur des valeurs affichées dans les listes.
             const TONE = {
                 PUBLISHED: 'ok',
                 ACTIVE: 'ok',
@@ -812,10 +2114,10 @@
                 PENDING: 'warn',
                 PROCESSING: 'warn',
                 IMPORTANT: 'warn',
-                UPCOMING: 'warn',
+                UPCOMING: 'info',
                 URGENT: 'bad',
                 FAILED: 'bad',
-                RECEIVED: 'warn',
+                RECEIVED: 'info',
                 VERIFYING: 'warn',
                 IN_PROGRESS: 'warn',
                 COMPLETED: 'ok',
@@ -851,17 +2153,101 @@
                 },
             ];
 
+            // ------------------------------------------------- verse helpers
+            // Date du serveur (UTC, comme l'heure d'Abidjan).
+            const todayISO = () => new Date().toISOString().slice(0, 10);
+
+            const limitText = (s, n) => {
+                const text = String(s ?? '');
+                return text.length <= n
+                    ? text
+                    : text.slice(0, n).trimEnd() + '...';
+            };
+
+            const verseSendResult = (d) => {
+                const n = d?.notification;
+                if (!n) return null;
+                if (n.status === 'SENT')
+                    return [
+                        `Verset envoyé à ${plural(n.delivered_count || 0, 'téléphone')}`,
+                        false,
+                    ];
+                if (n.status === 'FAILED')
+                    return [
+                        `La notification du verset a échoué : ${n.last_error || 'erreur inconnue'}`,
+                        true,
+                    ];
+                return ['Notification du verset en cours d’envoi', false];
+            };
+
+            function versePreview(v, row) {
+                const today = todayISO();
+                const day = v.publication_date || '';
+                const sent =
+                    row?.notification &&
+                    ['PENDING', 'PROCESSING', 'SENT'].includes(
+                        row.notification.status,
+                    );
+                const note = !day
+                    ? ['', 'clock', 'Choisissez la date de publication.']
+                    : sent
+                      ? [
+                            'ok',
+                            'check-circle',
+                            'La notification de ce verset est déjà partie. Une correction ne la renvoie pas.',
+                        ]
+                      : day === today
+                        ? [
+                              'info',
+                              'send',
+                              'Daté d’aujourd’hui : la notification part vers tous les téléphones dès l’enregistrement.',
+                          ]
+                        : day > today
+                          ? [
+                                'warn',
+                                'clock',
+                                `Programmé : la notification partira le ${fmtDay(day)} à 07 h 00 (heure d’Abidjan).`,
+                            ]
+                          : [
+                                '',
+                                'clock',
+                                'Date passée : le verset rejoint l’historique, sans notification.',
+                            ];
+                const ref = v.reference || 'Référence';
+                const text = v.text || 'Le texte du verset apparaîtra ici.';
+
+                return `
+            <div class="pv-head">${icon('eye')} Aperçu</div>
+            <div class="note ${note[0]}">${icon(note[1])}<span>${esc(note[2])}</span></div>
+            <div class="pv-label">Notification sur le téléphone</div>
+            <div class="push">
+              <img src="${ASSET}logo.jpg" alt="">
+              <div class="push-body">
+                <div class="push-meta"><span>Foursquare CI</span><span>maintenant</span></div>
+                <strong>Verset du jour · ${esc(ref)}</strong>
+                <p>${esc(limitText(text, 300))}</p>
+              </div>
+            </div>
+            <div class="pv-label">Verset</div>
+            <div class="verse-card">
+              <span class="eyebrow">${icon('book-open')} Verset du jour</span>
+              <blockquote>« ${esc(text)} »</blockquote>
+              <div class="verse-ref"><strong>${esc(ref)}</strong>${v.bible_version ? ' · ' + esc(v.bible_version) : ''}</div>
+            </div>`;
+            }
+
             // ------------------------------------------------------- resources
             const RESOURCES = {
                 dashboard: {
                     label: 'Tableau de bord',
-                    group: 'Pilotage',
                     view: 'dashboard',
                     fields: [],
                 },
                 news: {
                     label: 'Actualités',
-                    group: 'Contenu',
+                    newLabel: 'Nouvelle actualité',
+                    description:
+                        'Les actualités affichées dans l’application, selon leur portée.',
                     search: true,
                     defaults: {
                         scope_type: 'NATIONAL',
@@ -876,6 +2262,7 @@
                         ['status', 'Statut'],
                     ],
                     fields: [
+                        { section: 'Contenu' },
                         {
                             name: 'title',
                             label: 'Titre',
@@ -903,6 +2290,7 @@
                             required: true,
                             wide: true,
                         },
+                        { section: 'Diffusion' },
                         ...scopeFields(),
                         {
                             name: 'category_id',
@@ -938,23 +2326,47 @@
                     ],
                 },
                 verses: {
-                    label: 'Versets du jour',
-                    group: 'Contenu',
+                    label: 'Verset du jour',
+                    newLabel: 'Programmer un verset',
+                    editLabel: 'Modifier le verset',
+                    description:
+                        'Un verset national par jour. Sa notification push part automatiquement.',
                     search: true,
                     columns: [
-                        ['publication_date', 'Publication'],
+                        ['publication_date', 'Date', 'verse-day'],
                         ['reference', 'Référence', 'title'],
+                        ['text', 'Texte', 'excerpt'],
                         ['bible_version', 'Version'],
-                        ['notification_created_at', 'Notification créée le'],
+                        ['notification', 'Notification push', 'verse-notif'],
                     ],
+                    rowActions: [
+                        {
+                            label: 'Envoyer maintenant',
+                            icon: 'send',
+                            show: (r) =>
+                                r.publication_date === todayISO() &&
+                                (!r.notification ||
+                                    ['DRAFT', 'FAILED'].includes(
+                                        r.notification.status,
+                                    )),
+                            confirm: (r) =>
+                                `Envoyer le verset « ${r.reference} » à tous les téléphones maintenant ?`,
+                            method: 'POST',
+                            path: '/send',
+                            done: (d) =>
+                                verseSendResult(d) || ['Envoi lancé', false],
+                        },
+                    ],
+                    afterSave: (d, before) =>
+                        before?.notification ? null : verseSendResult(d),
+                    preview: versePreview,
                     fields: [
                         {
-                            name: 'text',
-                            label: 'Texte biblique',
-                            type: 'textarea',
-                            rows: 7,
+                            name: 'publication_date',
+                            label: 'Date de publication',
+                            type: 'date',
                             required: true,
-                            wide: true,
+                            hint: 'Aujourd’hui : envoi immédiat. Date future : envoi ce jour-là à 07 h 00.',
                         },
                         {
                             name: 'reference',
@@ -967,16 +2379,22 @@
                             required: true,
                         },
                         {
-                            name: 'publication_date',
-                            label: 'Date de publication',
-                            type: 'date',
+                            name: 'text',
+                            label: 'Texte biblique',
+                            type: 'textarea',
+                            rows: 7,
                             required: true,
+                            wide: true,
+                            hint: 'Recopiez le texte exact de la version indiquée.',
                         },
                     ],
                 },
                 'discover-sections': {
                     label: 'Découvrir Foursquare',
-                    group: 'Contenu',
+                    tab: 'Rubriques',
+                    editLabel: 'Modifier la rubrique',
+                    description:
+                        'Les six rubriques de l’espace institutionnel. Seules les rubriques publiées sont visibles dans l’application.',
                     perm: 'discover',
                     noCreate: true,
                     noDelete: true,
@@ -1015,7 +2433,9 @@
                 },
                 'national-leaders': {
                     label: 'Bureau national',
-                    group: 'Contenu',
+                    newLabel: 'Nouveau responsable',
+                    description:
+                        'Les responsables affichés dans la rubrique « Le bureau national ».',
                     columns: [
                         ['photo.url', '', 'thumb'],
                         ['name', 'Nom', 'title'],
@@ -1041,17 +2461,20 @@
                             name: 'display_order',
                             label: 'Ordre d’affichage',
                             type: 'number',
+                            hint: 'Le plus petit s’affiche en premier.',
                         },
                         {
                             name: 'is_published',
-                            label: 'Publié',
+                            label: 'Publié dans l’application',
                             type: 'checkbox',
                         },
                     ],
                 },
                 events: {
                     label: 'Événements',
-                    group: 'Contenu',
+                    newLabel: 'Nouvel événement',
+                    description:
+                        'Les événements affichés dans l’application, avec inscriptions possibles.',
                     search: true,
                     columns: [
                         ['cover.url', '', 'thumb'],
@@ -1062,6 +2485,7 @@
                         ['status', 'Statut'],
                     ],
                     fields: [
+                        { section: 'Contenu' },
                         {
                             name: 'title',
                             label: 'Titre',
@@ -1081,6 +2505,7 @@
                             required: true,
                             wide: true,
                         },
+                        { section: 'Date et lieu' },
                         {
                             name: 'start_at',
                             label: 'Début',
@@ -1093,10 +2518,10 @@
                             type: 'datetime-local',
                             required: true,
                         },
-                        { name: 'organizer_name', label: 'Organisateur' },
                         { name: 'venue_name', label: 'Lieu' },
                         { name: 'address', label: 'Adresse' },
                         { name: 'commune', label: 'Commune' },
+                        { name: 'organizer_name', label: 'Organisateur' },
                         { name: 'contact_phone', label: 'Téléphone' },
                         { name: 'official_whatsapp', label: 'WhatsApp' },
                         { name: 'latitude', label: 'Latitude', type: 'number' },
@@ -1105,6 +2530,7 @@
                             label: 'Longitude',
                             type: 'number',
                         },
+                        { section: 'Diffusion' },
                         ...scopeFields(),
                         {
                             name: 'category_id',
@@ -1145,7 +2571,8 @@
                 },
                 registrations: {
                     label: 'Inscriptions',
-                    group: 'Contenu',
+                    description:
+                        'Les inscriptions reçues depuis l’application.',
                     search: true,
                     noCreate: true,
                     noEdit: true,
@@ -1162,7 +2589,9 @@
                 },
                 banners: {
                     label: 'Bannières',
-                    group: 'Contenu',
+                    newLabel: 'Nouvelle bannière',
+                    description:
+                        'Le carrousel de la page d’accueil de l’application.',
                     search: true,
                     columns: [
                         ['media.url', '', 'thumb'],
@@ -1172,6 +2601,7 @@
                         ['is_active', 'Active'],
                     ],
                     fields: [
+                        { section: 'Visuel' },
                         {
                             name: 'media_id',
                             label: 'Image',
@@ -1182,12 +2612,7 @@
                         { name: 'title', label: 'Titre', required: true },
                         { name: 'subtitle', label: 'Sous-titre' },
                         { name: 'button_text', label: 'Texte du bouton' },
-                        {
-                            name: 'display_order',
-                            label: 'Ordre d’affichage',
-                            type: 'number',
-                            hint: 'Le plus petit s’affiche en premier.',
-                        },
+                        { section: 'Lien' },
                         {
                             name: 'link_type',
                             label: 'Type de lien',
@@ -1227,6 +2652,18 @@
                             label: 'URL externe',
                             showIf: (v) => v.link_type === 'EXTERNAL',
                         },
+                        { section: 'Affichage' },
+                        {
+                            name: 'display_order',
+                            label: 'Ordre d’affichage',
+                            type: 'number',
+                            hint: 'Le plus petit s’affiche en premier.',
+                        },
+                        {
+                            name: 'is_active',
+                            label: 'Bannière active',
+                            type: 'checkbox',
+                        },
                         {
                             name: 'starts_at',
                             label: 'Visible à partir du',
@@ -1237,16 +2674,14 @@
                             label: 'Visible jusqu’au',
                             type: 'datetime-local',
                         },
-                        {
-                            name: 'is_active',
-                            label: 'Bannière active',
-                            type: 'checkbox',
-                        },
                     ],
                 },
                 notifications: {
                     label: 'Notifications',
-                    group: 'Contenu',
+                    tab: 'Envois',
+                    newLabel: 'Nouvelle notification',
+                    description:
+                        'Les notifications push envoyées aux téléphones.',
                     columns: [
                         ['title', 'Titre', 'title'],
                         ['type', 'Type'],
@@ -1259,35 +2694,38 @@
                     rowActions: [
                         {
                             label: 'Envoyer',
+                            icon: 'send',
                             show: (r) =>
                                 r.status === 'DRAFT' || r.status === 'FAILED',
                             confirm: (r) =>
-                                'Envoyer ' +
+                                'Envoyer « ' +
                                 label(r) +
-                                ' aux appareils concernes ?',
+                                ' » aux appareils concernés ?',
                             method: 'POST',
                             path: '/send',
                             done: 'Envoi lancé — le bilan apparaît dans la colonne Livraison',
                         },
                         {
-                            // PROCESSING est inclus a dessein : si le worker
-                            // meurt en cours d envoi, la notification y reste
-                            // bloquee et « Envoyer » la refuse. C est la seule
+                            // PROCESSING est inclus à dessein : si le worker
+                            // meurt en cours d'envoi, la notification y reste
+                            // bloquée et « Envoyer » la refuse. C'est la seule
                             // sortie manuelle.
                             label: 'Remettre en brouillon',
+                            icon: 'undo',
                             show: (r) =>
                                 r.status === 'PENDING' ||
                                 r.status === 'PROCESSING' ||
                                 r.status === 'FAILED',
                             confirm: (r) =>
                                 r.status === 'PROCESSING'
-                                    ? 'Cette notification est en cours d’envoi. Ne la debloquez que si elle est figee depuis plusieurs minutes, sinon elle risque de partir deux fois. Continuer ?'
+                                    ? 'Cette notification est en cours d’envoi. Ne la débloquez que si elle est figée depuis plusieurs minutes, sinon elle risque de partir deux fois. Continuer ?'
                                     : null,
                             patch: { status: 'DRAFT' },
                             done: 'Notification remise en brouillon',
                         },
                     ],
                     fields: [
+                        { section: 'Message' },
                         {
                             name: 'title',
                             label: 'Titre',
@@ -1304,25 +2742,13 @@
                             wide: true,
                             hint: '1000 caractères max. Texte simple, pas de HTML.',
                         },
+                        { section: 'Lien et destinataires' },
                         {
                             name: 'type',
                             label: 'Type',
                             type: 'select',
                             options: ['GENERAL', 'NEWS', 'EVENT'],
                             required: true,
-                        },
-                        {
-                            name: 'status',
-                            label: 'Statut',
-                            type: 'select',
-                            required: true,
-                            options: [
-                                'DRAFT',
-                                'PENDING',
-                                'PROCESSING',
-                                'SENT',
-                                'FAILED',
-                            ],
                         },
                         {
                             name: 'news_id',
@@ -1359,17 +2785,61 @@
                             ref: 'churches',
                             showIf: (v) => v.audience === 'CHURCH',
                         },
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            required: true,
+                            options: [
+                                'DRAFT',
+                                'PENDING',
+                                'PROCESSING',
+                                'SENT',
+                                'FAILED',
+                            ],
+                            hint: 'Laissez « Brouillon » puis utilisez « Envoyer » dans la liste.',
+                        },
+                    ],
+                },
+                devices: {
+                    label: 'Appareils',
+                    description:
+                        'Les téléphones inscrits aux notifications push.',
+                    noCreate: true,
+                    columns: [
+                        ['platform', 'Plateforme', 'title'],
+                        ['app_version', 'Version'],
+                        ['notifications_enabled', 'Notifications'],
+                        ['last_seen_at', 'Vu le'],
+                    ],
+                    fields: [
+                        {
+                            name: 'platform',
+                            label: 'Plateforme',
+                            type: 'select',
+                            required: true,
+                            options: ['android', 'ios', 'web'],
+                        },
+                        { name: 'app_version', label: 'Version' },
+                        {
+                            name: 'notifications_enabled',
+                            label: 'Notifications activées',
+                            type: 'checkbox',
+                        },
                     ],
                 },
                 media: {
-                    label: 'Médias',
-                    group: 'Contenu',
+                    label: 'Médiathèque',
+                    description:
+                        'Les images utilisées dans les contenus de l’application.',
                     view: 'gallery',
                     fields: [],
                 },
                 'news-categories': {
                     label: 'Catégories d’actualités',
-                    group: 'Contenu',
+                    tab: 'Actualités',
+                    newLabel: 'Nouvelle catégorie',
+                    description: 'Les catégories qui classent les actualités.',
                     perm: 'categories',
                     search: true,
                     columns: [
@@ -1394,7 +2864,9 @@
                 },
                 'event-categories': {
                     label: 'Catégories d’événements',
-                    group: 'Contenu',
+                    tab: 'Événements',
+                    newLabel: 'Nouvelle catégorie',
+                    description: 'Les catégories qui classent les événements.',
                     perm: 'categories',
                     search: true,
                     columns: [
@@ -1417,9 +2889,102 @@
                         },
                     ],
                 },
+                churches: {
+                    label: 'Églises',
+                    newLabel: 'Nouvelle église',
+                    description:
+                        'L’annuaire des églises affiché dans l’application.',
+                    search: true,
+                    columns: [
+                        ['image.url', '', 'thumb'],
+                        ['name', 'Nom', 'title'],
+                        ['district.name', 'District'],
+                        ['commune', 'Commune'],
+                        ['status', 'Statut'],
+                    ],
+                    fields: [
+                        { section: 'Identité' },
+                        {
+                            name: 'district_id',
+                            label: 'District',
+                            type: 'ref',
+                            ref: 'districts',
+                            required: true,
+                        },
+                        { name: 'name', label: 'Nom', required: true },
+                        {
+                            name: 'image_media_id',
+                            label: 'Photo de l’église',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'pastor_name',
+                            label: 'Responsable pastoral',
+                            hint: 'Laisser vide si l’information n’est pas confirmée.',
+                        },
+                        { name: 'code', label: 'Code' },
+                        {
+                            name: 'description',
+                            label: 'Description',
+                            type: 'textarea',
+                            rows: 3,
+                            wide: true,
+                        },
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            required: true,
+                            options: STATUS,
+                        },
+                        { section: 'Adresse' },
+                        { name: 'address', label: 'Adresse' },
+                        { name: 'city', label: 'Ville' },
+                        { name: 'commune', label: 'Commune' },
+                        { name: 'quartier', label: 'Quartier' },
+                        { name: 'latitude', label: 'Latitude', type: 'number' },
+                        {
+                            name: 'longitude',
+                            label: 'Longitude',
+                            type: 'number',
+                        },
+                        { section: 'Contact et cultes' },
+                        {
+                            name: 'secretariat_phone',
+                            label: 'Tél. secrétariat',
+                        },
+                        {
+                            name: 'official_whatsapp',
+                            label: 'WhatsApp officiel',
+                        },
+                        {
+                            name: 'official_email',
+                            label: 'E-mail officiel',
+                            type: 'email',
+                        },
+                        { name: 'main_service_day', label: 'Jour de culte' },
+                        { name: 'main_service_time', label: 'Heure de culte' },
+                        {
+                            name: 'service_times',
+                            label: 'Horaires des cultes',
+                            type: 'textarea',
+                            rows: 3,
+                            wide: true,
+                            hint: 'Un horaire par ligne, ex. « Dimanche : 7h30 et 10h00 ».',
+                        },
+                        { section: 'Réseaux sociaux' },
+                        { name: 'facebook_url', label: 'Facebook (URL)' },
+                        { name: 'youtube_url', label: 'YouTube (URL)' },
+                        { name: 'instagram_url', label: 'Instagram (URL)' },
+                        { name: 'tiktok_url', label: 'TikTok (URL)' },
+                        { name: 'website_url', label: 'Site web (URL)' },
+                    ],
+                },
                 districts: {
                     label: 'Districts',
-                    group: 'Structure',
+                    newLabel: 'Nouveau district',
+                    description: 'Les districts qui regroupent les églises.',
                     search: true,
                     columns: [
                         ['name', 'Nom', 'title'],
@@ -1446,179 +3011,10 @@
                         },
                     ],
                 },
-                churches: {
-                    label: 'Églises',
-                    group: 'Structure',
-                    search: true,
-                    columns: [
-                        ['image.url', '', 'thumb'],
-                        ['name', 'Nom', 'title'],
-                        ['district.name', 'District'],
-                        ['commune', 'Commune'],
-                        ['status', 'Statut'],
-                    ],
-                    fields: [
-                        {
-                            name: 'district_id',
-                            label: 'District',
-                            type: 'ref',
-                            ref: 'districts',
-                            required: true,
-                        },
-                        { name: 'name', label: 'Nom', required: true },
-                        {
-                            name: 'image_media_id',
-                            label: 'Photo de l’église',
-                            type: 'image',
-                            wide: true,
-                        },
-                        {
-                            name: 'pastor_name',
-                            label: 'Responsable pastoral',
-                            hint: 'Laisser vide si l’information n’est pas confirmée.',
-                        },
-                        { name: 'code', label: 'Code' },
-                        { name: 'address', label: 'Adresse' },
-                        { name: 'city', label: 'Ville' },
-                        { name: 'commune', label: 'Commune' },
-                        { name: 'quartier', label: 'Quartier' },
-                        {
-                            name: 'secretariat_phone',
-                            label: 'Tél. secrétariat',
-                        },
-                        {
-                            name: 'official_whatsapp',
-                            label: 'WhatsApp officiel',
-                        },
-                        {
-                            name: 'official_email',
-                            label: 'Email officiel',
-                            type: 'email',
-                        },
-                        { name: 'main_service_day', label: 'Jour de culte' },
-                        { name: 'main_service_time', label: 'Heure de culte' },
-                        {
-                            name: 'service_times',
-                            label: 'Horaires des cultes',
-                            type: 'textarea',
-                            rows: 3,
-                            wide: true,
-                            hint: 'Un horaire par ligne, ex. « Dimanche : 7h30 et 10h00 ».',
-                        },
-                        { name: 'facebook_url', label: 'Facebook (URL)' },
-                        { name: 'youtube_url', label: 'YouTube (URL)' },
-                        { name: 'instagram_url', label: 'Instagram (URL)' },
-                        { name: 'tiktok_url', label: 'TikTok (URL)' },
-                        { name: 'website_url', label: 'Site web (URL)' },
-                        { name: 'latitude', label: 'Latitude', type: 'number' },
-                        {
-                            name: 'longitude',
-                            label: 'Longitude',
-                            type: 'number',
-                        },
-                        {
-                            name: 'description',
-                            label: 'Description',
-                            type: 'textarea',
-                            rows: 3,
-                            wide: true,
-                        },
-                        {
-                            name: 'status',
-                            label: 'Statut',
-                            type: 'select',
-                            required: true,
-                            options: STATUS,
-                        },
-                    ],
-                },
-                devices: {
-                    label: 'Appareils',
-                    group: 'Système',
-                    noCreate: true,
-                    columns: [
-                        ['platform', 'Plateforme', 'title'],
-                        ['app_version', 'Version'],
-                        ['notifications_enabled', 'Notifs'],
-                        ['last_seen_at', 'Vu le'],
-                    ],
-                    fields: [
-                        {
-                            name: 'platform',
-                            label: 'Plateforme',
-                            type: 'select',
-                            required: true,
-                            options: ['android', 'ios', 'web'],
-                        },
-                        { name: 'app_version', label: 'Version' },
-                        {
-                            name: 'notifications_enabled',
-                            label: 'Notifications activées',
-                            type: 'checkbox',
-                        },
-                    ],
-                },
-                'privacy-requests': {
-                    label: 'Demandes de données',
-                    group: 'Confidentialité',
-                    perm: 'privacy',
-                    search: true,
-                    noCreate: true,
-                    noDelete: true,
-                    columns: [
-                        ['reference', 'Référence', 'title'],
-                        ['type', 'Type'],
-                        ['full_name', 'Nom et prénoms'],
-                        ['phone', 'Téléphone'],
-                        ['email', 'E-mail'],
-                        ['status', 'Statut'],
-                        ['created_at', 'Reçue le'],
-                    ],
-                    fields: [
-                        {
-                            name: 'status',
-                            label: 'Statut',
-                            type: 'select',
-                            required: true,
-                            options: [
-                                'RECEIVED',
-                                'VERIFYING',
-                                'IN_PROGRESS',
-                                'COMPLETED',
-                                'REJECTED',
-                            ],
-                        },
-                        {
-                            name: 'resolution_note',
-                            label: 'Note de traitement',
-                            type: 'textarea',
-                            rows: 4,
-                            wide: true,
-                            hint: 'Vérification d’identité, actions faites, réponse envoyée. Les données elles-mêmes se modifient dans Inscriptions ou Appareils.',
-                        },
-                    ],
-                },
-                'privacy-consents': {
-                    label: 'Consentements',
-                    group: 'Confidentialité',
-                    perm: 'privacy',
-                    search: true,
-                    noCreate: true,
-                    noEdit: true,
-                    noDelete: true,
-                    columns: [
-                        ['purpose', 'Finalité', 'title'],
-                        ['action', 'Action'],
-                        ['platform', 'Plateforme'],
-                        ['church.name', 'Église'],
-                        ['policy_version', 'Version'],
-                        ['occurred_at', 'Le'],
-                    ],
-                    fields: [],
-                },
                 users: {
                     label: 'Administrateurs',
-                    group: 'Système',
+                    newLabel: 'Nouvel administrateur',
+                    description: 'Les comptes qui ont accès à ce panel.',
                     search: true,
                     columns: [
                         ['name', 'Nom', 'title'],
@@ -1673,13 +3069,176 @@
                         },
                     ],
                 },
+                'privacy-requests': {
+                    label: 'Demandes de données',
+                    tab: 'Demandes',
+                    editLabel: 'Traiter la demande',
+                    description:
+                        'Les demandes d’accès, de rectification ou de suppression de données.',
+                    perm: 'privacy',
+                    search: true,
+                    noCreate: true,
+                    noDelete: true,
+                    columns: [
+                        ['reference', 'Référence', 'title'],
+                        ['type', 'Type'],
+                        ['full_name', 'Nom et prénoms'],
+                        ['phone', 'Téléphone'],
+                        ['email', 'E-mail'],
+                        ['status', 'Statut'],
+                        ['created_at', 'Reçue le'],
+                    ],
+                    fields: [
+                        {
+                            name: 'status',
+                            label: 'Statut',
+                            type: 'select',
+                            required: true,
+                            options: [
+                                'RECEIVED',
+                                'VERIFYING',
+                                'IN_PROGRESS',
+                                'COMPLETED',
+                                'REJECTED',
+                            ],
+                        },
+                        {
+                            name: 'resolution_note',
+                            label: 'Note de traitement',
+                            type: 'textarea',
+                            rows: 4,
+                            wide: true,
+                            hint: 'Vérification d’identité, actions faites, réponse envoyée. Les données elles-mêmes se modifient dans Inscriptions ou Appareils.',
+                        },
+                    ],
+                },
+                'privacy-consents': {
+                    label: 'Consentements',
+                    description:
+                        'L’historique des consentements donnés ou retirés dans l’application.',
+                    perm: 'privacy',
+                    search: true,
+                    noCreate: true,
+                    noEdit: true,
+                    noDelete: true,
+                    columns: [
+                        ['purpose', 'Finalité', 'title'],
+                        ['action', 'Action'],
+                        ['platform', 'Plateforme'],
+                        ['church.name', 'Église'],
+                        ['policy_version', 'Version'],
+                        ['occurred_at', 'Le'],
+                    ],
+                    fields: [],
+                },
                 settings: {
                     label: 'Paramètres',
-                    group: 'Système',
+                    description: 'Réglages généraux de l’application.',
                     view: 'settings',
                     fields: [],
                 },
             };
+
+            // Menu : les pages proches sont regroupées, chacune devient un onglet.
+            const NAV = [
+                {
+                    items: [
+                        {
+                            label: 'Tableau de bord',
+                            icon: 'dashboard',
+                            tabs: ['dashboard'],
+                        },
+                    ],
+                },
+                {
+                    title: 'Contenus',
+                    items: [
+                        {
+                            label: 'Actualités',
+                            icon: 'newspaper',
+                            tabs: ['news'],
+                        },
+                        {
+                            label: 'Événements',
+                            icon: 'calendar',
+                            tabs: ['events', 'registrations'],
+                        },
+                        {
+                            label: 'Bannières',
+                            icon: 'megaphone',
+                            tabs: ['banners'],
+                        },
+                        {
+                            label: 'Notifications',
+                            icon: 'bell',
+                            tabs: ['notifications', 'devices'],
+                        },
+                    ],
+                },
+                {
+                    title: 'National',
+                    items: [
+                        {
+                            label: 'Verset du jour',
+                            icon: 'book-open',
+                            tabs: ['verses'],
+                        },
+                        {
+                            label: 'Découvrir Foursquare',
+                            icon: 'compass',
+                            tabs: ['discover-sections', 'national-leaders'],
+                        },
+                    ],
+                },
+                {
+                    title: 'Réseau',
+                    items: [
+                        {
+                            label: 'Églises et districts',
+                            icon: 'church',
+                            tabs: ['churches', 'districts'],
+                        },
+                    ],
+                },
+                {
+                    title: 'Ressources',
+                    items: [
+                        {
+                            label: 'Médiathèque',
+                            icon: 'image',
+                            tabs: ['media'],
+                        },
+                        {
+                            label: 'Catégories',
+                            icon: 'tag',
+                            tabs: ['news-categories', 'event-categories'],
+                        },
+                    ],
+                },
+                {
+                    title: 'Administration',
+                    items: [
+                        {
+                            label: 'Administrateurs',
+                            icon: 'users',
+                            tabs: ['users'],
+                        },
+                        {
+                            label: 'Confidentialité',
+                            icon: 'shield',
+                            tabs: ['privacy-requests', 'privacy-consents'],
+                        },
+                        {
+                            label: 'Paramètres',
+                            icon: 'settings',
+                            tabs: ['settings'],
+                        },
+                    ],
+                },
+            ];
+
+            const entryOf = (key) =>
+                NAV.flatMap((s) => s.items).find((it) => it.tabs.includes(key));
 
             // Clé de permission renvoyée par /auth/me pour chaque module.
             const allowed = (key) =>
@@ -1754,53 +3313,197 @@
                 URL.revokeObjectURL(url);
             }
 
+            // Ouvre directement le formulaire de création d'une ressource.
+            function openNew(key) {
+                state = { key, page: 1, search: '', editing: {} };
+                history.pushState(null, '', '#' + key);
+                renderApp();
+            }
+
+            // ------------------------------------------------------ dashboard
+            function verseWidget(v) {
+                const t = v.today;
+                const n = t?.notification;
+                const status = !t
+                    ? ''
+                    : !n
+                      ? '<span class="badge">Notification pas encore envoyée</span>'
+                      : n.status === 'SENT'
+                        ? `<span class="badge dot ok">Envoyée à ${plural(n.delivered_count || 0, 'téléphone')}</span>`
+                        : `<span class="badge dot ${TONE[n.status] || ''}" ${n.last_error ? `title="${esc(n.last_error)}"` : ''}>${esc(human(n.status))}</span>`;
+                const canSend =
+                    t && (!n || ['DRAFT', 'FAILED'].includes(n.status));
+                const s = v.scheduled > 1 ? 's' : '';
+
+                return `
+            <section class="verse-card">
+              <div class="verse-top">
+                <span class="eyebrow">${icon('book-open')} Verset du jour</span>
+                <a class="link-light" href="#verses">Tous les versets</a>
+              </div>
+              ${
+                  t
+                      ? `<blockquote>« ${esc(limitText(t.text, 280))} »</blockquote>
+                <div class="verse-ref"><strong>${esc(t.reference)}</strong> · ${esc(t.bible_version)}</div>
+                <div class="verse-foot">${status}${
+                    canSend
+                        ? `<button class="btn sm light" data-send-verse="${esc(t.id)}">${icon('send')} Envoyer maintenant</button>`
+                        : ''
+                }</div>`
+                      : `<p class="verse-empty">Aucun verset n’est prévu aujourd’hui.</p>
+                <button class="btn sm light" data-new="verses">${icon('plus')} Programmer un verset</button>`
+              }
+              <div class="verse-sched">${icon('clock')} ${
+                  v.scheduled
+                      ? `${v.scheduled} verset${s} programmé${s} à l’avance`
+                      : 'Aucun verset programmé à l’avance'
+              }</div>
+            </section>`;
+            }
+
             async function renderDashboard() {
+                const first = String(me.name || '').split(' ')[0];
+                const day = new Date().toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                });
+
                 $('main').innerHTML =
-                    renderHead(RESOURCES.dashboard) +
-                    '<div class="body"><div class="card" id="dash"><p class="empty">Chargement…</p></div></div>';
+                    renderHead(RESOURCES.dashboard, '', {
+                        title: 'Bonjour ' + first,
+                        sub: day.charAt(0).toUpperCase() + day.slice(1),
+                    }) +
+                    `<div class="body" id="dash"><div class="stats">${'<div class="stat"><span class="sk-block" style="width:100%;height:44px"></span></div>'.repeat(6)}</div></div>`;
 
                 let d;
                 try {
                     d = (await api('/admin/dashboard')).data;
                 } catch (err) {
                     $('dash').innerHTML =
-                        `<p class="empty">${esc(err.message)}</p>`;
+                        `<div class="card">${errorState(err.message)}</div>`;
                     return;
                 }
 
                 const stats = [
-                    ['Districts', d.districts],
-                    ['Églises', d.churches],
-                    ['Églises actives', d.active_churches],
-                    ['Actualités', d.news],
-                    ['Événements', d.events],
-                    ['Inscriptions', d.registrations],
+                    [
+                        'Districts',
+                        d.districts,
+                        'map-pin',
+                        't-blue',
+                        'districts',
+                    ],
+                    ['Églises', d.churches, 'church', 't-purple', 'churches'],
+                    [
+                        'Églises actives',
+                        d.active_churches,
+                        'check-circle',
+                        't-green',
+                        'churches',
+                    ],
+                    ['Actualités', d.news, 'newspaper', 't-red', 'news'],
+                    ['Événements', d.events, 'calendar', 't-gold', 'events'],
+                    [
+                        'Inscriptions',
+                        d.registrations,
+                        'clipboard',
+                        't-navy',
+                        'registrations',
+                    ],
                 ];
+
+                const quick = [
+                    ['verses', 'book-open', 'Programmer un verset'],
+                    ['news', 'newspaper', 'Rédiger une actualité'],
+                    ['events', 'calendar', 'Créer un événement'],
+                    ['notifications', 'bell', 'Préparer une notification'],
+                ].filter(([k]) => allowed(k));
+
+                const latest = d.latest.length
+                    ? `<ul class="feed">${d.latest
+                          .map(
+                              (p) => `
+                <li>
+                  <span class="tone sm ${p.type === 'news' ? 't-red' : 't-gold'}">${icon(p.type === 'news' ? 'newspaper' : 'calendar')}</span>
+                  <div class="txt"><strong>${esc(p.title)}</strong>
+                    <span>${p.type === 'news' ? 'Actualité' : 'Événement'} · ${esc(human(p.scope_type))} · ${esc(fmtDate(p.created_at))}</span></div>
+                  ${badge(p.status)}
+                </li>`,
+                          )
+                          .join('')}</ul>`
+                    : `<div class="empty">${icon('inbox')}<strong>Aucune publication</strong><p>Les dernières actualités et les derniers événements apparaîtront ici.</p></div>`;
 
                 $('dash').innerHTML = `
             <div class="stats">${stats
-                .map(
-                    ([k, v]) =>
-                        `<div class="stat"><strong>${esc(String(v))}</strong><span>${esc(k)}</span></div>`,
-                )
+                .map(([k, v, ic, tone, link]) => {
+                    const inner = `<span class="tone ${tone}">${icon(ic)}</span><div><strong>${esc(String(v ?? 0))}</strong><span>${esc(k)}</span></div>`;
+                    return allowed(link)
+                        ? `<a class="stat" href="#${link}">${inner}</a>`
+                        : `<div class="stat">${inner}</div>`;
+                })
                 .join('')}</div>
-            <h2 class="sub">Dernières publications</h2>
-            ${
-                d.latest.length
-                    ? `<table><tbody>${d.latest
-                          .map(
-                              (p) =>
-                                  `<tr><td class="title">${esc(p.title)}</td><td>${p.type === 'news' ? 'Actualité' : 'Événement'}</td><td>${esc(p.scope_type)}</td><td>${cell(p, ['status'])}</td><td>${fmtDate(p.created_at)}</td></tr>`,
-                          )
-                          .join('')}</tbody></table>`
-                    : '<p class="empty">Aucune publication pour le moment.</p>'
-            }`;
+            <div class="dash-grid">
+              <div class="col">
+                <section class="card">
+                  <div class="card-head"><h2>Dernières publications</h2>${allowed('news') ? '<a href="#news">Voir les actualités</a>' : ''}</div>
+                  ${latest}
+                </section>
+              </div>
+              <div class="col">
+                ${d.daily_verse ? verseWidget(d.daily_verse) : ''}
+                ${
+                    quick.length
+                        ? `<section class="card">
+                  <div class="card-head"><h2>Raccourcis</h2></div>
+                  ${quick
+                      .map(
+                          ([k, ic, text]) =>
+                              `<button class="quick" data-new="${k}"><span class="tone sm t-blue">${icon(ic)}</span><span class="label">${esc(text)}</span>${icon('arrow-right')}</button>`,
+                      )
+                      .join('')}
+                </section>`
+                        : ''
+                }
+              </div>
+            </div>`;
+
+                $('dash')
+                    .querySelectorAll('[data-new]')
+                    .forEach((b) => {
+                        b.onclick = () => openNew(b.dataset.new);
+                    });
+
+                const send = $('dash').querySelector('[data-send-verse]');
+                if (send)
+                    send.onclick = async () => {
+                        if (
+                            !confirm(
+                                'Envoyer le verset du jour à tous les téléphones maintenant ?',
+                            )
+                        )
+                            return;
+                        send.disabled = true;
+                        try {
+                            const r = await api(
+                                '/admin/verses/' +
+                                    send.dataset.sendVerse +
+                                    '/send',
+                                { method: 'POST' },
+                            );
+                            toast(...(verseSendResult(r.data) || ['Envoyé']));
+                            renderDashboard();
+                        } catch (err) {
+                            send.disabled = false;
+                            toast(err.message, true);
+                        }
+                    };
             }
 
             async function renderSettings() {
                 $('main').innerHTML =
                     renderHead(RESOURCES.settings) +
-                    '<div class="body"><div class="card" id="settings"><p class="empty">Chargement…</p></div></div>';
+                    `<div class="body"><div class="card form-card" id="settings" style="max-width:820px">${skeleton(3)}</div></div>`;
 
                 let values, churches;
                 try {
@@ -1809,18 +3512,20 @@
                         refOptions('churches'),
                     ]);
                 } catch (err) {
-                    $('settings').innerHTML =
-                        `<p class="empty">${esc(err.message)}</p>`;
+                    $('settings').innerHTML = errorState(err.message);
                     return;
                 }
 
                 const fields = [
+                    { section: 'Premier lancement' },
                     {
                         name: 'launch_church_id',
                         label: 'Église proposée au premier lancement',
                         type: 'ref',
+                        wide: true,
                         hint: 'L’application la propose comme église de référence ; chacun peut en changer.',
                     },
+                    { section: 'Contact' },
                     {
                         name: 'contact_email',
                         label: 'E-mail de contact',
@@ -1837,17 +3542,18 @@
                                 field(
                                     f,
                                     values[f.name] ?? '',
-                                    errors[f.name]?.[0],
+                                    errors[f.name],
                                     churches,
                                 ),
                             )
                             .join(
                                 '',
-                            )}<div class="field wide"><button class="btn primary">Enregistrer</button></div></form>`;
+                            )}<div class="actions"><span class="spacer"></span><button class="btn primary">Enregistrer</button></div></form>`;
                     $('sform').onsubmit = async (e) => {
                         e.preventDefault();
                         const body = {};
                         fields.forEach((f) => {
+                            if (!f.name) return;
                             body[f.name] =
                                 e.target.elements[f.name].value || null;
                         });
@@ -1898,13 +3604,17 @@
 
             function toast(message, bad = false) {
                 const el = $('toast');
-                el.textContent = message;
-                el.className = bad ? 'bad' : '';
-                el.style.display = 'block';
+                el.innerHTML =
+                    icon(bad ? 'alert-circle' : 'check-circle') +
+                    `<span>${esc(message)}</span>`;
+                el.className = 'show' + (bad ? ' bad' : '');
                 clearTimeout(toast.timer);
-                toast.timer = setTimeout(() => {
-                    el.style.display = 'none';
-                }, 3200);
+                toast.timer = setTimeout(
+                    () => {
+                        el.className = bad ? 'bad' : '';
+                    },
+                    bad ? 6000 : 3500,
+                );
             }
 
             // ----------------------------------------------------------- auth
@@ -1916,6 +3626,7 @@
                 token = res.data.token;
                 me = res.data.user;
                 localStorage.setItem('fq_token', token);
+                applyPerimeter();
                 renderApp();
             }
 
@@ -1946,9 +3657,35 @@
                 path.split('.').reduce((o, k) => (o == null ? o : o[k]), row);
 
             const label = (row) =>
-                row.title || row.name || row.original_name || row.id;
+                row.title ||
+                row.name ||
+                row.reference ||
+                row.original_name ||
+                row.id;
 
-            const fmtDate = (v) => new Date(v).toLocaleString('fr-FR');
+            const fmtDate = (v) =>
+                new Date(v).toLocaleString('fr-FR', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+            const fmtDay = (iso) =>
+                new Date(iso + 'T00:00:00Z').toLocaleDateString('fr-FR', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    timeZone: 'UTC',
+                });
+
+            const skeleton = (n = 5) =>
+                `<div class="skel">${'<div class="sk-row"><span></span><span></span><span></span><span></span></div>'.repeat(n)}</div>`;
+
+            const errorState = (message) =>
+                `<div class="empty">${icon('alert-circle')}<strong>Chargement impossible</strong><p>${esc(message)}</p></div>`;
 
             function mediaUrl(url) {
                 if (!url) return '';
@@ -1979,14 +3716,14 @@
             }
 
             const badge = (v) =>
-                `<span class="badge ${TONE[v] || ''}">${esc(v)}</span>`;
+                `<span class="badge dot ${TONE[v] || ''}">${esc(human(v))}</span>`;
 
             const plural = (n, word) => n + ' ' + word + (n > 1 ? 's' : '');
 
             /**
-             * `SENT` signifie « FCM a accepte l envoi », pas « un telephone a recu ».
-             * Un envoi dont tous les tokens etaient perimes est un SENT a 0 livraison :
-             * sans ce bilan, l administrateur croirait la notification partie.
+             * `SENT` signifie « FCM a accepté l'envoi », pas « un téléphone a reçu ».
+             * Un envoi dont tous les tokens étaient périmés est un SENT à 0 livraison :
+             * sans ce bilan, l'administrateur croirait la notification partie.
              */
             function deliveryCell(row) {
                 if (row.status !== 'SENT' && row.status !== 'FAILED')
@@ -2029,8 +3766,32 @@
                             : ''
                     }</div>`;
 
-                if (v === true) return '<span class="badge ok">oui</span>';
-                if (v === false) return '<span class="badge">non</span>';
+                if (type === 'excerpt')
+                    return `<span class="excerpt">${esc(limitText(v, 90))}</span>`;
+
+                if (type === 'verse-day') {
+                    const today = todayISO();
+                    const chip =
+                        v === today
+                            ? '<span class="badge dot info">Aujourd’hui</span>'
+                            : v > today
+                              ? '<span class="badge dot warn">Programmé</span>'
+                              : '';
+                    return `<div class="daycell"><span>${esc(fmtDay(v))}</span>${chip}</div>`;
+                }
+
+                if (type === 'verse-notif') {
+                    if (!v)
+                        return row.publication_date > todayISO()
+                            ? '<span class="muted-sm">Le jour même à 07 h 00</span>'
+                            : '<span class="badge">—</span>';
+                    if (v.status === 'SENT')
+                        return `<span class="badge dot ok" title="${esc(v.sent_at ? fmtDate(v.sent_at) : '')}">Envoyée · ${plural(v.delivered_count || 0, 'téléphone')}</span>`;
+                    return `<span class="badge dot ${TONE[v.status] || ''}" title="${esc(v.last_error || '')}">${esc(human(v.status))}</span>`;
+                }
+
+                if (v === true) return '<span class="badge ok">Oui</span>';
+                if (v === false) return '<span class="badge">Non</span>';
                 if (v == null || v === '')
                     return '<span class="badge">—</span>';
                 if (/_at$/.test(path)) return esc(fmtDate(v));
@@ -2077,7 +3838,9 @@
 
             // The API only gives the nested object; keep its url for previews.
             function rememberRowMedia(row) {
-                ['cover', 'media', 'image'].forEach((k) => remember(row[k]));
+                ['cover', 'media', 'image', 'photo', 'illustration'].forEach(
+                    (k) => remember(row[k]),
+                );
                 return row;
             }
 
@@ -2115,18 +3878,18 @@
               <div class="modal" role="dialog" aria-modal="true" aria-label="Choisir une image">
                 <header>
                   <h2>Choisir une image</h2>
-                  <label class="btn">Importer…
+                  <label class="btn">${icon('upload')} Importer…
                     <input type="file" accept="${ACCEPT}" multiple hidden id="pickup">
                   </label>
-                  <button class="btn ghost" data-close aria-label="Fermer">✕</button>
+                  <button class="iconbtn" data-close aria-label="Fermer">${icon('x')}</button>
                 </header>
                 <div class="content"><div class="gallery" id="pickgrid"></div></div>
                 <footer>
                   <button class="btn ghost" data-clear>Aucune image</button>
                   <span class="spacer"></span>
                   <span id="pickinfo"></span>
-                  <button class="btn sm" data-prev>Précédent</button>
-                  <button class="btn sm" data-next>Suivant</button>
+                  <button class="iconbtn" data-prev aria-label="Page précédente">${icon('chevron-left')}</button>
+                  <button class="iconbtn" data-next aria-label="Page suivante">${icon('chevron-right')}</button>
                 </footer>
               </div>
             </div>`;
@@ -2154,7 +3917,7 @@
                                 `/admin/media?page=${page}&per_page=24`,
                             ));
                         } catch (err) {
-                            grid.innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                            grid.innerHTML = errorState(err.message);
                             return;
                         }
 
@@ -2167,7 +3930,7 @@
                                       tile(m, { selected: m.id === currentId }),
                                   )
                                   .join('')
-                            : '<p class="empty">Aucune image. Importez-en une.</p>';
+                            : `<div class="empty">${icon('image')}<strong>Aucune image</strong><p>Importez-en une avec le bouton « Importer ».</p></div>`;
 
                         grid.querySelectorAll('.tile').forEach((el) => {
                             el.onclick = () =>
@@ -2216,14 +3979,24 @@
             // --------------------------------------------------------- render
             function renderLogin(error = '') {
                 root.innerHTML = `
-            <form id="login">
-              <h1>Foursquare CI</h1>
-              <p>Panel d’administration</p>
-              <div class="field"><label for="l_email">Email</label><input id="l_email" name="email" type="email" required autofocus></div>
-              <div class="field"><label for="l_pass">Mot de passe</label><input id="l_pass" name="password" type="password" required></div>
-              ${error ? `<p class="err">${esc(error)}</p>` : ''}
-              <button class="btn primary" type="submit">Se connecter</button>
-            </form>`;
+            <div class="login">
+              <aside class="login-brand">
+                <img src="${ASSET}logo.jpg" alt="Logo Foursquare">
+                <h1>Foursquare CI</h1>
+                <p>Panel d’administration de l’application.</p>
+                <div class="fourbar"><i></i><i></i><i></i><i></i></div>
+              </aside>
+              <div class="login-main">
+                <form id="login">
+                  <h2>Connexion</h2>
+                  <p>Connectez-vous avec votre compte administrateur.</p>
+                  ${error ? `<div class="alert">${icon('alert-circle')}<span>${esc(error)}</span></div>` : ''}
+                  <div class="field"><label for="l_email">E-mail</label><input id="l_email" name="email" type="email" autocomplete="username" required autofocus></div>
+                  <div class="field"><label for="l_pass">Mot de passe</label><input id="l_pass" name="password" type="password" autocomplete="current-password" required></div>
+                  <button class="btn primary" type="submit">Se connecter</button>
+                </form>
+              </div>
+            </div>`;
 
                 $('login').onsubmit = async (e) => {
                     e.preventDefault();
@@ -2261,50 +4034,114 @@
                     };
                 }
 
-                let group = null;
-                const links = Object.entries(RESOURCES)
-                    .filter(([k]) => allowed(k))
-                    .map(([k, r]) => {
-                        const header =
-                            r.group === group
-                                ? ''
-                                : `<div class="group">${esc(r.group)}</div>`;
-                        group = r.group;
-                        return `${header}<a href="#${k}" class="${
-                            k === state.key ? 'active' : ''
-                        }">${esc(r.label)}</a>`;
-                    })
+                const nav = NAV.map((section) => {
+                    const items = section.items
+                        .map((it) => ({
+                            ...it,
+                            first: it.tabs.find(allowed),
+                        }))
+                        .filter((it) => it.first);
+                    if (!items.length) return '';
+                    return (
+                        (section.title
+                            ? `<h6>${esc(section.title)}</h6>`
+                            : '') +
+                        items
+                            .map(
+                                (it) =>
+                                    `<a href="#${it.first}" class="${
+                                        it.tabs.includes(state.key)
+                                            ? 'active'
+                                            : ''
+                                    }">${icon(it.icon)}<span>${esc(it.label)}</span></a>`,
+                            )
+                            .join('')
+                    );
+                }).join('');
+
+                const initials = String(me.name || '?')
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((w) => w[0].toUpperCase())
                     .join('');
+                const place = me.church
+                    ? me.church.name
+                    : me.district
+                      ? me.district.name
+                      : '';
 
                 root.innerHTML = `
             <div id="app">
-              <nav>
-                <div class="brand">Foursquare CI</div>
-                ${links}
-                <div class="spacer"></div>
-                <div class="me"><strong>${esc(me.name)}</strong>${esc(me.role_label || me.role)}${
-                    me.church
-                        ? ' — ' + esc(me.church.name)
-                        : me.district
-                          ? ' — ' + esc(me.district.name)
-                          : ''
-                }</div>
-                <button class="btn" id="logout">Déconnexion</button>
-              </nav>
+              <aside class="side" aria-label="Menu principal">
+                <div class="brand">
+                  <img src="${ASSET}logo.jpg" alt="">
+                  <div><strong>Foursquare CI</strong><span>Administration</span></div>
+                </div>
+                <div class="fourbar"><i></i><i></i><i></i><i></i></div>
+                <nav>${nav}</nav>
+                <div class="grow"></div>
+                <div class="user">
+                  <span class="avatar">${esc(initials)}</span>
+                  <div class="who"><strong>${esc(me.name)}</strong><span>${esc(me.role_label || human(me.role))}${place ? ' · ' + esc(place) : ''}</span></div>
+                  <button class="iconbtn" id="logout" title="Se déconnecter" aria-label="Se déconnecter">${icon('log-out')}</button>
+                </div>
+              </aside>
+              <div class="scrim" data-scrim></div>
               <main id="main"></main>
             </div>`;
 
                 $('logout').onclick = logout;
+                root.onclick = (e) => {
+                    // Un lien vers la page déjà ouverte ne change pas le hash :
+                    // il doit quand même refermer un formulaire en cours.
+                    const link = e.target.closest('a[href^="#"]');
+                    if (
+                        link &&
+                        link.getAttribute('href') === location.hash &&
+                        state.editing
+                    ) {
+                        e.preventDefault();
+                        state.editing = null;
+                        document.body.classList.remove('nav-open');
+                        renderApp();
+                        return;
+                    }
+
+                    if (e.target.closest('[data-menu]'))
+                        document.body.classList.toggle('nav-open');
+                    else if (
+                        e.target.closest('[data-scrim]') ||
+                        e.target.closest('.side a')
+                    )
+                        document.body.classList.remove('nav-open');
+                };
                 state.editing ? renderForm() : renderList();
             }
 
-            function renderHead(res, extra = '') {
+            function renderHead(res, actions = '', opts = {}) {
+                const entry = entryOf(state.key);
+                const tabs = entry ? entry.tabs.filter(allowed) : [];
+                const title = opts.title || entry?.label || res.label;
+                const sub = opts.sub !== undefined ? opts.sub : res.description;
+
                 return `
-            <div class="head">
-              <h1>${esc(res.label)}</h1>
-              ${res.search ? `<input id="search" type="search" placeholder="Rechercher…" value="${esc(state.search)}">` : ''}
-              ${extra}
-            </div>`;
+            <header class="topbar">
+              <button class="iconbtn menu-btn" data-menu aria-label="Ouvrir le menu">${icon('menu')}</button>
+              ${opts.back ? `<button class="iconbtn" id="back" aria-label="Retour à la liste">${icon('chevron-left')}</button>` : ''}
+              <div class="titles"><h1>${esc(title)}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
+              ${actions ? `<div class="acts">${actions}</div>` : ''}
+            </header>
+            ${
+                !opts.back && tabs.length > 1
+                    ? `<nav class="tabs" aria-label="Sections">${tabs
+                          .map(
+                              (k) =>
+                                  `<a href="#${k}" class="${k === state.key ? 'active' : ''}">${esc(RESOURCES[k].tab || RESOURCES[k].label)}</a>`,
+                          )
+                          .join('')}</nav>`
+                    : ''
+            }`;
             }
 
             function bindSearch(reload) {
@@ -2320,7 +4157,7 @@
                 };
             }
 
-            async function renderList() {
+            function renderList() {
                 const key = state.key;
                 const res = RESOURCES[key];
 
@@ -2332,15 +4169,25 @@
                     renderHead(
                         res,
                         (res.exportPath
-                            ? '<button class="btn" id="export">Exporter (CSV)</button>'
+                            ? `<button class="btn" id="export">${icon('download')}<span>Exporter (CSV)</span></button>`
                             : '') +
                             (res.noCreate
                                 ? ''
-                                : '<button class="btn primary" id="create">Nouveau</button>'),
+                                : `<button class="btn primary" id="create">${icon('plus')}<span>${esc(res.newLabel || 'Nouveau')}</span></button>`),
                     ) +
-                    '<div class="body"><div class="card" id="list"><p class="empty">Chargement…</p></div></div>';
+                    `<div class="body"><div class="card">
+                ${
+                    res.search
+                        ? `<div class="listbar">
+                  <div class="searchbox">${icon('search')}<input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher" value="${esc(state.search)}"></div>
+                  <span class="total" id="total"></span>
+                </div>`
+                        : ''
+                }
+                <div id="rows">${skeleton()}</div>
+              </div></div>`;
 
-                bindSearch(renderList);
+                bindSearch(loadRows);
 
                 if (res.exportPath)
                     $('export').onclick = () =>
@@ -2348,11 +4195,17 @@
                             toast(err.message, true),
                         );
 
-                if (!res.noCreate)
-                    $('create').onclick = () => {
-                        state.editing = {};
-                        renderForm();
-                    };
+                if (!res.noCreate) $('create').onclick = () => openNew(key);
+
+                loadRows();
+            }
+
+            // Recharge seulement les lignes : la recherche garde le focus.
+            async function loadRows() {
+                const key = state.key;
+                const res = RESOURCES[key];
+                const rows = $('rows');
+                if (!rows) return;
 
                 const query =
                     `?page=${state.page}&per_page=20` +
@@ -2364,26 +4217,39 @@
                 try {
                     ({ data, meta } = await api('/admin/' + key + query));
                 } catch (err) {
-                    $('list').innerHTML =
-                        `<p class="empty">${esc(err.message)}</p>`;
+                    rows.innerHTML = errorState(err.message);
                     return;
                 }
 
+                // Une navigation plus récente a remplacé cette page.
+                if (state.key !== key || $('rows') !== rows) return;
+
                 data.forEach(rememberRowMedia);
 
+                if ($('total'))
+                    $('total').textContent = plural(meta.total, 'élément');
+
                 if (!data.length) {
-                    $('list').innerHTML =
-                        '<p class="empty">Aucun élément pour le moment.</p>';
+                    rows.innerHTML = state.search
+                        ? `<div class="empty">${icon('search')}<strong>Aucun résultat</strong><p>Rien ne correspond à « ${esc(state.search)} ».</p></div>`
+                        : `<div class="empty">${icon('inbox')}<strong>Rien pour le moment</strong><p>Les éléments créés apparaîtront ici.</p>${
+                              res.noCreate
+                                  ? ''
+                                  : `<button class="btn primary" id="create2">${icon('plus')} ${esc(res.newLabel || 'Nouveau')}</button>`
+                          }</div>`;
+                    if ($('create2')) $('create2').onclick = () => openNew(key);
                     return;
                 }
 
                 const actions = res.rowActions || [];
 
-                $('list').innerHTML = `
-            <table>
+                rows.innerHTML = `
+            <div class="tablewrap"><table>
               <thead><tr>${res.columns
                   .map((c) => `<th>${esc(c[1])}</th>`)
-                  .join('')}<th></th></tr></thead>
+                  .join(
+                      '',
+                  )}<th><span class="sr">Actions</span></th></tr></thead>
               <tbody>
                 ${data
                     .map(
@@ -2395,32 +4261,34 @@
                                 `<td${c[2] === 'title' ? ' class="title"' : ''}>${cell(row, c)}</td>`,
                         )
                         .join('')}
-                    <td class="acts">
+                    <td class="acts"><div class="rowacts">
                       ${actions
                           .map((a, ai) =>
                               a.show(row)
-                                  ? `<button class="btn sm" data-act="${i}:${ai}">${esc(a.label)}</button> `
+                                  ? `<button class="btn sm" data-act="${i}:${ai}">${a.icon ? icon(a.icon) : ''}${esc(a.label)}</button>`
                                   : '',
                           )
                           .join('')}
-                      ${res.noEdit ? '' : `<button class="btn sm" data-edit="${i}">Éditer</button>`}
-                      ${res.noDelete ? '' : `<button class="btn sm danger" data-del="${i}">Supprimer</button>`}
-                    </td>
+                      ${res.noEdit ? '' : `<button class="iconbtn" data-edit="${i}" title="Modifier" aria-label="Modifier ${esc(label(row))}">${icon('pencil')}</button>`}
+                      ${res.noDelete ? '' : `<button class="iconbtn danger" data-del="${i}" title="Supprimer" aria-label="Supprimer ${esc(label(row))}">${icon('trash')}</button>`}
+                    </div></td>
                   </tr>`,
                     )
                     .join('')}
               </tbody>
-            </table>
-            <div class="pager">
-              <span>${meta.total} élément(s) — page ${meta.page}/${meta.last_page}</span>
+            </table></div>
+            ${
+                meta.last_page > 1
+                    ? `<div class="pager">
+              <span>Page ${meta.page} sur ${meta.last_page} · ${plural(meta.total, 'élément')}</span>
               <span class="spacer"></span>
-              <button class="btn sm" id="prev" ${meta.page <= 1 ? 'disabled' : ''}>Précédent</button>
-              <button class="btn sm" id="next" ${meta.page >= meta.last_page ? 'disabled' : ''}>Suivant</button>
-            </div>`;
+              <button class="iconbtn" id="prev" aria-label="Page précédente" ${meta.page <= 1 ? 'disabled' : ''}>${icon('chevron-left')}</button>
+              <button class="iconbtn" id="next" aria-label="Page suivante" ${meta.page >= meta.last_page ? 'disabled' : ''}>${icon('chevron-right')}</button>
+            </div>`
+                    : ''
+            }`;
 
-                const list = $('list');
-
-                list.querySelectorAll('[data-act]').forEach((b) => {
+                rows.querySelectorAll('[data-act]').forEach((b) => {
                     const [i, ai] = b.dataset.act.split(':').map(Number);
                     const row = data[i];
                     const act = actions[ai];
@@ -2431,7 +4299,7 @@
                         if (question && !confirm(question)) return;
                         b.disabled = true;
                         try {
-                            await api(
+                            const r = await api(
                                 '/admin/' +
                                     key +
                                     '/' +
@@ -2442,8 +4310,12 @@
                                     body: act.patch,
                                 },
                             );
-                            toast(act.done);
-                            renderList();
+                            toast(
+                                ...(typeof act.done === 'function'
+                                    ? act.done(r.data)
+                                    : [act.done]),
+                            );
+                            loadRows();
                         } catch (err) {
                             b.disabled = false;
                             toast(err.message, true);
@@ -2451,8 +4323,9 @@
                     };
                 });
 
-                list.querySelectorAll('[data-edit]').forEach((b) => {
+                rows.querySelectorAll('[data-edit]').forEach((b) => {
                     b.onclick = async () => {
+                        b.disabled = true;
                         try {
                             state.editing = rememberRowMedia(
                                 (
@@ -2466,12 +4339,13 @@
                             );
                             renderForm();
                         } catch (err) {
+                            b.disabled = false;
                             toast(err.message, true);
                         }
                     };
                 });
 
-                list.querySelectorAll('[data-del]').forEach((b) => {
+                rows.querySelectorAll('[data-del]').forEach((b) => {
                     b.onclick = async () => {
                         const row = data[b.dataset.del];
                         if (!confirm(`Supprimer « ${label(row)} » ?`)) return;
@@ -2481,21 +4355,23 @@
                             });
                             delete refCache[key];
                             toast('Supprimé');
-                            renderList();
+                            loadRows();
                         } catch (err) {
                             toast(err.message, true);
                         }
                     };
                 });
 
-                $('prev').onclick = () => {
-                    state.page--;
-                    renderList();
-                };
-                $('next').onclick = () => {
-                    state.page++;
-                    renderList();
-                };
+                if ($('prev'))
+                    $('prev').onclick = () => {
+                        state.page--;
+                        loadRows();
+                    };
+                if ($('next'))
+                    $('next').onclick = () => {
+                        state.page++;
+                        loadRows();
+                    };
             }
 
             // ------------------------------------------------- media gallery
@@ -2505,13 +4381,13 @@
                 $('main').innerHTML =
                     renderHead(
                         res,
-                        `<label class="btn primary">Importer des images
+                        `<label class="btn primary">${icon('upload')}<span>Importer des images</span>
               <input type="file" accept="${ACCEPT}" multiple hidden id="up"></label>`,
                     ) +
                     `<div class="body">
-               <div class="dropzone" id="drop">Glissez des images ici, ou utilisez « Importer des images » — JPG, PNG ou WebP, 5 Mo max.</div>
-               <div class="gallery" id="grid" style="margin-top:18px"><p class="empty">Chargement…</p></div>
-               <div class="pager" id="gpager" hidden></div>
+               <div class="dropzone" id="drop">${icon('upload')}<strong>Glissez vos images ici</strong><span>ou cliquez pour les choisir — JPG, PNG ou WebP, 5 Mo max.</span></div>
+               <div class="gallery" id="grid" style="margin-top:20px"><p class="empty">Chargement…</p></div>
+               <div class="pager card" id="gpager" style="margin-top:16px" hidden></div>
              </div>`;
 
                 const grid = $('grid');
@@ -2557,15 +4433,14 @@
                         `/admin/media?page=${state.page}&per_page=24`,
                     ));
                 } catch (err) {
-                    grid.innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+                    grid.innerHTML = errorState(err.message);
                     return;
                 }
 
                 data.forEach(remember);
 
                 if (!data.length) {
-                    grid.innerHTML =
-                        '<p class="empty">Aucune image pour le moment.</p>';
+                    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${icon('image')}<strong>Aucune image pour le moment</strong><p>Les images importées apparaîtront ici.</p></div>`;
                     return;
                 }
 
@@ -2623,10 +4498,10 @@
                     const pager = $('gpager');
                     pager.hidden = false;
                     pager.innerHTML = `
-              <span>${meta.total} image(s) — page ${meta.page}/${meta.last_page}</span>
+              <span>Page ${meta.page} sur ${meta.last_page} · ${meta.total} image(s)</span>
               <span class="spacer"></span>
-              <button class="btn sm" id="gprev" ${meta.page <= 1 ? 'disabled' : ''}>Précédent</button>
-              <button class="btn sm" id="gnext" ${meta.page >= meta.last_page ? 'disabled' : ''}>Suivant</button>`;
+              <button class="iconbtn" id="gprev" aria-label="Page précédente" ${meta.page <= 1 ? 'disabled' : ''}>${icon('chevron-left')}</button>
+              <button class="iconbtn" id="gnext" aria-label="Page suivante" ${meta.page >= meta.last_page ? 'disabled' : ''}>${icon('chevron-right')}</button>`;
                     $('gprev').onclick = () => {
                         state.page--;
                         renderGallery();
@@ -2661,33 +4536,46 @@
                     row,
                 );
                 const visible = (f) => !f.showIf || f.showIf(values);
+                const title = isNew
+                    ? res.newLabel || 'Nouveau — ' + res.label
+                    : res.editLabel
+                      ? res.editLabel
+                      : 'Modifier « ' + label(row) + ' »';
 
                 const draw = () => {
                     $('main').innerHTML =
-                        `<div class="head"><h1>${isNew ? 'Nouveau' : 'Éditer'} — ${esc(res.label)}</h1></div>` +
-                        `<div class="body"><div class="card">
-                <form id="form" class="grid">
-                  ${res.fields
-                      .filter(visible)
-                      .map((f) =>
-                          field(
-                              f,
-                              values[f.name],
-                              errors[f.name],
-                              refs[f.name],
-                          ),
-                      )
-                      .join('')}
-                  <div class="actions wide">
-                    <button class="btn primary" type="submit">${isNew ? 'Créer' : 'Enregistrer'}</button>
-                    <button class="btn ghost" type="button" id="cancel">Annuler</button>
-                  </div>
-                </form>
+                        renderHead(res, '', {
+                            back: true,
+                            title,
+                            sub: entryOf(key)?.label,
+                        }) +
+                        `<div class="body"><div class="form-layout${res.preview ? ' has-preview' : ''}">
+                <div class="card form-card">
+                  <form id="form" class="grid" novalidate>
+                    ${res.fields
+                        .filter(visible)
+                        .map((f) =>
+                            field(
+                                f,
+                                values[f.name],
+                                errors[f.name],
+                                refs[f.name],
+                            ),
+                        )
+                        .join('')}
+                    <div class="actions">
+                      <button class="btn ghost" type="button" id="cancel">Annuler</button>
+                      <span class="spacer"></span>
+                      <button class="btn primary" type="submit">${isNew ? icon('plus') + ' Créer' : 'Enregistrer'}</button>
+                    </div>
+                  </form>
+                </div>
+                ${res.preview ? '<aside class="card preview-card" id="pv" aria-label="Aperçu"></aside>' : ''}
               </div></div>`;
 
                     const form = $('form');
 
-                    $('cancel').onclick = () => {
+                    $('cancel').onclick = $('back').onclick = () => {
                         state.editing = null;
                         renderList();
                     };
@@ -2695,23 +4583,40 @@
                     bindImageFields(form, values);
                     bindRichText(form);
 
+                    if (res.preview) {
+                        const paint = () => {
+                            $('pv').innerHTML = res.preview(
+                                Object.assign({}, values, collect(form, res)),
+                                row,
+                            );
+                        };
+                        form.addEventListener('input', paint);
+                        paint();
+                    }
+
                     // Conditional fields follow scope_type / link_type / type / audience.
-                    ['scope_type', 'link_type', 'type', 'audience'].forEach(
-                        (name) => {
-                            const el = form.elements[name];
-                            if (!el) return;
-                            el.onchange = () => {
-                                Object.assign(values, collect(form, res));
-                                draw();
-                            };
-                        },
-                    );
+                    [
+                        'scope_type',
+                        'link_type',
+                        'type',
+                        'audience',
+                        'role',
+                    ].forEach((name) => {
+                        const el = form.elements[name];
+                        if (!el) return;
+                        el.onchange = () => {
+                            Object.assign(values, collect(form, res));
+                            draw();
+                        };
+                    });
 
                     form.onsubmit = async (e) => {
                         e.preventDefault();
                         const payload = {};
 
                         res.fields.forEach((f) => {
+                            if (!f.name) return;
+
                             // A hidden conditional field is explicitly cleared,
                             // otherwise a stale target would survive the change.
                             if (!visible(f)) {
@@ -2736,7 +4641,7 @@
                         btn.disabled = true;
 
                         try {
-                            await api(
+                            const r = await api(
                                 '/admin/' + key + (isNew ? '' : '/' + row.id),
                                 {
                                     method: isNew ? 'POST' : 'PATCH',
@@ -2745,7 +4650,11 @@
                             );
                             delete refCache[key];
                             state.editing = null;
-                            toast(isNew ? 'Créé' : 'Enregistré');
+                            toast(
+                                ...(res.afterSave?.(r.data, row) || [
+                                    isNew ? 'Créé' : 'Enregistré',
+                                ]),
+                            );
                             renderList();
                         } catch (err) {
                             btn.disabled = false;
@@ -2772,6 +4681,7 @@
             function collect(form, res) {
                 const out = {};
                 res.fields.forEach((f) => {
+                    if (!f.name) return;
                     const el = form.elements[f.name];
                     if (!el) return;
                     out[f.name] = f.type === 'checkbox' ? el.checked : el.value;
@@ -2792,7 +4702,7 @@
                         const m = await getMedia(input.value);
                         prev.innerHTML = m
                             ? `<img src="${esc(m.url)}" alt="">`
-                            : '<span>Aucune image</span>';
+                            : `<span>Aucune image</span>`;
                     };
 
                     box.querySelector('[data-pick]').onclick = async () => {
@@ -2852,7 +4762,9 @@
                         const showing = !preview.hidden;
                         preview.hidden = showing;
                         ta.hidden = !showing;
-                        toggle.textContent = showing ? 'Aperçu' : 'Éditer';
+                        toggle.innerHTML = showing
+                            ? icon('eye') + ' Aperçu'
+                            : icon('pencil') + ' Éditer';
                         if (!showing) preview.innerHTML = ta.value;
                     };
                 });
@@ -2860,28 +4772,33 @@
 
             // ---------------------------------------------------------- field
             function field(f, value, error, options) {
+                if (f.section)
+                    return `<div class="fsec">${esc(f.section)}</div>`;
+
                 const err = error ? `<p class="err">${esc(error[0])}</p>` : '';
                 const hint = f.hint ? `<p class="hint">${esc(f.hint)}</p>` : '';
-                const wide =
-                    f.wide || f.type === 'textarea' || f.type === 'richtext'
+                const cls =
+                    'field' +
+                    (f.wide || f.type === 'textarea' || f.type === 'richtext'
                         ? ' wide'
-                        : '';
+                        : '') +
+                    (error ? ' has-err' : '');
                 const id = 'f_' + f.name;
                 const req = f.required ? 'required' : '';
-                const lbl = `<label for="${id}">${esc(f.label)}${f.required ? ' *' : ''}</label>`;
+                const lbl = `<label for="${id}">${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ''}</label>`;
 
                 if (f.type === 'checkbox')
-                    return `<div class="field${wide}"><div class="check">
+                    return `<div class="${cls}"><div class="check">
               <input type="checkbox" name="${f.name}" id="${id}" ${value ? 'checked' : ''}>
               <label for="${id}">${esc(f.label)}</label></div>${hint}${err}</div>`;
 
                 if (f.type === 'image')
-                    return `<div class="field${wide}" data-image="${f.name}">
+                    return `<div class="${cls}" data-image="${f.name}">
               ${lbl}
               <div class="imgfield">
                 <div class="imgprev"><span>Aucune image</span></div>
                 <div class="imgacts">
-                  <button type="button" class="btn" data-pick>Choisir une image</button>
+                  <button type="button" class="btn" data-pick>${icon('image')} Choisir une image</button>
                   <button type="button" class="btn ghost" data-clear hidden>Retirer</button>
                   <p class="hint">JPG, PNG ou WebP — 5 Mo max. L’import se fait depuis la fenêtre de sélection.</p>
                 </div>
@@ -2890,14 +4807,14 @@
               ${err}</div>`;
 
                 if (f.type === 'richtext')
-                    return `<div class="field${wide}" data-rich>
+                    return `<div class="${cls}" data-rich>
               ${lbl}
               <div class="toolbar">
                 ${TAGS.map(
                     ([text, tag]) =>
                         `<button type="button" class="btn" data-tag="${tag}">${text}</button>`,
                 ).join('')}
-                <button type="button" class="btn ghost" data-preview>Aperçu</button>
+                <button type="button" class="btn" data-preview>${icon('eye')} Aperçu</button>
               </div>
               <textarea name="${f.name}" id="${id}" rows="12" ${req}>${esc(value)}</textarea>
               <div class="preview" hidden></div>
@@ -2905,20 +4822,20 @@
               ${err}</div>`;
 
                 if (f.type === 'select')
-                    return `<div class="field${wide}">${lbl}
+                    return `<div class="${cls}">${lbl}
               <select name="${f.name}" id="${id}" ${req}>
                 ${f.required ? '' : '<option value="">—</option>'}
-                ${value && !f.options.includes(value) ? `<option selected>${esc(value)}</option>` : ''}
+                ${value && !f.options.includes(value) ? `<option value="${esc(value)}" selected>${esc(human(value))}</option>` : ''}
                 ${f.options
                     .map(
                         (o) =>
-                            `<option ${o === value ? 'selected' : ''}>${esc(o)}</option>`,
+                            `<option value="${esc(o)}" ${o === value ? 'selected' : ''}>${esc(human(o))}</option>`,
                     )
                     .join('')}
               </select>${hint}${err}</div>`;
 
                 if (f.type === 'ref')
-                    return `<div class="field${wide}">${lbl}
+                    return `<div class="${cls}">${lbl}
               <select name="${f.name}" id="${id}" ${req}>
                 <option value="">—</option>
                 ${(options || [])
@@ -2930,7 +4847,7 @@
               </select>${hint}${err}</div>`;
 
                 if (f.type === 'textarea')
-                    return `<div class="field${wide}">${lbl}
+                    return `<div class="${cls}">${lbl}
               <textarea name="${f.name}" id="${id}" rows="${f.rows || 4}" ${req}>${esc(value)}</textarea>${hint}${err}</div>`;
 
                 const v =
@@ -2938,7 +4855,7 @@
                         ? String(value).slice(0, 16)
                         : value;
 
-                return `<div class="field${wide}">${lbl}
+                return `<div class="${cls}">${lbl}
               <input name="${f.name}" id="${id}" type="${f.type || 'text'}" ${
                   f.type === 'number' ? 'step="any"' : ''
               } value="${esc(v)}" ${req}>${hint}${err}</div>`;
@@ -2947,6 +4864,7 @@
             // ----------------------------------------------------------- boot
             window.onhashchange = () => {
                 const key = location.hash.slice(1);
+                document.body.classList.remove('nav-open');
                 if (RESOURCES[key]) {
                     state = { key, page: 1, search: '', editing: null };
                     renderApp();

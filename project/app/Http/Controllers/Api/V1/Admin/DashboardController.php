@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\V1\ApiController;
+use App\Http\Resources\DailyVerseResource;
 use App\Models\Church;
+use App\Models\DailyVerse;
 use App\Models\District;
 use App\Models\Event;
 use App\Models\EventRegistration;
@@ -45,6 +47,24 @@ class DashboardController extends ApiController
                 ->whereIn('event_id', Event::query()->manageableBy($user)->select('events.id'))
                 ->count(),
             'latest' => $latest,
+            // Verset national : seulement pour ceux qui le gèrent.
+            'daily_verse' => $this->when($user->isNationalAdmin(), fn () => [
+                'today' => ($verse = DailyVerse::query()->with('notification')->whereDate('publication_date', today())->first())
+                    ? DailyVerseResource::make($verse)->resolve($request)
+                    : null,
+                'scheduled' => DailyVerse::query()->whereDate('publication_date', '>', today())->count(),
+            ]),
         ]);
+    }
+
+    /**
+     * @template T
+     *
+     * @param  callable(): T  $value
+     * @return T|null
+     */
+    private function when(bool $condition, callable $value): mixed
+    {
+        return $condition ? $value() : null;
     }
 }

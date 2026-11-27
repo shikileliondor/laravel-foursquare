@@ -12,7 +12,10 @@ Base : `https://api.studiobeyam.net/api/v1`
 - `GET /discover` et `GET /discover/{key}` : rubriques institutionnelles publiées. Les clés fixes sont `history`, `vision-missions`, `doctrine`, `national-office`, `organization` et `districts-churches`.
 - `/home` ajoute `daily_verse`, identique pour tous les utilisateurs.
 - Administration nationale : CRUD `/admin/verses`, mise à jour `/admin/discover-sections/{id}` et CRUD `/admin/national-leaders`.
-- `php artisan verses:publish-daily` est planifié à 07 h 00, heure d’Abidjan. Il crée au plus une notification `DAILY_VERSE` nationale par verset.
+- Notification du verset : un verset daté du jour part vers tous les téléphones dès sa création (ou dès que sa date passe au jour même), sans worker, comme `POST /admin/notifications/{id}/send`. Titre `Verset du jour · {reference}`, corps = texte du verset (300 caractères max), `data.type = DAILY_VERSE` et `data.daily_verse_id`. Corriger ensuite le texte ne renvoie rien.
+- Un verset programmé pour plus tard part le jour venu à 07 h 00, heure d’Abidjan, par `php artisan verses:publish-daily` (cron `schedule:run` obligatoire).
+- `POST /admin/verses/{id}/send` : envoi manuel du verset du jour (relance après un échec). `422 VERSE_NOT_TODAY` pour un autre jour, `409 NOTIFICATION_NOT_SENDABLE` si elle est déjà partie ou en cours.
+- Côté admin, chaque verset expose `notification` : `status`, `delivered_count`, `pruned_count`, `failed_count`, `sent_at`, `last_error` (ou `null`). `GET /admin/dashboard` ajoute `daily_verse.today` et `daily_verse.scheduled` pour les administrateurs nationaux (`null` pour les autres).
 - Un verset contient `text`, `reference`, `bible_version` et `publication_date` (`YYYY-MM-DD`, unique). Les dates futures permettent la programmation.
 - Une rubrique institutionnelle accepte `content`, `image_media_id`, `illustration_media_id` et `status` (`DRAFT` ou `PUBLISHED`).
 - Un responsable national contient `name`, `position`, `photo_media_id`, `display_order` et `is_published`.

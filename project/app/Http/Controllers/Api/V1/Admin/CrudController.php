@@ -99,6 +99,8 @@ abstract class CrudController extends ApiController
 
         AuditLog::record('created', $item);
 
+        $this->saved($item);
+
         return ApiResponse::ok($this->resource::make($item->load($this->with)), 201);
     }
 
@@ -121,6 +123,8 @@ abstract class CrudController extends ApiController
         $item->update($this->prepare($this->fillEmptyDefaults($data), $request, $item));
 
         AuditLog::record('updated', $item);
+
+        $this->saved($item);
 
         return ApiResponse::ok($this->resource::make($item->fresh($this->with)));
     }
@@ -173,6 +177,11 @@ abstract class CrudController extends ApiController
     {
         return $data;
     }
+
+    /**
+     * Appelé après chaque création ou modification enregistrée.
+     */
+    protected function saved(Model $item): void {}
 
     /**
      * @param  array<string, mixed>  $data

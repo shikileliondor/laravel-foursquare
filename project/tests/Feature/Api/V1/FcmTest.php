@@ -7,6 +7,7 @@ use App\Models\Device;
 use App\Models\District;
 use App\Models\PushNotification;
 use App\Models\User;
+use App\Services\DailyVersePublisher;
 use App\Services\FcmClient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -512,4 +513,103 @@ it('lets the admin send again once a failed notification is back to draft', func
         ->assertJsonPath('data.status', 'PENDING');
 
     Queue::assertPushed(SendPushNotification::class);
+});
+
+function verseFor(string $date, array $attributes = []): DailyVerse
+{
+    return DailyVerse::create(array_merge([
+        'text' => 'Texte du verset fourni par l’administrateur.',
+        'reference' => 'Référence fournie',
+        'bible_version' => 'Version fournie',
+        'publication_date' => $date,
+    ], $attributes));
+}
+
+it('sends today\'s verse to the phones as soon as it is saved, with its text', function () {
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'reader', 'platform' => 'android']);
+
+    $this->postJson('/api/v1/admin/verses', [
+        'text' => 'Texte du verset fourni par l’administrateur.',
+        'reference' => 'Référence fournie',
+        'bible_version' => 'Version fournie',
+        'publication_date' => today()->toDateString(),
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.notification.status', 'SENT')
+        ->assertJsonPath('data.notification.delivered_count', 1);
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com')
+        && $request['message']['notification']['title'] === 'Verset du jour · Référence fournie'
+        && $request['message']['notification']['body'] === 'Texte du verset fourni par l’administrateur.'
+        && $request['message']['data']['type'] === 'DAILY_VERSE');
+});
+
+it('keeps scheduled verses for their day and never resends after an edit', function () {
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'reader', 'platform' => 'android']);
+
+    $this->postJson('/api/v1/admin/verses', [
+        'text' => 'Texte programmé.',
+        'reference' => 'Référence future',
+        'bible_version' => 'Version',
+        'publication_date' => today()->addDay()->toDateString(),
+    ])->assertCreated()->assertJsonPath('data.notification', null);
+
+    expect(PushNotification::count())->toBe(0);
+
+    $verse = verseFor(today()->toDateString());
+    app(DailyVersePublisher::class)->publish($verse);
+    $this->patchJson("/api/v1/admin/verses/{$verse->id}", ['text' => 'Texte corrigé.'])->assertOk();
+
+    expect(PushNotification::where('daily_verse_id', $verse->id)->count())->toBe(1);
+    Http::assertSentCount(2); // un jeton OAuth + un seul envoi FCM
+});
+
+it('lets national admins resend a failed verse notification, only for today', function () {
+    $verse = verseFor(today()->toDateString());
+    app(DailyVersePublisher::class)->publish($verse); // FCM non configuré : FAILED
+
+    expect($verse->notification()->value('status'))->toBe('FAILED');
+
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'reader', 'platform' => 'android']);
+
+    $this->postJson("/api/v1/admin/verses/{$verse->id}/send")
+        ->assertOk()
+        ->assertJsonPath('data.notification.status', 'SENT');
+
+    $this->postJson("/api/v1/admin/verses/{$verse->id}/send")
+        ->assertStatus(409);
+
+    $past = verseFor(today()->subDay()->toDateString());
+    $this->postJson("/api/v1/admin/verses/{$past->id}/send")
+        ->assertUnprocessable()
+        ->assertJsonPath('error.code', 'VERSE_NOT_TODAY');
+
+    expect(PushNotification::where('daily_verse_id', $verse->id)->count())->toBe(1);
+});
+
+it('shows today\'s verse and its delivery on the national dashboard only', function () {
+    $verse = verseFor(today()->toDateString());
+    verseFor(today()->addDays(2)->toDateString());
+
+    $this->getJson('/api/v1/admin/dashboard')
+        ->assertOk()
+        ->assertJsonPath('data.daily_verse.today.id', $verse->id)
+        ->assertJsonPath('data.daily_verse.today.notification', null)
+        ->assertJsonPath('data.daily_verse.scheduled', 1);
+
+    Sanctum::actingAs(User::factory()->create([
+        'role' => 'DISTRICT_ADMIN',
+        'status' => 'ACTIVE',
+        'district_id' => $this->district->id,
+    ]));
+
+    $this->getJson('/api/v1/admin/dashboard')
+        ->assertOk()
+        ->assertJsonPath('data.daily_verse', null);
 });

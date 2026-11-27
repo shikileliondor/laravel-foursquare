@@ -62,7 +62,7 @@ Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones
 
 Les ressources admin `districts`, `churches`, `news`, `events`, `banners`, `notifications`, `verses` et `national-leaders` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `discover-sections` expose uniquement liste, détail et modification, car ses six rubriques sont fixes. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
 
-Le champ `daily_verse` de `/home` est national et ne dépend jamais de `for_church_id`. Une notification de type `DAILY_VERSE` contient `daily_verse_id`; ouvrir cette notification mène à l’historique des versets.
+Le champ `daily_verse` de `/home` est national et ne dépend jamais de `for_church_id`. Une notification de type `DAILY_VERSE` contient `daily_verse_id`, son titre est `Verset du jour · {reference}` et son corps le texte du verset ; ouvrir cette notification mène à l’historique des versets.
 
 Afficher les états de chargement, les listes vides et `error.message`. Gérer `401` comme une déconnexion admin, `404` comme un contenu introuvable et `422` avec `error.fields`. Les champs optionnels peuvent être `null` : ne pas inventer de contenu. Pour les autres détails, voir [API.md](API.md).
 
