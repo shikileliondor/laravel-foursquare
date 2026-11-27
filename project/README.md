@@ -153,7 +153,7 @@ prière, méditations, messagerie interne, streaming des cultes, programme hebdo
 | ---------------------------- | --------------------------------------------- |
 | Backend, API REST, panel     | Développés et déployés                        |
 | Verset du jour, Découvrir    | Développés                                    |
-| Confidentialité (API, panel) | Développée ; textes juridiques à compléter    |
+| Confidentialité (API, panel) | Développée ; quatre pages juridiques publiées |
 | Application Flutter          | Développée ; écrans de consentement à ajouter |
 | Recette technique finale     | À faire                                       |
 | Lancement pilote             | Prochaine étape                               |

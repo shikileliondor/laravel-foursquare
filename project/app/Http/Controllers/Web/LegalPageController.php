@@ -7,14 +7,16 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 /**
- * Pages publiques exigées par Google Play et l'App Store : politique de
- * confidentialité et mentions légales, en HTML, sans connexion.
+ * Pages juridiques publiques, rendues en HTML et accessibles sans connexion.
  */
 class LegalPageController extends Controller
 {
     private const PAGES = [
         'privacy' => 'Politique de confidentialité',
-        'legal' => 'Mentions légales et conditions d’utilisation',
+        'legal' => 'Mentions légales',
+        'terms' => 'Conditions d’utilisation',
+        'cookies' => 'Cookies et stockage local',
+        'consent' => 'Politique de consentement',
     ];
 
     public function __invoke(string $page): Response

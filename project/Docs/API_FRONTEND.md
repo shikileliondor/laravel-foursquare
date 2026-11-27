@@ -23,7 +23,7 @@ const home = json.data;
 
 | Écran / besoin | Requête                 | Données principales                                                                                             |
 | -------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Accueil        | `GET /home`             | `daily_verse`, `social_links`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`   |
+| Accueil        | `GET /home`             | `daily_verse`, `social_links`, `donation_url`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`   |
 | Versets        | `GET /verses`           | Historique paginé des versets publiés, du plus récent au plus ancien                                            |
 | Verset du jour | `GET /verses/today`     | Verset national du jour ou `data: null`                                                                         |
 | Méditations    | `GET /meditations`      | Historique paginé (extraits), du plus récent au plus ancien                                                     |

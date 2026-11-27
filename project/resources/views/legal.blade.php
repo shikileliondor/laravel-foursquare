@@ -17,7 +17,8 @@
             h1, h2, h3 { line-height: 1.25; } h2 { margin-top: 32px; } a { color: #2449b8; }
             table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; }
             th, td { border: 1px solid #e4e8f0; padding: 8px 10px; text-align: left; vertical-align: top; }
-            nav { margin-top: 18px; font-size: 14px; }
+            nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; font-size: 14px; }
+            @media (max-width: 560px) { article { padding: 4px 18px 22px; } }
         </style>
     </head>
     <body>
@@ -25,7 +26,13 @@
         <div class="bar"><i></i><i></i><i></i><i></i></div>
         <main>
             <article>{!! $html !!}</article>
-            <nav><a href="{{ url('/privacy') }}">Politique de confidentialité</a> · <a href="{{ url('/legal') }}">Mentions légales</a></nav>
+            <nav aria-label="Pages juridiques">
+                <a href="{{ url('/privacy') }}">Confidentialité</a>
+                <a href="{{ url('/cookies') }}">Cookies et stockage local</a>
+                <a href="{{ url('/consent') }}">Consentement</a>
+                <a href="{{ url('/legal') }}">Mentions légales</a>
+                <a href="{{ url('/terms') }}">Conditions d’utilisation</a>
+            </nav>
         </main>
     </body>
 </html>

@@ -1,55 +1,55 @@
-## 2. Mentions légales
+# Mentions légales
 
-### Éditeur
+**Dernière mise à jour : 27 novembre 2026**
 
-- Nom légal : **[nom complet]**
-- Statut ou forme juridique : **[statut]**
-- Siège : **[adresse complète]**
-- Numéro d’identification ou d’enregistrement : **[numéro, si applicable]**
-- Téléphone : **[numéro]**
-- Adresse électronique : **[adresse]**
+## Éditeur du service
 
-### Responsable de publication
+L’application **Foursquare Côte d’Ivoire**, le site public et l’interface d’administration sont édités par l’**Église Évangélique Internationale Foursquare Côte d’Ivoire**, organisation religieuse établie en Côte d’Ivoire.
 
-**[nom, prénom et fonction]**
+- Siège national : Cocody, Riviera M’Badon, Abidjan, Côte d’Ivoire
+- Site du service : [api.studiobeyam.net](https://api.studiobeyam.net)
+- Contact : par courrier au siège national ou par l’intermédiaire de l’église Foursquare locale concernée
 
-### Hébergement
+## Direction de la publication
 
-- Hébergeur : **[raison sociale exacte de LWS figurant au contrat]**
-- Adresse : **[adresse complète]**
-- Téléphone : **[numéro]**
-- Site : **[URL]**
+La direction de la publication est assurée par le **Président national de l’Église Évangélique Internationale Foursquare Côte d’Ivoire**, en sa qualité de représentant de l’organisation.
 
-### Propriété intellectuelle
+## Conception et exploitation technique
 
-Les marques, logos, textes, photographies, éléments graphiques, bases de données et logiciels accessibles dans l’application sont protégés par les droits de propriété intellectuelle de leurs titulaires respectifs. Sauf autorisation préalable ou exception légale, leur reproduction, adaptation, extraction substantielle, diffusion ou exploitation est interdite.
+La conception et l’exploitation technique du service sont assurées pour le compte de l’éditeur par **Studio Beyam**. Cette intervention technique ne transfère pas à Studio Beyam la responsabilité éditoriale des contenus publiés par l’organisation, ses districts ou ses églises.
 
-Les contenus attribués à un district, une église, un auteur ou un partenaire restent soumis aux droits de leur titulaire.
+## Hébergement
 
-### Exactitude et disponibilité
+Le service, son API et sa base de données sont hébergés par **LWS (Ligne Web Services)**, société établie en France. Les informations officielles et les moyens de contact de l’hébergeur sont disponibles sur [www.lws.fr](https://www.lws.fr/).
 
-L’éditeur veille à la qualité des informations publiées mais ne garantit pas l’absence de toute erreur ou interruption. Les horaires, lieux, contacts et dates d’événements doivent être vérifiés auprès de l’organisateur lorsqu’ils sont déterminants pour l’utilisateur.
+Les notifications mobiles sont acheminées par **Google Firebase Cloud Messaging**.
 
-L’éditeur ne répond pas des interruptions dues à une maintenance, une panne, un réseau tiers, un cas de force majeure ou un service externe. Cette clause n’exclut aucune responsabilité qui ne pourrait légalement être exclue.
+## Propriété intellectuelle
 
-### Liens externes
+La structure du service, ses textes, graphismes, logos, photographies, vidéos, bases de données et logiciels sont protégés par les règles de propriété intellectuelle applicables. Les marques et contenus de tiers restent la propriété de leurs titulaires.
 
-L’application peut ouvrir des sites ou services externes. L’éditeur n’exerce aucun contrôle sur leur contenu, leur disponibilité ou leurs pratiques de confidentialité. L’utilisateur est invité à consulter les conditions et politiques du service concerné.
+Sauf autorisation écrite préalable ou exception prévue par la loi, il est interdit de reproduire, adapter, extraire de manière substantielle, publier, vendre ou exploiter ces éléments. Le partage d’un lien vers une page publique reste autorisé dès lors qu’il ne crée aucune confusion sur l’origine du contenu.
 
-### Droit applicable
+## Contenus publiés
 
-Les présentes mentions sont régies par le droit ivoirien. Tout différend est recherché en priorité par voie amiable, sans priver l’utilisateur des voies de recours et règles de compétence prévues par la loi.
+Les contenus attribués à la direction nationale, à un district, à une église, à un auteur ou à un partenaire relèvent de leur émetteur. L’éditeur veille à leur qualité mais ne peut garantir l’absence permanente d’erreur. Les horaires, lieux, tarifs et conditions d’un événement doivent être vérifiés auprès de l’organisateur lorsqu’ils sont déterminants.
 
-### Contact
+## Disponibilité et responsabilité
 
-Pour signaler une erreur, un contenu illicite ou une atteinte à un droit : **[adresse électronique]**.
+Le service peut être interrompu pour maintenance, mise à jour, incident technique, défaillance d’un réseau tiers ou cas de force majeure. L’éditeur s’efforce de rétablir l’accès dans un délai raisonnable sans garantir une disponibilité continue.
 
-## 4. Conditions d’utilisation essentielles
+Les informations diffusées par l’application ne remplacent pas un service d’urgence, un conseil médical, juridique ou financier. Aucune disposition de la présente page n’exclut une responsabilité qui ne pourrait légalement être exclue.
 
-L’application est un service d’information, de communication, d’annuaire d’églises et d’inscription à des événements. Sa consultation publique ne nécessite pas de compte.
+## Liens et services externes
 
-L’utilisateur s’engage à fournir des informations exactes lorsqu’il s’inscrit à un événement et à ne pas détourner le service, tenter d’accéder à des espaces protégés, perturber son fonctionnement ou porter atteinte aux droits d’autrui.
+L’application peut ouvrir un site, une carte, une vidéo, un réseau social ou un autre service externe. Ces services appliquent leurs propres conditions et politiques de confidentialité. L’éditeur n’exerce aucun contrôle sur leur disponibilité ni sur leurs traitements de données.
 
-Une inscription en ligne confirme la réception de la demande mais ne garantit pas une place lorsque l’organisateur a indiqué une capacité limitée ou des conditions particulières. Les règles propres à l’événement, clairement présentées avant l’inscription, restent applicables.
+## Signalement
 
-Les notifications peuvent être retardées ou ne pas parvenir en raison du terminal, du réseau ou du service de messagerie. Elles ne doivent pas être considérées comme un dispositif d’urgence.
+Une erreur, un contenu illicite ou une atteinte à un droit peut être signalé auprès de l’église ou du district à l’origine du contenu, ou par courrier au siège national avec les éléments permettant d’identifier précisément la publication concernée.
+
+## Droit applicable
+
+Les présentes mentions sont régies par le droit ivoirien. En cas de différend, une solution amiable est recherchée en priorité, sans priver l’utilisateur des recours ni des règles de compétence prévus par la loi.
+
+Consultez également les [Conditions d’utilisation](/terms), la [Politique de confidentialité](/privacy) et la [Politique relative aux cookies](/cookies).

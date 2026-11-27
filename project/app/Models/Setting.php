@@ -22,6 +22,7 @@ class Setting extends Model
         'facebook_url' => ['nullable', 'url:https', 'max:255'],
         'tiktok_url' => ['nullable', 'url:https', 'max:255'],
         'youtube_url' => ['nullable', 'url:https', 'max:255'],
+        'donation_url' => ['nullable', 'url:https', 'max:255'],
     ];
 
     /** Pages officielles nationales affichées par l'application. */

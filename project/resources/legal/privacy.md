@@ -1,151 +1,105 @@
-## 1. Politique de confidentialité
+# Politique de confidentialité
 
-### 1.1 Responsable du traitement
+**Version en vigueur : 27 novembre 2026**
 
-L’application **Foursquare Côte d’Ivoire** est éditée par **[nom légal complet de l’organisation]**, **[forme juridique ou statut]**, dont le siège est situé à **[adresse complète, Côte d’Ivoire]**.
+La présente politique explique comment l’application **Foursquare Côte d’Ivoire**, son site public et son interface d’administration collectent et utilisent les données personnelles. Elle s’applique à toute personne qui consulte les contenus, choisit une église, active les notifications, s’inscrit à un événement ou adresse une demande relative à ses données.
 
-Le responsable du traitement peut être contacté :
+## 1. Responsable du traitement
 
-- par courrier électronique : **[adresse de contact dédiée]** ;
-- par téléphone : **[numéro]** ;
-- par courrier postal : **[adresse complète]**.
+Le responsable du traitement est l’**Église Évangélique Internationale Foursquare Côte d’Ivoire**, organisation religieuse dont le siège national est situé à **Cocody, Riviera M’Badon, Abidjan, Côte d’Ivoire**.
 
-### 1.2 Personnes concernées
+Une demande concernant les données personnelles peut être envoyée depuis la rubrique **Paramètres > Confidentialité > Exercer mes droits** de l’application. Elle peut également être déposée par courrier au siège national, avec la mention « Données personnelles ».
 
-La présente politique concerne les personnes qui consultent l’application, choisissent une église de référence, activent les notifications ou s’inscrivent à un événement. L’application publique est utilisable sans créer de compte.
+## 2. Données collectées
 
-### 1.3 Données traitées
+L’application publique est accessible sans compte. Selon les fonctions utilisées, les données suivantes peuvent être traitées :
 
-Selon les fonctionnalités utilisées, l’application peut traiter :
+- nom et prénoms, numéro de téléphone et, lorsqu’elle est renseignée, adresse e-mail lors d’une inscription à un événement ;
+- église choisie comme église de référence ou indiquée lors d’une inscription ;
+- identifiant technique de l’appareil, jeton Firebase Cloud Messaging, plateforme, version de l’application, préférences de notification et date de dernière activité ;
+- consentements accordés ou retirés, ainsi que la version de la présente politique acceptée ;
+- adresse IP, type de navigateur ou d’appareil, date et heure des requêtes dans les journaux techniques nécessaires à la sécurité ;
+- informations fournies dans une demande d’accès, de rectification, d’opposition ou de suppression.
 
-- les nom et prénoms, le numéro de téléphone et, facultativement, l’adresse électronique fournis lors d’une inscription à un événement ;
-- l’église sélectionnée ou le nom d’une église indiqué lors d’une inscription ;
-- le jeton technique de notification Firebase, la plateforme du terminal, la version de l’application, l’état d’activation des notifications et la date de dernière activité ;
-- l’église et le district associés au terminal pour adresser les notifications correspondant au choix de l’utilisateur ;
-- l’adresse IP, le type de navigateur ou de terminal, la date et l’heure des requêtes, uniquement dans les journaux techniques nécessaires à la sécurité et au fonctionnement du service ;
-- les choix enregistrés localement sur le terminal, notamment l’église de référence et les préférences de notification.
+L’application ne demande pas, pour son fonctionnement public normal, de donnée bancaire, de pièce d’identité, de géolocalisation précise, de carnet d’adresses, de donnée de santé, d’accès au microphone ou d’accès aux photos.
 
-L’application ne demande aucune donnée bancaire, pièce d’identité, géolocalisation précise, liste de contacts, donnée de santé, accès au microphone ou accès aux photos pour son usage public normal.
+Le choix d’une église peut révéler indirectement une conviction ou une activité religieuse. Il est facultatif et fait l’objet d’un consentement spécifique. Le refus de faire ce choix n’empêche pas de consulter les contenus nationaux.
 
-Le choix d’une église peut révéler indirectement une opinion ou une activité religieuse. Il constitue donc potentiellement une **donnée sensible** au sens de la loi ivoirienne. Cette information est facultative et n’est utilisée que pour personnaliser les contenus et notifications ou pour traiter une inscription à un événement, sous réserve de l’autorisation préalable et des conditions fixées par l’ARTCI.
+## 3. Pourquoi les données sont utilisées
 
-### 1.4 Finalités et fondements des traitements
+Les données sont utilisées pour :
 
-Les données sont utilisées uniquement pour :
+- afficher les contenus nationaux, du district et de l’église choisis ;
+- enregistrer, confirmer et administrer une inscription à un événement ;
+- envoyer les notifications expressément activées ;
+- permettre la modification ou le retrait d’un choix ;
+- répondre aux demandes relatives aux données personnelles ;
+- protéger le service, prévenir les abus, diagnostiquer les incidents et assurer la continuité technique ;
+- respecter les obligations légales et réglementaires applicables.
 
-- afficher les contenus nationaux, du district et de l’église choisis par l’utilisateur ;
-- enregistrer et administrer une inscription demandée par l’utilisateur à un événement ;
-- adresser les notifications que l’utilisateur a choisi de recevoir ;
-- permettre la modification ou le retrait de ce choix ;
-- assurer la sécurité, prévenir les abus, diagnostiquer les incidents et maintenir le service ;
-- répondre aux demandes d’exercice des droits.
+Aucune donnée n’est utilisée pour de la publicité ciblée, du profilage commercial ou la revente de fichiers.
 
-Les traitements reposent, selon le cas, sur le consentement préalable, libre, spécifique, éclairé et univoque de la personne, sur l’exécution du service qu’elle demande ou sur les obligations légales applicables à l’éditeur. Le fondement exact de chaque traitement est documenté dans le dossier de conformité soumis à l’ARTCI. Aucun traitement de prospection commerciale, caritative ou politique n’est réalisé à partir de ces données.
+## 4. Fondements juridiques et consentement
 
-Le refus de choisir une église ou d’activer les notifications n’empêche pas de consulter les informations nationales. Les informations marquées comme obligatoires dans le formulaire d’inscription sont nécessaires pour enregistrer la participation à l’événement concerné.
+Selon le traitement, l’utilisation des données repose sur le consentement, l’exécution du service demandé, l’intérêt légitime à sécuriser et maintenir le service, ou une obligation légale applicable au responsable du traitement.
 
-### 1.5 Autorisation préalable et consentement
+Le consentement peut être retiré à tout moment depuis les paramètres de l’application ou du téléphone. Son retrait n’annule pas les opérations licitement réalisées auparavant. Les traitements de données sensibles et les transferts internationaux sont mis en œuvre sous réserve des formalités et autorisations requises auprès de l’ARTCI.
 
-Le consentement de l’utilisateur ne remplace pas les formalités réglementaires. Avant la mise en production, l’éditeur doit obtenir de l’ARTCI la qualification et l’autorisation adaptées à l’ensemble de ses traitements. Cette démarche doit notamment couvrir :
+## 5. Caractère obligatoire ou facultatif
 
-- le numéro de téléphone collecté pour les inscriptions ;
-- l’église de référence ou de provenance, susceptible de révéler une opinion ou activité religieuse ;
-- le jeton de notification et les identifiants techniques ;
-- les destinataires, les sous-traitants, les durées de conservation et les mesures de sécurité ;
-- les transferts internationaux liés notamment à Google Firebase.
+Les champs signalés comme obligatoires dans un formulaire sont nécessaires pour fournir le service demandé. Les autres champs sont facultatifs. Ne pas renseigner une église ou une adresse e-mail n’empêche pas l’inscription lorsqu’ils sont présentés comme facultatifs.
 
-La loi interdit en principe le traitement des données révélant les opinions ou activités religieuses. Une exception peut concerner les activités légitimes d’un organisme à finalité religieuse pour ses membres ou les personnes entretenant avec lui des contacts réguliers, sans communication à des tiers sans leur consentement. L’applicabilité de cette exception à l’application et ses conditions doivent être confirmées par l’ARTCI dans le cadre de l’autorisation préalable.
+## 6. Destinataires
 
-Avant d’associer une église au terminal ou à une inscription, l’application informe clairement l’utilisateur du caractère potentiellement sensible de ce choix et recueille une action positive et non équivoque de sa part.
+Les données sont accessibles uniquement :
 
-L’autorisation système d’envoyer des notifications est demandée séparément. Elle peut être retirée à tout moment dans les réglages du terminal. L’utilisateur peut aussi changer ou supprimer son église de référence depuis l’application. Le retrait du consentement ne remet pas en cause les traitements effectués avant ce retrait.
+- aux administrateurs autorisés de Foursquare Côte d’Ivoire, dans la limite de leur rôle et de leur périmètre national, de district ou d’église ;
+- aux organisateurs autorisés, pour gérer les inscriptions à leur événement ;
+- à **LWS (Ligne Web Services)**, pour l’hébergement de l’API, de l’interface et de la base de données ;
+- à **Google Firebase Cloud Messaging**, uniquement pour acheminer les notifications ;
+- aux autorités compétentes lorsqu’une disposition légale l’exige.
 
-### 1.6 Destinataires et sous-traitants
+Les données ne sont ni vendues, ni louées, ni communiquées à des annonceurs.
 
-Les données d’inscription sont accessibles uniquement aux administrateurs autorisés à gérer l’événement, dans la limite de leur périmètre national, de district ou d’église.
+## 7. Transferts internationaux
 
-Des prestataires techniques peuvent traiter certaines données uniquement pour fournir le service :
+Firebase et certains services techniques peuvent traiter des données en dehors de la Côte d’Ivoire. Lorsque cela se produit, le responsable du traitement vérifie les garanties applicables et accomplit les formalités exigées par la législation ivoirienne, notamment l’autorisation préalable de l’ARTCI lorsqu’elle est requise.
 
-- **[nom légal de l’hébergeur LWS figurant au contrat]**, pour l’hébergement de l’API et de la base de données ;
-- **Google Firebase Cloud Messaging**, pour l’acheminement des notifications ;
-- **[autres prestataires effectivement utilisés, notamment sauvegarde, supervision ou analyse]**.
+## 8. Durées de conservation
 
-Les données ne sont ni vendues ni louées. Elles ne sont communiquées à une autorité que lorsqu’une obligation légale l’impose.
+Les données sont conservées pendant une durée proportionnée à leur finalité :
 
-### 1.7 Transferts hors de Côte d’Ivoire
+- inscriptions aux événements : pendant l’organisation de l’événement, puis au maximum **douze mois** après sa clôture ;
+- jetons de notification : jusqu’à la désactivation des notifications, l’invalidation du jeton ou **douze mois d’inactivité** ;
+- journaux techniques de sécurité : au maximum **six mois**, sauf nécessité liée à un incident ou obligation légale ;
+- consentements et retraits : pendant la durée d’utilisation du service, puis **cinq ans** afin de démontrer le respect des choix ;
+- demandes d’exercice des droits : le temps de leur traitement, puis **cinq ans** pour assurer leur suivi ;
+- données soumises à une obligation légale : pendant la durée imposée par cette obligation.
 
-L’utilisation de Firebase ou d’un autre prestataire international peut entraîner un traitement de données hors de Côte d’Ivoire. Avant tout transfert effectif vers un pays tiers, l’éditeur obtient l’autorisation préalable spécifique de l’ARTCI, identifie les pays de destination et vérifie le niveau de protection applicable. Le consentement ou le contrat conclu avec le prestataire ne remplace pas cette autorisation.
+À l’issue de ces délais, les données sont supprimées ou anonymisées de façon irréversible.
 
-### 1.8 Durées de conservation
+## 9. Sécurité
 
-Les durées ci-dessous doivent correspondre aux suppressions réellement mises en œuvre dans le service :
+Des mesures techniques et organisationnelles adaptées sont appliquées : communications HTTPS, contrôle des rôles et des périmètres, authentification des administrateurs, limitation des tentatives, journalisation des actions sensibles, mises à jour de sécurité, sauvegardes protégées et procédure de gestion des incidents.
 
-- inscriptions aux événements : **[durée validée par l’organisation et l’ARTCI, puis suppression ou anonymisation]** ;
-- jetons de notification : jusqu’au retrait des notifications, à l’invalidation du jeton ou après **[durée d’inactivité effectivement appliquée]** ;
-- journaux techniques de sécurité : **[durée effectivement appliquée]** ;
-- demandes d’exercice des droits : **[durée justifiée nécessaire au suivi de la demande]**.
+Aucun système n’étant totalement exempt de risque, tout incident est analysé et traité. Les notifications à l’ARTCI, à l’ANSSI/CI-CERT ou aux personnes concernées sont effectuées lorsque le droit applicable l’exige.
 
-Les données sont supprimées ou anonymisées lorsqu’elles ne sont plus nécessaires, sous réserve d’une obligation légale de conservation.
+## 10. Vos droits
 
-### 1.9 Sécurité et gestion des incidents
+Dans les conditions prévues par la législation ivoirienne, toute personne peut demander à être informée, accéder à ses données, les faire rectifier, s’opposer à un traitement pour un motif légitime, retirer son consentement, ou demander le verrouillage, l’effacement et la portabilité lorsque ces droits sont applicables.
 
-Conformément aux obligations rappelées par l’ARTCI et aux principes de sécurité promus par l’ANSSI et le RGSSI, l’éditeur met en œuvre une approche fondée sur les risques :
+La demande peut être déposée dans la rubrique **Paramètres > Confidentialité > Exercer mes droits**. Pour retrouver une inscription, il peut être nécessaire d’indiquer l’événement, le nom et le numéro de téléphone utilisés. Une preuve d’identité n’est demandée qu’en cas de doute raisonnable et uniquement pour éviter la communication ou la suppression des données d’une autre personne.
 
-- chiffrement HTTPS des communications et protection des secrets ;
-- authentification renforcée des administrateurs, idéalement avec un second facteur ;
-- contrôle des rôles, des périmètres et du moindre privilège ;
-- mises à jour de sécurité du serveur, des dépendances et de l’application ;
-- séparation des environnements, protection des sauvegardes et tests de restauration ;
-- journalisation protégée des accès et actions sensibles ;
-- tests de sécurité avant mise en production et après toute modification importante ;
-- procédure documentée de détection, qualification, confinement, correction et conservation des preuves en cas d’incident ;
-- plan de continuité et de reprise, avec responsabilités et contacts clairement attribués.
+Une réclamation peut également être adressée à l’**ARTCI, Autorité de protection des données personnelles**, via [autoritedeprotection.ci](https://www.autoritedeprotection.ci/).
 
-Aucun mode de transmission ou de stockage n’offrant une sécurité absolue, tout incident susceptible d’affecter les personnes concernées est consigné, évalué et traité conformément aux obligations applicables. L’organisation prévoit les notifications nécessaires à l’ARTCI, à l’ANSSI/CI-CERT et aux personnes concernées selon la nature, la gravité et le cadre juridique de l’incident.
+## 11. Mineurs
 
-### 1.10 Droits des personnes
+Le service ne cherche pas à collecter spécifiquement les données de mineurs. L’inscription en ligne est réservée aux personnes majeures, sauf lorsqu’un événement prévoit explicitement l’inscription d’un mineur et recueille au préalable l’autorisation vérifiable de son représentant légal.
 
-Conformément à la législation ivoirienne relative à la protection des données personnelles, toute personne peut, selon les conditions prévues par la loi :
+## 12. Cookies et stockage local
 
-- être informée des traitements réalisés ;
-- demander l’accès à ses données et en obtenir une copie ;
-- demander leur rectification, leur mise à jour, leur verrouillage ou leur suppression ;
-- s’opposer à un traitement pour un motif légitime ;
-- retirer son consentement ;
-- demander l’effacement ou la portabilité de ses données lorsque ces droits s’appliquent.
+L’application et le site n’utilisent que les cookies et stockages nécessaires à leur fonctionnement. Aucun traceur publicitaire n’est installé. Les détails figurent dans la [Politique relative aux cookies et au stockage local](/cookies).
 
-La demande doit être envoyée à **[adresse de contact dédiée]** en précisant l’événement concerné et les informations nécessaires pour retrouver l’inscription. Une preuve d’identité pourra être demandée uniquement lorsqu’elle est nécessaire pour éviter de communiquer ou supprimer les données d’une autre personne.
+## 13. Modification de la politique
 
-La personne peut également adresser une réclamation à l’ARTCI, Autorité de protection des données personnelles : **https://www.autoritedeprotection.ci/**.
-
-### 1.11 Mineurs
-
-L’application fournit des informations publiques et ne cherche pas à collecter spécifiquement les données de mineurs. Lorsqu’un événement autorise l’inscription d’un mineur, **[décrire ici le mécanisme réellement retenu pour l’autorisation du représentant légal]**. À défaut d’un tel mécanisme, l’inscription en ligne doit être réservée aux personnes majeures.
-
-### 1.12 Modification de la politique
-
-Cette politique peut être mise à jour pour refléter une évolution du service, des prestataires ou du droit applicable. La date de mise à jour est indiquée en tête du document. Toute modification importante est signalée dans l’application avant son entrée en vigueur lorsque cela est nécessaire.
-
-## 3. Politique relative aux cookies et au stockage local
-
-### Application mobile
-
-L’application mobile n’utilise pas de cookies de navigateur pour son fonctionnement normal. Elle peut enregistrer localement sur le terminal :
-
-- l’identifiant de l’église de référence ;
-- les préférences de notification ;
-- des données temporaires de cache, notamment des images et contenus déjà consultés.
-
-Ces éléments servent uniquement à mémoriser les choix de l’utilisateur, personnaliser l’affichage et améliorer les performances. Ils peuvent être supprimés en changeant les choix dans l’application, en effaçant les données de l’application dans les réglages du terminal ou en désinstallant l’application.
-
-### Site web et administration
-
-Le site et le panneau d’administration peuvent utiliser uniquement des cookies strictement nécessaires :
-
-- cookie de session et de sécurité, pour authentifier et protéger la session administrateur ;
-- cookie d’apparence, pour mémoriser le thème choisi ;
-- cookie d’état de l’interface, pour mémoriser l’ouverture ou la fermeture du menu latéral.
-
-Ces cookies ne servent ni à la publicité, ni au profilage, ni à la mesure d’audience. Les cookies de session expirent à la fin de la session ou selon la durée de sécurité configurée. Le choix d’apparence peut être conservé jusqu’à douze mois et l’état du menu jusqu’à sept jours.
-
-En l’absence de cookie ou traceur non essentiel, aucun bandeau « Accepter/Refuser » n’est nécessaire : une information accessible suffit. Si un outil d’analyse, de publicité, une vidéo intégrée ou un autre traceur non essentiel est ajouté, il devra rester désactivé jusqu’au consentement, être refusé aussi facilement qu’accepté et pouvoir être retiré à tout moment.
+Cette politique peut être mise à jour lorsque le service, les prestataires ou les règles applicables évoluent. La date et la version en vigueur sont affichées en haut de cette page. Lorsqu’une modification affecte substantiellement un traitement fondé sur le consentement, une nouvelle information ou un nouveau consentement est demandé avant son application.

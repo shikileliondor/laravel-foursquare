@@ -56,6 +56,8 @@ class HomeController extends ApiController
             'church' => $church ? ChurchResource::make($church->load(['district', 'image']))->resolve() : null,
             'launch_church' => $this->launchChurch(),
             'social_links' => Setting::socialLinks(),
+            // Lien de paiement externe (Wave…) ouvert par le bouton « Faire un don ».
+            'donation_url' => Setting::read('donation_url'),
             'banners' => BannerResource::collection($banners)->resolve(),
             'featured_news' => NewsResource::collection($featuredNews)->resolve(),
             'featured_news_item' => $featuredNews->first() ? NewsResource::make($featuredNews->first())->resolve() : null,

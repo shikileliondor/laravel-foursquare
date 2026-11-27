@@ -791,6 +791,93 @@
                 text-decoration: none;
             }
 
+            .legal-stack {
+                display: grid;
+                gap: 16px;
+                max-width: 980px;
+            }
+
+            .legal-doc {
+                background: var(--surface);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-sm);
+                overflow: hidden;
+            }
+
+            .legal-doc summary {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 16px 18px;
+                cursor: pointer;
+                font-weight: 750;
+                list-style: none;
+            }
+
+            .legal-doc summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .legal-doc summary::after {
+                content: '+';
+                margin-left: auto;
+                color: var(--muted);
+                font-size: 20px;
+            }
+
+            .legal-doc[open] summary::after {
+                content: '−';
+            }
+
+            .legal-copy {
+                padding: 4px 24px 24px;
+                border-top: 1px solid var(--line);
+                color: var(--text);
+                line-height: 1.7;
+            }
+
+            .legal-copy h1 {
+                font-size: 24px;
+            }
+
+            .legal-copy h2 {
+                margin: 26px 0 8px;
+                font-size: 17px;
+            }
+
+            .legal-copy h3 {
+                margin: 20px 0 8px;
+                font-size: 15px;
+            }
+
+            .legal-copy p,
+            .legal-copy ul,
+            .legal-copy table {
+                margin: 10px 0;
+            }
+
+            .legal-copy table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13px;
+            }
+
+            .legal-copy th,
+            .legal-copy td {
+                padding: 8px;
+                border: 1px solid var(--line);
+                text-align: left;
+                vertical-align: top;
+            }
+
+            .consent-note {
+                padding: 14px 16px;
+                border-left: 4px solid var(--accent);
+                border-radius: 0 10px 10px 0;
+                background: var(--surface-2);
+            }
+
             /* ---------------------------------------------- states & loading */
             .empty {
                 display: flex;
@@ -3294,6 +3381,15 @@
                     ],
                     fields: [],
                 },
+                'legal-content': {
+                    label: 'Textes légaux',
+                    tab: 'Textes légaux',
+                    description:
+                        'Politiques, conditions et textes de consentement publiés dans l’application.',
+                    perm: 'privacy',
+                    view: 'legal-content',
+                    fields: [],
+                },
                 settings: {
                     label: 'Paramètres',
                     description: 'Réglages généraux de l’application.',
@@ -3394,7 +3490,11 @@
                         {
                             label: 'Confidentialité',
                             icon: 'shield',
-                            tabs: ['privacy-requests', 'privacy-consents'],
+                            tabs: [
+                                'privacy-requests',
+                                'privacy-consents',
+                                'legal-content',
+                            ],
                         },
                         {
                             label: 'Paramètres',
@@ -3733,6 +3833,14 @@
                     },
                     { name: 'contact_phone', label: 'Téléphone de contact' },
                     { name: 'contact_whatsapp', label: 'WhatsApp de contact' },
+                    { section: 'Dons' },
+                    {
+                        name: 'donation_url',
+                        label: 'Lien de don (Wave, Mobile Money…)',
+                        type: 'url',
+                        wide: true,
+                        hint: 'Ouvert par le bouton « Faire un don » de l’application. Laisser vide pour masquer le bouton.',
+                    },
                     { section: 'Réseaux sociaux nationaux' },
                     {
                         name: 'facebook_url',
@@ -4376,6 +4484,83 @@
                 };
             }
 
+            async function renderLegalContent() {
+                const documents = [
+                    {
+                        title: 'Politique de confidentialité',
+                        url: '/privacy',
+                    },
+                    {
+                        title: 'Cookies et stockage local',
+                        url: '/cookies',
+                    },
+                    {
+                        title: 'Politique de consentement',
+                        url: '/consent',
+                    },
+                    {
+                        title: 'Conditions d’utilisation',
+                        url: '/terms',
+                    },
+                    { title: 'Mentions légales', url: '/legal' },
+                ];
+
+                $('main').innerHTML =
+                    renderHead(RESOURCES['legal-content']) +
+                    `<div class="body"><div class="legal-stack" id="legal-documents">${skeleton(5)}</div></div>`;
+
+                try {
+                    const contents = await Promise.all(
+                        documents.map(async (document) => {
+                            const response = await fetch(document.url, {
+                                headers: { Accept: 'text/html' },
+                            });
+                            if (!response.ok)
+                                throw new Error(
+                                    `Impossible de charger ${document.title}.`,
+                                );
+
+                            const page = new DOMParser().parseFromString(
+                                await response.text(),
+                                'text/html',
+                            );
+                            const article = page.querySelector('article');
+                            if (!article)
+                                throw new Error(
+                                    `Le contenu de ${document.title} est introuvable.`,
+                                );
+
+                            article
+                                .querySelectorAll(
+                                    'script, style, iframe, object, embed',
+                                )
+                                .forEach((node) => node.remove());
+                            article.querySelectorAll('*').forEach((node) => {
+                                [...node.attributes].forEach((attribute) => {
+                                    if (
+                                        attribute.name
+                                            .toLowerCase()
+                                            .startsWith('on')
+                                    )
+                                        node.removeAttribute(attribute.name);
+                                });
+                            });
+
+                            return `<details class="legal-doc" ${document.url === '/privacy' ? 'open' : ''}>
+                    <summary>${icon('book-open')} ${esc(document.title)}</summary>
+                    <div class="legal-copy">${article.innerHTML}
+                      <p><a href="${document.url}" target="_blank" rel="noopener">Ouvrir la page publique</a></p>
+                    </div>
+                  </details>`;
+                        }),
+                    );
+
+                    $('legal-documents').innerHTML = contents.join('');
+                } catch (err) {
+                    $('legal-documents').innerHTML = errorState(err.message);
+                }
+            }
+
             function renderList() {
                 const key = state.key;
                 const res = RESOURCES[key];
@@ -4383,6 +4568,8 @@
                 if (res.view === 'gallery') return renderGallery();
                 if (res.view === 'dashboard') return renderDashboard();
                 if (res.view === 'settings') return renderSettings();
+                if (res.view === 'legal-content')
+                    return renderLegalContent();
 
                 $('main').innerHTML =
                     renderHead(

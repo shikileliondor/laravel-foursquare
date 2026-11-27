@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://api.studiobeyam.net/sitemap.xml
