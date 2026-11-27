@@ -2,10 +2,15 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Teams\TeamInvitationController;
+use App\Http\Controllers\Web\LegalPageController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Pages publiques exigées par les boutiques d'applications.
+Route::get('{page}', LegalPageController::class)
+    ->whereIn('page', ['privacy', 'legal'])->name('legal.show');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
