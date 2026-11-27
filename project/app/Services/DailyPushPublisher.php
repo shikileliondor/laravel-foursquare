@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\SendPushNotification;
 use App\Models\AuditLog;
+use App\Models\DailyMeditation;
 use App\Models\DailyVerse;
 use App\Models\PushNotification;
 use Illuminate\Support\Facades\DB;
@@ -11,45 +12,45 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Relie un verset à sa notification push nationale et l'envoie.
+ * Relie un contenu quotidien national (verset, méditation) à sa notification
+ * push et l'envoie.
  *
- * Un verset n'a jamais plus d'une notification. Elle part sans worker, comme
+ * Un contenu n'a jamais plus d'une notification. Elle part sans worker, comme
  * le bouton « Envoyer » du panel, sauf si FCM_QUEUE=true.
  */
-class DailyVersePublisher
+class DailyPushPublisher
 {
     /** Statuts pour lesquels un nouvel envoi ferait doublon. */
     private const BUSY = ['PENDING', 'PROCESSING', 'SENT'];
 
-    public function alreadySent(DailyVerse $verse): bool
+    public function alreadySent(DailyVerse|DailyMeditation $item): bool
     {
         return PushNotification::query()
-            ->where('daily_verse_id', $verse->id)
+            ->where($this->foreignKey($item), $item->getKey())
             ->whereIn('status', self::BUSY)
             ->exists();
     }
 
     /**
-     * Crée ou réarme la notification du verset puis l'envoie. Ne fait rien si
+     * Crée ou réarme la notification du contenu puis l'envoie. Ne fait rien si
      * elle est déjà partie ou en cours d'envoi.
      */
-    public function publish(DailyVerse $verse): ?PushNotification
+    public function publish(DailyVerse|DailyMeditation $item): ?PushNotification
     {
-        $notification = DB::transaction(function () use ($verse): ?PushNotification {
-            $verse = DailyVerse::query()->whereKey($verse->id)->lockForUpdate()->first();
-            if (! $verse) {
+        $foreignKey = $this->foreignKey($item);
+
+        $notification = DB::transaction(function () use ($item, $foreignKey): ?PushNotification {
+            $item = $item->newQuery()->whereKey($item->getKey())->lockForUpdate()->first();
+            if (! $item instanceof DailyVerse && ! $item instanceof DailyMeditation) {
                 return null;
             }
 
-            $notification = PushNotification::query()->where('daily_verse_id', $verse->id)->first();
+            $notification = PushNotification::query()->where($foreignKey, $item->getKey())->first();
             if ($notification && in_array($notification->status, self::BUSY, true)) {
                 return null;
             }
 
-            $attributes = [
-                'title' => 'Verset du jour · '.$verse->reference,
-                'body' => Str::limit($verse->text, 300),
-                'type' => 'DAILY_VERSE',
+            $attributes = $this->message($item) + [
                 'audience' => 'ALL',
                 'district_id' => null,
                 'church_id' => null,
@@ -60,10 +61,10 @@ class DailyVersePublisher
             if ($notification) {
                 $notification->update($attributes);
             } else {
-                $notification = PushNotification::create($attributes + ['daily_verse_id' => $verse->id]);
+                $notification = PushNotification::create($attributes + [$foreignKey => $item->getKey()]);
             }
 
-            $verse->update(['notification_created_at' => now()]);
+            $item->update(['notification_created_at' => now()]);
             AuditLog::record('queued', $notification);
 
             return $notification;
@@ -97,5 +98,28 @@ class DailyVersePublisher
         }
 
         return $notification->fresh();
+    }
+
+    private function foreignKey(DailyVerse|DailyMeditation $item): string
+    {
+        return $item instanceof DailyVerse ? 'daily_verse_id' : 'daily_meditation_id';
+    }
+
+    /**
+     * @return array{title: string, body: string, type: string}
+     */
+    private function message(DailyVerse|DailyMeditation $item): array
+    {
+        return $item instanceof DailyVerse
+            ? [
+                'title' => 'Verset du jour · '.$item->reference,
+                'body' => Str::limit($item->text, 300),
+                'type' => 'DAILY_VERSE',
+            ]
+            : [
+                'title' => 'Méditation du jour · '.$item->title,
+                'body' => $item->excerpt(300),
+                'type' => 'DAILY_MEDITATION',
+            ];
     }
 }

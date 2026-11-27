@@ -777,6 +777,9 @@
             }
 
             .card-head h2 {
+                display: flex;
+                align-items: center;
+                gap: 8px;
                 flex: 1;
                 font-size: 15px;
                 font-weight: 700;
@@ -1287,6 +1290,41 @@
                 width: 16px;
                 height: 16px;
                 color: var(--muted);
+            }
+
+            .med-body {
+                display: grid;
+                gap: 8px;
+                padding: 16px 18px;
+            }
+
+            .med-title {
+                font-size: 15px;
+            }
+
+            .med-body p {
+                color: var(--text-2);
+                font-size: 13.5px;
+            }
+
+            .med-body .verse-foot {
+                margin-top: 6px;
+            }
+
+            .med-sched {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                margin-top: 6px;
+                padding-top: 12px;
+                border-top: 1px solid var(--line);
+                color: var(--muted);
+                font-size: 12.5px;
+            }
+
+            .med-sched .i {
+                width: 15px;
+                height: 15px;
             }
 
             /* ------------------------------------------------- verse visuals */
@@ -2034,6 +2072,8 @@
                 undo: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
                 clipboard:
                     '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+                sunrise:
+                    '<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
             };
 
             const icon = (name) =>
@@ -2082,6 +2122,7 @@
                 EXTERNAL: 'Lien externe',
                 GENERAL: 'Général',
                 DAILY_VERSE: 'Verset du jour',
+                DAILY_MEDITATION: 'Méditation du jour',
                 RECEIVED: 'Reçue',
                 VERIFYING: 'Vérification',
                 IN_PROGRESS: 'En traitement',
@@ -2164,23 +2205,32 @@
                     : text.slice(0, n).trimEnd() + '...';
             };
 
-            const verseSendResult = (d) => {
+            // Bilan d'un envoi de contenu quotidien (verset, méditation).
+            const pushSendResult = (d) => {
                 const n = d?.notification;
                 if (!n) return null;
                 if (n.status === 'SENT')
                     return [
-                        `Verset envoyé à ${plural(n.delivered_count || 0, 'téléphone')}`,
+                        `Notification envoyée à ${plural(n.delivered_count || 0, 'téléphone')}`,
                         false,
                     ];
                 if (n.status === 'FAILED')
                     return [
-                        `La notification du verset a échoué : ${n.last_error || 'erreur inconnue'}`,
+                        `La notification a échoué : ${n.last_error || 'erreur inconnue'}`,
                         true,
                     ];
-                return ['Notification du verset en cours d’envoi', false];
+                return ['Notification en cours d’envoi', false];
             };
 
-            function versePreview(v, row) {
+            const pushStatus = (n) =>
+                !n
+                    ? '<span class="badge">Notification pas encore envoyée</span>'
+                    : n.status === 'SENT'
+                      ? `<span class="badge dot ok">Envoyée à ${plural(n.delivered_count || 0, 'téléphone')}</span>`
+                      : `<span class="badge dot ${TONE[n.status] || ''}" title="${esc(n.last_error || '')}">${esc(human(n.status))}</span>`;
+
+            // Ce qui arrivera à la notification, selon la date choisie.
+            function pushNote(v, row) {
                 const today = todayISO();
                 const day = v.publication_date || '';
                 const sent =
@@ -2194,7 +2244,7 @@
                       ? [
                             'ok',
                             'check-circle',
-                            'La notification de ce verset est déjà partie. Une correction ne la renvoie pas.',
+                            'La notification est déjà partie. Une correction ne la renvoie pas.',
                         ]
                       : day === today
                         ? [
@@ -2211,23 +2261,64 @@
                           : [
                                 '',
                                 'clock',
-                                'Date passée : le verset rejoint l’historique, sans notification.',
+                                'Date passée : le contenu rejoint l’historique, sans notification.',
                             ];
-                const ref = v.reference || 'Référence';
-                const text = v.text || 'Le texte du verset apparaîtra ici.';
+                return `<div class="note ${note[0]}">${icon(note[1])}<span>${esc(note[2])}</span></div>`;
+            }
 
-                return `
-            <div class="pv-head">${icon('eye')} Aperçu</div>
-            <div class="note ${note[0]}">${icon(note[1])}<span>${esc(note[2])}</span></div>
+            const pushMock = (title, body) => `
             <div class="pv-label">Notification sur le téléphone</div>
             <div class="push">
               <img src="${ASSET}logo.jpg" alt="">
               <div class="push-body">
                 <div class="push-meta"><span>Foursquare CI</span><span>maintenant</span></div>
-                <strong>Verset du jour · ${esc(ref)}</strong>
-                <p>${esc(limitText(text, 300))}</p>
+                <strong>${esc(title)}</strong>
+                <p>${esc(limitText(body, 300))}</p>
               </div>
-            </div>
+            </div>`;
+
+            // Texte brut d'un contenu HTML, sans exécuter quoi que ce soit.
+            const plainText = (html) =>
+                (
+                    new DOMParser().parseFromString(
+                        String(html ?? ''),
+                        'text/html',
+                    ).body.textContent || ''
+                )
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+            function meditationPreview(v, row) {
+                const title = v.title || 'Titre de la méditation';
+                const text =
+                    plainText(v.content) ||
+                    'Le texte de la méditation apparaîtra ici.';
+                const meta = [v.scripture_reference, v.author]
+                    .filter(Boolean)
+                    .map(esc)
+                    .join(' · ');
+
+                return `
+            <div class="pv-head">${icon('eye')} Aperçu</div>
+            ${pushNote(v, row)}
+            ${pushMock('Méditation du jour · ' + title, text)}
+            <div class="pv-label">Méditation</div>
+            <div class="verse-card">
+              <span class="eyebrow">${icon('sunrise')} Méditation du jour</span>
+              <blockquote style="font-weight:700">${esc(title)}</blockquote>
+              ${meta ? `<div class="verse-ref">${meta}</div>` : ''}
+              <p class="verse-ref" style="margin-top:10px">${esc(limitText(text, 220))}</p>
+            </div>`;
+            }
+
+            function versePreview(v, row) {
+                const ref = v.reference || 'Référence';
+                const text = v.text || 'Le texte du verset apparaîtra ici.';
+
+                return `
+            <div class="pv-head">${icon('eye')} Aperçu</div>
+            ${pushNote(v, row)}
+            ${pushMock('Verset du jour · ' + ref, text)}
             <div class="pv-label">Verset</div>
             <div class="verse-card">
               <span class="eyebrow">${icon('book-open')} Verset du jour</span>
@@ -2354,11 +2445,11 @@
                             method: 'POST',
                             path: '/send',
                             done: (d) =>
-                                verseSendResult(d) || ['Envoi lancé', false],
+                                pushSendResult(d) || ['Envoi lancé', false],
                         },
                     ],
                     afterSave: (d, before) =>
-                        before?.notification ? null : verseSendResult(d),
+                        before?.notification ? null : pushSendResult(d),
                     preview: versePreview,
                     fields: [
                         {
@@ -2386,6 +2477,78 @@
                             required: true,
                             wide: true,
                             hint: 'Recopiez le texte exact de la version indiquée.',
+                        },
+                    ],
+                },
+                meditations: {
+                    label: 'Méditation du jour',
+                    newLabel: 'Écrire une méditation',
+                    editLabel: 'Modifier la méditation',
+                    description:
+                        'Une méditation nationale par jour. Sa notification push part automatiquement.',
+                    search: true,
+                    columns: [
+                        ['publication_date', 'Date', 'verse-day'],
+                        ['image.url', '', 'thumb'],
+                        ['title', 'Titre', 'title'],
+                        ['scripture_reference', 'Passage'],
+                        ['author', 'Auteur'],
+                        ['notification', 'Notification push', 'verse-notif'],
+                    ],
+                    rowActions: [
+                        {
+                            label: 'Envoyer maintenant',
+                            icon: 'send',
+                            show: (r) =>
+                                r.publication_date === todayISO() &&
+                                (!r.notification ||
+                                    ['DRAFT', 'FAILED'].includes(
+                                        r.notification.status,
+                                    )),
+                            confirm: (r) =>
+                                `Envoyer la méditation « ${r.title} » à tous les téléphones maintenant ?`,
+                            method: 'POST',
+                            path: '/send',
+                            done: (d) =>
+                                pushSendResult(d) || ['Envoi lancé', false],
+                        },
+                    ],
+                    afterSave: (d, before) =>
+                        before?.notification ? null : pushSendResult(d),
+                    preview: meditationPreview,
+                    fields: [
+                        { section: 'Publication' },
+                        {
+                            name: 'publication_date',
+                            label: 'Date de publication',
+                            type: 'date',
+                            required: true,
+                            hint: 'Aujourd’hui : envoi immédiat. Date future : envoi ce jour-là à 07 h 00.',
+                        },
+                        { name: 'title', label: 'Titre', required: true },
+                        {
+                            name: 'scripture_reference',
+                            label: 'Passage biblique',
+                            hint: 'Facultatif : la référence du passage médité.',
+                        },
+                        {
+                            name: 'author',
+                            label: 'Auteur',
+                            hint: 'Facultatif.',
+                        },
+                        { section: 'Contenu' },
+                        {
+                            name: 'image_media_id',
+                            label: 'Image',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'content',
+                            label: 'Méditation',
+                            type: 'richtext',
+                            required: true,
+                            wide: true,
                         },
                     ],
                 },
@@ -3184,6 +3347,11 @@
                             tabs: ['verses'],
                         },
                         {
+                            label: 'Méditation du jour',
+                            icon: 'sunrise',
+                            tabs: ['meditations'],
+                        },
+                        {
                             label: 'Découvrir Foursquare',
                             icon: 'compass',
                             tabs: ['discover-sections', 'national-leaders'],
@@ -3324,13 +3492,7 @@
             function verseWidget(v) {
                 const t = v.today;
                 const n = t?.notification;
-                const status = !t
-                    ? ''
-                    : !n
-                      ? '<span class="badge">Notification pas encore envoyée</span>'
-                      : n.status === 'SENT'
-                        ? `<span class="badge dot ok">Envoyée à ${plural(n.delivered_count || 0, 'téléphone')}</span>`
-                        : `<span class="badge dot ${TONE[n.status] || ''}" ${n.last_error ? `title="${esc(n.last_error)}"` : ''}>${esc(human(n.status))}</span>`;
+                const status = t ? pushStatus(n) : '';
                 const canSend =
                     t && (!n || ['DRAFT', 'FAILED'].includes(n.status));
                 const s = v.scheduled > 1 ? 's' : '';
@@ -3347,7 +3509,7 @@
                 <div class="verse-ref"><strong>${esc(t.reference)}</strong> · ${esc(t.bible_version)}</div>
                 <div class="verse-foot">${status}${
                     canSend
-                        ? `<button class="btn sm light" data-send-verse="${esc(t.id)}">${icon('send')} Envoyer maintenant</button>`
+                        ? `<button class="btn sm light" data-send="verses" data-id="${esc(t.id)}" data-confirm="Envoyer le verset du jour à tous les téléphones maintenant ?">${icon('send')} Envoyer maintenant</button>`
                         : ''
                 }</div>`
                       : `<p class="verse-empty">Aucun verset n’est prévu aujourd’hui.</p>
@@ -3358,6 +3520,45 @@
                       ? `${v.scheduled} verset${s} programmé${s} à l’avance`
                       : 'Aucun verset programmé à l’avance'
               }</div>
+            </section>`;
+            }
+
+            function meditationWidget(v) {
+                const t = v.today;
+                const n = t?.notification;
+                const canSend =
+                    t && (!n || ['DRAFT', 'FAILED'].includes(n.status));
+                const s = v.scheduled > 1 ? 's' : '';
+                const meta = t
+                    ? [t.scripture_reference, t.author]
+                          .filter(Boolean)
+                          .map(esc)
+                          .join(' · ')
+                    : '';
+
+                return `
+            <section class="card">
+              <div class="card-head"><h2>${icon('sunrise')} Méditation du jour</h2><a href="#meditations">Toutes les méditations</a></div>
+              <div class="med-body">
+                ${
+                    t
+                        ? `<strong class="med-title">${esc(t.title)}</strong>
+                  ${meta ? `<span class="muted-sm">${meta}</span>` : ''}
+                  <p>${esc(t.excerpt)}</p>
+                  <div class="verse-foot">${pushStatus(n)}${
+                      canSend
+                          ? `<button class="btn sm" data-send="meditations" data-id="${esc(t.id)}" data-confirm="Envoyer la méditation du jour à tous les téléphones maintenant ?">${icon('send')} Envoyer maintenant</button>`
+                          : ''
+                  }</div>`
+                        : `<p class="muted-sm">Aucune méditation n’est prévue aujourd’hui.</p>
+                  <div><button class="btn sm" data-new="meditations">${icon('plus')} Écrire une méditation</button></div>`
+                }
+                <div class="med-sched">${icon('clock')} ${
+                    v.scheduled
+                        ? `${v.scheduled} méditation${s} programmée${s} à l’avance`
+                        : 'Aucune méditation programmée à l’avance'
+                }</div>
+              </div>
             </section>`;
             }
 
@@ -3415,6 +3616,7 @@
 
                 const quick = [
                     ['verses', 'book-open', 'Programmer un verset'],
+                    ['meditations', 'sunrise', 'Écrire une méditation'],
                     ['news', 'newspaper', 'Rédiger une actualité'],
                     ['events', 'calendar', 'Créer un événement'],
                     ['notifications', 'bell', 'Préparer une notification'],
@@ -3452,6 +3654,7 @@
               </div>
               <div class="col">
                 ${d.daily_verse ? verseWidget(d.daily_verse) : ''}
+                ${d.daily_meditation ? meditationWidget(d.daily_meditation) : ''}
                 ${
                     quick.length
                         ? `<section class="card">
@@ -3474,30 +3677,27 @@
                         b.onclick = () => openNew(b.dataset.new);
                     });
 
-                const send = $('dash').querySelector('[data-send-verse]');
-                if (send)
-                    send.onclick = async () => {
-                        if (
-                            !confirm(
-                                'Envoyer le verset du jour à tous les téléphones maintenant ?',
-                            )
-                        )
-                            return;
-                        send.disabled = true;
-                        try {
-                            const r = await api(
-                                '/admin/verses/' +
-                                    send.dataset.sendVerse +
-                                    '/send',
-                                { method: 'POST' },
-                            );
-                            toast(...(verseSendResult(r.data) || ['Envoyé']));
-                            renderDashboard();
-                        } catch (err) {
-                            send.disabled = false;
-                            toast(err.message, true);
-                        }
-                    };
+                $('dash')
+                    .querySelectorAll('[data-send]')
+                    .forEach((send) => {
+                        send.onclick = async () => {
+                            if (!confirm(send.dataset.confirm)) return;
+                            send.disabled = true;
+                            try {
+                                const r = await api(
+                                    `/admin/${send.dataset.send}/${send.dataset.id}/send`,
+                                    { method: 'POST' },
+                                );
+                                toast(
+                                    ...(pushSendResult(r.data) || ['Envoyé']),
+                                );
+                                renderDashboard();
+                            } catch (err) {
+                                send.disabled = false;
+                                toast(err.message, true);
+                            }
+                        };
+                    });
             }
 
             async function renderSettings() {
@@ -3533,6 +3733,25 @@
                     },
                     { name: 'contact_phone', label: 'Téléphone de contact' },
                     { name: 'contact_whatsapp', label: 'WhatsApp de contact' },
+                    { section: 'Réseaux sociaux nationaux' },
+                    {
+                        name: 'facebook_url',
+                        label: 'Page Facebook',
+                        type: 'url',
+                        hint: 'Adresse complète en https://',
+                    },
+                    {
+                        name: 'tiktok_url',
+                        label: 'Compte TikTok',
+                        type: 'url',
+                        hint: 'Adresse complète en https://',
+                    },
+                    {
+                        name: 'youtube_url',
+                        label: 'Chaîne YouTube',
+                        type: 'url',
+                        hint: 'Adresse complète en https://',
+                    },
                 ];
 
                 const draw = (errors = {}) => {

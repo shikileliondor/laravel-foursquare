@@ -32,8 +32,8 @@ class NewsSeeder extends Seeder
         ]);
 
         News::updateOrCreate(['slug' => 'convocation-panafricaine-jeunesse-2026'], [
-            'title' => 'La Convocation Panafricaine de la Jeunesse approche',
-            'excerpt' => 'La Convocation Panafricaine 2026 est annoncée du 31 août au 6 septembre.',
+            'title' => 'La Convention Panafricaine de la Jeunesse approche',
+            'excerpt' => 'La Convention Panafricaine 2026 est annoncée du 31 août au 6 septembre.',
             'content' => 'Le Département de la Jeunesse Foursquare Côte d’Ivoire donne rendez-vous à ERA-SUD, Bingerville.',
             'cover_media_id' => $convocation->id,
             'scope_type' => 'NATIONAL',

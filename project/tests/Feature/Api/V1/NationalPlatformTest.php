@@ -296,3 +296,28 @@ it('lets the super admin choose the launch church shown by the app', function ()
     Sanctum::actingAs(npAdmin('NATIONAL_ADMIN'));
     $this->putJson('/api/v1/admin/settings', ['launch_church_id' => null])->assertForbidden();
 });
+
+it('publishes the national social pages set by the super admin', function () {
+    Sanctum::actingAs(npAdmin('SUPER_ADMIN'));
+
+    $this->getJson('/api/v1/home')->assertOk()->assertJsonPath('data.social_links', [
+        'facebook_url' => null,
+        'tiktok_url' => null,
+        'youtube_url' => null,
+    ]);
+
+    $this->putJson('/api/v1/admin/settings', [
+        'facebook_url' => 'https://www.facebook.com/page-officielle',
+        'tiktok_url' => 'https://www.tiktok.com/@compte-officiel',
+        'youtube_url' => 'https://www.youtube.com/@chaine-officielle',
+    ])->assertOk()->assertJsonPath('data.youtube_url', 'https://www.youtube.com/@chaine-officielle');
+
+    $this->getJson('/api/v1/home')
+        ->assertOk()
+        ->assertJsonPath('data.social_links.facebook_url', 'https://www.facebook.com/page-officielle')
+        ->assertJsonPath('data.social_links.tiktok_url', 'https://www.tiktok.com/@compte-officiel');
+
+    $this->putJson('/api/v1/admin/settings', ['facebook_url' => 'http://facebook.com/page'])
+        ->assertUnprocessable()
+        ->assertJsonPath('error.fields.facebook_url.0', fn (string $message) => $message !== '');
+});

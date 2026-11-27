@@ -36,6 +36,7 @@ class NotificationController extends CrudController
             'news_id' => ['nullable', 'uuid', 'exists:news,id'],
             'event_id' => ['nullable', 'uuid', 'exists:events,id'],
             'daily_verse_id' => ['nullable', 'uuid', 'exists:daily_verses,id'],
+            'daily_meditation_id' => ['nullable', 'uuid', 'exists:daily_meditations,id'],
             'audience' => ['sometimes', Rule::in(PushNotification::AUDIENCES)],
             'district_id' => $this->target($audience, 'DISTRICT', ['exists:districts,id'], $model !== null),
             'church_id' => $this->target($audience, 'CHURCH', ['exists:churches,id'], $model !== null),

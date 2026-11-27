@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Resources\DailyVerseResource;
 use App\Models\DailyVerse;
-use App\Services\DailyVersePublisher;
+use App\Services\DailyPushPublisher;
 use App\Support\ApiResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +27,7 @@ class DailyVerseController extends CrudController
 
     protected array $searchable = ['text', 'reference', 'bible_version'];
 
-    public function __construct(private readonly DailyVersePublisher $publisher) {}
+    public function __construct(private readonly DailyPushPublisher $publisher) {}
 
     /**
      * Envoi manuel du verset du jour : utile si la notification a échoué ou si

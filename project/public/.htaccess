@@ -24,6 +24,14 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# Images importées (nommées par un UUID, jamais réécrites) : les téléphones
+# les gardent un an sans redemander au serveur.
+<IfModule mod_headers.c>
+    <FilesMatch "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpe?g|png|webp)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
 # Compresse le JSON de l'API et le panel : beaucoup moins de données mobiles.
 <IfModule mod_deflate.c>
     <IfModule mod_filter.c>

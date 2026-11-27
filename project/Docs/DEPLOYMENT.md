@@ -24,6 +24,14 @@ Configuration à faire une fois : la racine web du sous-domaine `api.studiobeyam
 
 Tâche cron cPanel obligatoire pour publier la notification du verset du jour à 07 h 00, heure d’Abidjan : `php artisan schedule:run` toutes les minutes. Ajouter aussi `php artisan queue:work --stop-when-empty --quiet` toutes les minutes uniquement si `FCM_QUEUE=true` (voir plus bas).
 
+### Images servies sans PHP
+
+Fait le 2026-11-27 sur `~/public_html/project` : `php artisan storage:link` (lien `public/storage` vers `storage/app/public`, conservé par les déploiements car le ZIP ne contient pas `public/storage`). Pour l'activer, ajouter `MEDIA_DIRECT_URLS=true` au `.env` puis lancer `php artisan optimize` : l'API renvoie alors `https://api.studiobeyam.net/storage/media/<uuid>.<ext>`, servi directement par Apache avec un cache d'un an (`public/.htaccess`). L'ancienne route `/api/v1/media/{id}/file` reste active pour les adresses déjà en cache dans les téléphones. Pour revenir en arrière : `MEDIA_DIRECT_URLS=false` puis `php artisan optimize`.
+
+### Programmes de Niangon Révélation et de la Côtière (affiches)
+
+Après le déploiement : `php artisan db:seed --class=ProgrammesSeeder --force`. Importe les 14 affiches de `public/assets/images` dans la médiathèque et crée 7 événements (Convention Nationale, Convention Panafricaine, Offrandes des orphelins des pasteurs, Morasha, Rentrée de la Côtière, Autel des Parfums de septembre et de novembre 2026) et 5 actualités de Niangon Révélation, puis complète les horaires de culte de l'église s'ils sont vides. Relançable sans doublon : une fiche déjà présente n'est enrichie que si elle n'a jamais été modifiée, une correction faite dans le panel n'est jamais écrasée. Années déduites (absentes des affiches) : Autel des Parfums du 6 septembre et Offrandes du 13 septembre, en 2026.
+
 ### Première mise en service de la V1 nationale
 
 Après `migrate`, toujours depuis le dossier de l'API :

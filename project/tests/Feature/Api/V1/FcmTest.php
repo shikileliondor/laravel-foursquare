@@ -7,7 +7,7 @@ use App\Models\Device;
 use App\Models\District;
 use App\Models\PushNotification;
 use App\Models\User;
-use App\Services\DailyVersePublisher;
+use App\Services\DailyPushPublisher;
 use App\Services\FcmClient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -561,7 +561,7 @@ it('keeps scheduled verses for their day and never resends after an edit', funct
     expect(PushNotification::count())->toBe(0);
 
     $verse = verseFor(today()->toDateString());
-    app(DailyVersePublisher::class)->publish($verse);
+    app(DailyPushPublisher::class)->publish($verse);
     $this->patchJson("/api/v1/admin/verses/{$verse->id}", ['text' => 'Texte corrigé.'])->assertOk();
 
     expect(PushNotification::where('daily_verse_id', $verse->id)->count())->toBe(1);
@@ -570,7 +570,7 @@ it('keeps scheduled verses for their day and never resends after an edit', funct
 
 it('lets national admins resend a failed verse notification, only for today', function () {
     $verse = verseFor(today()->toDateString());
-    app(DailyVersePublisher::class)->publish($verse); // FCM non configuré : FAILED
+    app(DailyPushPublisher::class)->publish($verse); // FCM non configuré : FAILED
 
     expect($verse->notification()->value('status'))->toBe('FAILED');
 
@@ -612,4 +612,39 @@ it('shows today\'s verse and its delivery on the national dashboard only', funct
     $this->getJson('/api/v1/admin/dashboard')
         ->assertOk()
         ->assertJsonPath('data.daily_verse', null);
+});
+
+it('sends today\'s meditation right away, then only through the manual resend', function () {
+    fakeServiceAccount();
+    fakeFcm();
+    Device::create(['fcm_token' => 'reader', 'platform' => 'android']);
+
+    $created = $this->postJson('/api/v1/admin/meditations', [
+        'title' => 'Titre fourni',
+        'content' => '<p>Contenu fourni.</p>',
+        'publication_date' => today()->toDateString(),
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.notification.status', 'SENT')
+        ->json('data.id');
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'fcm.googleapis.com')
+        && $request['message']['notification']['title'] === 'Méditation du jour · Titre fourni'
+        && $request['message']['data']['type'] === 'DAILY_MEDITATION'
+        && $request['message']['data']['daily_meditation_id'] === $created);
+
+    $this->patchJson("/api/v1/admin/meditations/{$created}", ['title' => 'Titre corrigé'])->assertOk();
+    $this->postJson("/api/v1/admin/meditations/{$created}/send")->assertStatus(409);
+
+    $tomorrow = $this->postJson('/api/v1/admin/meditations', [
+        'title' => 'Demain',
+        'content' => 'Contenu',
+        'publication_date' => today()->addDay()->toDateString(),
+    ])->assertCreated()->json('data.id');
+
+    $this->postJson("/api/v1/admin/meditations/{$tomorrow}/send")
+        ->assertUnprocessable()
+        ->assertJsonPath('error.code', 'MEDITATION_NOT_TODAY');
+
+    expect(PushNotification::where('type', 'DAILY_MEDITATION')->count())->toBe(1);
 });

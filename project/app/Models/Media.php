@@ -27,6 +27,12 @@ class Media extends Model
 
     public function url(): string
     {
+        $disk = config('media.disk', 'public');
+
+        if (config('media.direct_urls') && $disk === 'public') {
+            return Storage::disk($disk)->url($this->path);
+        }
+
         try {
             return route('v1.media.file', ['media' => $this->id]);
         } catch (UrlGenerationException) {

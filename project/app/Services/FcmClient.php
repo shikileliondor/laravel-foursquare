@@ -80,6 +80,7 @@ class FcmClient
                 'news_id' => $notification->news_id,
                 'event_id' => $notification->event_id,
                 'daily_verse_id' => $notification->daily_verse_id,
+                'daily_meditation_id' => $notification->daily_meditation_id,
             ], fn ($value) => $value !== null)),
             'android' => [
                 'priority' => 'high',

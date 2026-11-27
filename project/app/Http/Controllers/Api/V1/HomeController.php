@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\ChurchResource;
+use App\Http\Resources\DailyMeditationResource;
 use App\Http\Resources\DailyVerseResource;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Banner;
 use App\Models\Church;
+use App\Models\DailyMeditation;
 use App\Models\DailyVerse;
 use App\Models\Event;
 use App\Models\News;
@@ -48,8 +50,12 @@ class HomeController extends ApiController
             'daily_verse' => ($verse = DailyVerse::query()->whereDate('publication_date', today())->first())
                 ? DailyVerseResource::make($verse)->resolve()
                 : null,
+            'daily_meditation' => ($meditation = DailyMeditation::query()->with('image')->whereDate('publication_date', today())->first())
+                ? DailyMeditationResource::make($meditation)->resolve()
+                : null,
             'church' => $church ? ChurchResource::make($church->load(['district', 'image']))->resolve() : null,
             'launch_church' => $this->launchChurch(),
+            'social_links' => Setting::socialLinks(),
             'banners' => BannerResource::collection($banners)->resolve(),
             'featured_news' => NewsResource::collection($featuredNews)->resolve(),
             'featured_news_item' => $featuredNews->first() ? NewsResource::make($featuredNews->first())->resolve() : null,

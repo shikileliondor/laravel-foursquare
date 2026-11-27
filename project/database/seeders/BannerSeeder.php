@@ -15,7 +15,7 @@ class BannerSeeder extends Seeder
 
         $banners = [
             ['Convention Nationale 2026', 'convention.jpg', 'convention-nationale-foursquare-ci-2026'],
-            ['Convocation Panafricaine 2026', 'asok.jpg', 'convocation-panafricaine-2026'],
+            ['Convention Panafricaine 2026', 'asok.jpg', 'convocation-panafricaine-2026'],
             ['Morasha — Le Jet du Manteau', 'morasha.jpg', 'morasha-le-jet-du-manteau-2026'],
         ];
 

@@ -27,6 +27,7 @@ class PublicNotificationResource extends JsonResource
             'event_id' => $this->event_id,
             'event_slug' => $this->whenLoaded('event', fn () => $this->event?->slug),
             'daily_verse_id' => $this->daily_verse_id,
+            'daily_meditation_id' => $this->daily_meditation_id,
             'sent_at' => $this->sent_at?->toIso8601String(),
         ];
     }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\EventRegistrationController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\MediaController;
+use App\Http\Controllers\Api\V1\MeditationController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PrivacyConsentController;
@@ -38,6 +39,9 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::get('verses', [VerseController::class, 'index'])->name('verses.index');
         Route::get('verses/today', [VerseController::class, 'today'])->name('verses.today');
+        Route::get('meditations', [MeditationController::class, 'index'])->name('meditations.index');
+        Route::get('meditations/today', [MeditationController::class, 'today'])->name('meditations.today');
+        Route::get('meditations/{meditation}', [MeditationController::class, 'show'])->name('meditations.show');
         Route::get('discover', [DiscoverController::class, 'index'])->name('discover.index');
         Route::get('discover/{key}', [DiscoverController::class, 'show'])->name('discover.show');
     });
@@ -92,6 +96,9 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
             Route::apiResource('verses', Admin\DailyVerseController::class);
             Route::post('verses/{verse}/send', [Admin\DailyVerseController::class, 'send'])
                 ->name('verses.send');
+            Route::apiResource('meditations', Admin\DailyMeditationController::class);
+            Route::post('meditations/{meditation}/send', [Admin\DailyMeditationController::class, 'send'])
+                ->name('meditations.send');
             Route::apiResource('discover-sections', Admin\DiscoverSectionController::class)
                 ->only(['index', 'show', 'update']);
             Route::apiResource('national-leaders', Admin\NationalLeaderController::class);

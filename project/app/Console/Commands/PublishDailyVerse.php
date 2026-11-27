@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\DailyVerse;
-use App\Services\DailyVersePublisher;
+use App\Services\DailyPushPublisher;
 use Illuminate\Console\Command;
 
 class PublishDailyVerse extends Command
@@ -12,7 +12,7 @@ class PublishDailyVerse extends Command
 
     protected $description = 'Send today\'s national verse notification if it has not left yet';
 
-    public function handle(DailyVersePublisher $publisher): int
+    public function handle(DailyPushPublisher $publisher): int
     {
         $verse = DailyVerse::query()->whereDate('publication_date', today())->first();
 

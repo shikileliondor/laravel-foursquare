@@ -21,20 +21,22 @@ const home = json.data;
 
 ## Routes publiques
 
-| Écran / besoin | Requête                | Données principales                                                                                             |
-| -------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Accueil        | `GET /home`            | `daily_verse`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` dans `data`       |
-| Versets        | `GET /verses`          | Historique paginé des versets publiés, du plus récent au plus ancien                                            |
-| Verset du jour | `GET /verses/today`    | Verset national du jour ou `data: null`                                                                         |
-| Découvrir      | `GET /discover`        | Rubriques institutionnelles publiées, dans leur ordre d’affichage                                               |
-| Rubrique       | `GET /discover/{key}`  | Texte, images et responsables publiés pour `national-office`                                                    |
-| Actualités     | `GET /news`            | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                           |
-| Actualité      | `GET /news/{slug}`     | Détail, notamment `content`                                                                                     |
-| Événements     | `GET /events`          | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
-| Événement      | `GET /events/{slug}`   | Détail de l'événement                                                                                           |
-| Districts      | `GET /districts`       | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives)                              |
-| Églises        | `GET /churches`        | Liste paginée ; filtres `search`, `district_id`, `commune`                                                      |
-| Église         | `GET /churches/{slug}` | Détail, dont `district`, `image`, coordonnées et contacts éventuels                                             |
+| Écran / besoin | Requête                 | Données principales                                                                                             |
+| -------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Accueil        | `GET /home`             | `daily_verse`, `social_links`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`   |
+| Versets        | `GET /verses`           | Historique paginé des versets publiés, du plus récent au plus ancien                                            |
+| Verset du jour | `GET /verses/today`     | Verset national du jour ou `data: null`                                                                         |
+| Méditations    | `GET /meditations`      | Historique paginé (extraits), du plus récent au plus ancien                                                     |
+| Méditation     | `GET /meditations/{id}` | Texte complet (`content` HTML) ; `GET /meditations/today` pour celle du jour ou `data: null`                    |
+| Découvrir      | `GET /discover`         | Rubriques institutionnelles publiées, dans leur ordre d’affichage                                               |
+| Rubrique       | `GET /discover/{key}`   | Texte, images et responsables publiés pour `national-office`                                                    |
+| Actualités     | `GET /news`             | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                           |
+| Actualité      | `GET /news/{slug}`      | Détail, notamment `content`                                                                                     |
+| Événements     | `GET /events`           | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
+| Événement      | `GET /events/{slug}`    | Détail de l'événement                                                                                           |
+| Districts      | `GET /districts`        | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives)                              |
+| Églises        | `GET /churches`         | Liste paginée ; filtres `search`, `district_id`, `commune`                                                      |
+| Église         | `GET /churches/{slug}`  | Détail, dont `district`, `image`, coordonnées et contacts éventuels                                             |
 
 Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants des objets et des filtres sont des UUID. Les listes publiques ne montrent que les contenus publiés et les structures actives.
 
@@ -62,7 +64,7 @@ Hiérarchie : districts → églises. Le niveau Zone n'existe plus : `GET /zones
 
 Les ressources admin `districts`, `churches`, `news`, `events`, `banners`, `notifications`, `verses` et `national-leaders` ont des routes de liste, création, détail, modification (`PATCH`) et suppression. `discover-sections` expose uniquement liste, détail et modification, car ses six rubriques sont fixes. `POST /admin/media` accepte un formulaire multipart avec le champ `file` (JPEG, PNG ou WebP, 5 Mo maximum). `POST /devices` est public et sert à enregistrer un token FCM avec `fcm_token` et `platform` (`android`, `ios` ou `web`).
 
-Le champ `daily_verse` de `/home` est national et ne dépend jamais de `for_church_id`. Une notification de type `DAILY_VERSE` contient `daily_verse_id`, son titre est `Verset du jour · {reference}` et son corps le texte du verset ; ouvrir cette notification mène à l’historique des versets.
+Le champ `daily_verse` de `/home` est national et ne dépend jamais de `for_church_id`. Une notification de type `DAILY_VERSE` contient `daily_verse_id`, son titre est `Verset du jour · {reference}` et son corps le texte du verset ; ouvrir cette notification mène à l’historique des versets. Une notification `DAILY_MEDITATION` contient `daily_meditation_id` : l’ouvrir mène au détail `GET /meditations/{id}`. `/home` contient aussi `daily_meditation` (sans `content`).
 
 Afficher les états de chargement, les listes vides et `error.message`. Gérer `401` comme une déconnexion admin, `404` comme un contenu introuvable et `422` avec `error.fields`. Les champs optionnels peuvent être `null` : ne pas inventer de contenu. Pour les autres détails, voir [API.md](API.md).
 

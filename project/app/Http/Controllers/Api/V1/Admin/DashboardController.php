@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\V1\ApiController;
+use App\Http\Resources\DailyMeditationResource;
 use App\Http\Resources\DailyVerseResource;
 use App\Models\Church;
+use App\Models\DailyMeditation;
 use App\Models\DailyVerse;
 use App\Models\District;
 use App\Models\Event;
@@ -53,6 +55,12 @@ class DashboardController extends ApiController
                     ? DailyVerseResource::make($verse)->resolve($request)
                     : null,
                 'scheduled' => DailyVerse::query()->whereDate('publication_date', '>', today())->count(),
+            ]),
+            'daily_meditation' => $this->when($user->isNationalAdmin(), fn () => [
+                'today' => ($meditation = DailyMeditation::query()->with('notification')->whereDate('publication_date', today())->first())
+                    ? DailyMeditationResource::make($meditation)->resolve($request)
+                    : null,
+                'scheduled' => DailyMeditation::query()->whereDate('publication_date', '>', today())->count(),
             ]),
         ]);
     }

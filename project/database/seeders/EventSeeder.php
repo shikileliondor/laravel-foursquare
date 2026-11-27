@@ -34,7 +34,7 @@ class EventSeeder extends Seeder
         ]);
 
         Event::updateOrCreate(['slug' => 'convocation-panafricaine-2026'], [
-            'title' => 'Convocation Panafricaine 2026',
+            'title' => 'Convention Panafricaine 2026',
             'description' => 'Organisée par le Département de la Jeunesse Foursquare Côte d’Ivoire. Participation Abidjan : 20 000 FCFA ; intérieur : 15 000 FCFA.',
             'cover_media_id' => $convocation->id,
             'scope_type' => 'NATIONAL',

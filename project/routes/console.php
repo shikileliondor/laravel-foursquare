@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\PublishDailyMeditation;
 use App\Console\Commands\PublishDailyVerse;
 use App\Console\Commands\ReclaimStuckNotifications;
 use App\Models\TeamInvitation;
@@ -23,3 +24,9 @@ Schedule::command(PublishDailyVerse::class)
     ->timezone('Africa/Abidjan')
     ->withoutOverlapping()
     ->description('Publish the daily national verse notification');
+
+Schedule::command(PublishDailyMeditation::class)
+    ->dailyAt('07:00')
+    ->timezone('Africa/Abidjan')
+    ->withoutOverlapping()
+    ->description('Publish the daily national meditation notification');
