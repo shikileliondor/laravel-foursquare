@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Prestataires de paiement acceptés pour le lien de don des églises.
+    'donation_hosts' => array_values(array_filter(array_map('trim', explode(',', (string) env('DONATION_HOSTS', 'pay.wave.com'))))),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

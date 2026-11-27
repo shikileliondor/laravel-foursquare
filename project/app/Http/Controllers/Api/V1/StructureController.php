@@ -27,7 +27,7 @@ class StructureController extends ApiController
     {
         $churches = Church::query()
             ->active()
-            ->with(['district', 'image'])
+            ->with(['district', 'image', 'leaders' => fn ($q) => $q->where('is_published', true)->with('photo')])
             ->search($request->string('search')->toString())
             ->when($request->filled('district_id'), fn ($q) => $q->where('district_id', $request->string('district_id')->toString()))
             ->when($request->filled('commune'), fn ($q) => $q->where('commune', $request->string('commune')->toString()))
@@ -39,7 +39,7 @@ class StructureController extends ApiController
 
     public function church(string $slug): JsonResponse
     {
-        $church = Church::query()->active()->with(['district', 'image'])->identifiedBy($slug)->first();
+        $church = Church::query()->active()->with(['district', 'image', 'leaders' => fn ($q) => $q->where('is_published', true)->with('photo')])->identifiedBy($slug)->first();
 
         if (! $church) {
             return ApiResponse::error('CHURCH_NOT_FOUND', 'Église introuvable', 404);

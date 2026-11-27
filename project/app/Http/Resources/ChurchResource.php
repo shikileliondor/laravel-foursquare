@@ -51,6 +51,8 @@ class ChurchResource extends JsonResource
             'status' => $this->status,
             'image_media_id' => $this->image_media_id,
             'image' => MediaResource::make($this->whenLoaded('image')),
+            'donation_url' => $this->donation_url,
+            'leaders' => ChurchLeaderResource::collection($this->whenLoaded('leaders')),
             'district' => DistrictResource::make($this->whenLoaded('district')),
         ];
     }

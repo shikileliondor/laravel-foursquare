@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use App\Models\Church;
+use App\Rules\DonationUrl;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,6 +33,7 @@ class StoreChurchRequest extends FormRequest
             'instagram_url' => ['nullable', 'url', 'max:255'],
             'tiktok_url' => ['nullable', 'url', 'max:255'],
             'website_url' => ['nullable', 'url', 'max:255'],
+            'donation_url' => ['nullable', 'string', 'max:255', new DonationUrl],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'main_service_day' => ['nullable', 'string', 'max:30'],

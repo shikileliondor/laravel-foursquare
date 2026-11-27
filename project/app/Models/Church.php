@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Church extends Model
 {
@@ -24,6 +25,7 @@ class Church extends Model
         'secretariat_phone', 'official_whatsapp', 'official_email', 'latitude', 'longitude',
         'main_service_day', 'main_service_time', 'description', 'image_media_id', 'status',
         'city', 'service_times', 'facebook_url', 'youtube_url', 'instagram_url', 'tiktok_url', 'website_url',
+        'donation_url',
     ];
 
     /** @var array<string, string> */
@@ -50,6 +52,16 @@ class Church extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class);
+    }
+
+    /**
+     * Équipe pastorale, dans l'ordre d'affichage.
+     *
+     * @return HasMany<ChurchLeader, $this>
+     */
+    public function leaders(): HasMany
+    {
+        return $this->hasMany(ChurchLeader::class)->orderBy('display_order')->orderBy('name');
     }
 
     /**

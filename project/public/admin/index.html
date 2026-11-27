@@ -2681,6 +2681,62 @@
                         },
                     ],
                 },
+                'church-leaders': {
+                    label: 'Équipes pastorales',
+                    perm: 'churches',
+                    newLabel: 'Nouveau responsable',
+                    description:
+                        'Les responsables de chaque église, affichés dans l’onglet « Mon église » de l’application.',
+                    search: true,
+                    columns: [
+                        ['photo.url', '', 'thumb'],
+                        ['name', 'Nom', 'title'],
+                        ['position', 'Poste'],
+                        ['church.name', 'Église'],
+                        ['display_order', 'Ordre'],
+                        ['is_published', 'Publié'],
+                    ],
+                    defaults: { display_order: 0, is_published: false },
+                    fields: [
+                        {
+                            name: 'church_id',
+                            label: 'Église',
+                            type: 'ref',
+                            ref: 'churches',
+                            required: true,
+                        },
+                        { name: 'name', label: 'Nom', required: true },
+                        {
+                            name: 'position',
+                            label: 'Poste',
+                            hint: 'Ex. Pasteur principal, Pasteur adjoint, Diacre…',
+                        },
+                        {
+                            name: 'description',
+                            label: 'Description',
+                            type: 'textarea',
+                            wide: true,
+                            hint: 'Quelques mots de présentation (facultatif).',
+                        },
+                        {
+                            name: 'photo_media_id',
+                            label: 'Photo',
+                            type: 'image',
+                            wide: true,
+                        },
+                        {
+                            name: 'display_order',
+                            label: 'Ordre d’affichage',
+                            type: 'number',
+                            hint: 'Le plus petit s’affiche en premier.',
+                        },
+                        {
+                            name: 'is_published',
+                            label: 'Publié dans l’application',
+                            type: 'checkbox',
+                        },
+                    ],
+                },
                 'national-leaders': {
                     label: 'Bureau national',
                     newLabel: 'Nouveau responsable',
@@ -3229,6 +3285,12 @@
                         { name: 'instagram_url', label: 'Instagram (URL)' },
                         { name: 'tiktok_url', label: 'TikTok (URL)' },
                         { name: 'website_url', label: 'Site web (URL)' },
+                        {
+                            name: 'donation_url',
+                            label: 'Lien de don (Wave)',
+                            wide: true,
+                            hint: 'Adresse https du paiement Wave, ex. https://pay.wave.com/m/…. Vide : pas de bouton « Faire un don ».',
+                        },
                     ],
                 },
                 districts: {
@@ -3460,7 +3522,7 @@
                         {
                             label: 'Églises et districts',
                             icon: 'church',
-                            tabs: ['churches', 'districts'],
+                            tabs: ['churches', 'church-leaders', 'districts'],
                         },
                     ],
                 },

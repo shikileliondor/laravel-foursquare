@@ -102,6 +102,7 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
             Route::apiResource('discover-sections', Admin\DiscoverSectionController::class)
                 ->only(['index', 'show', 'update']);
             Route::apiResource('national-leaders', Admin\NationalLeaderController::class);
+            Route::apiResource('church-leaders', Admin\ChurchLeaderController::class);
             Route::post('notifications/{notification}/send', [Admin\NotificationController::class, 'send'])
                 ->name('notifications.send');
             Route::apiResource('devices', Admin\DeviceController::class)->only(['index', 'show', 'update', 'destroy']);
