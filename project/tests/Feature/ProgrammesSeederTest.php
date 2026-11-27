@@ -1,9 +1,12 @@
 <?php
 
 use App\Models\Church;
+use App\Models\DiscoverSection;
 use App\Models\Event;
 use App\Models\Media;
+use App\Models\NationalLeader;
 use App\Models\News;
+use Database\Seeders\DiscoverSeeder;
 use Database\Seeders\ProgrammesSeeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -63,4 +66,17 @@ it('enriches untouched older records but never overwrites panel edits', function
         ->and($old->fresh()->contact_phone)->toBe('0707853699 / 0747291413')
         ->and(Event::where('slug', 'morasha-le-jet-du-manteau-2026')->value('title'))->toBe('Titre corrigé dans le panel')
         ->and(Church::where('slug', 'eglise-foursquare-niangon-revelation')->value('main_service_time'))->toBe('07h30');
+});
+
+it('fills empty Discover sections as drafts and never overwrites panel content', function () {
+    DiscoverSection::where('key', 'doctrine')->update(['content' => '<p>Saisi dans le panel</p>']);
+
+    $this->seed(DiscoverSeeder::class);
+    $this->seed(DiscoverSeeder::class);
+
+    expect(DiscoverSection::where('key', 'history')->value('content'))->toContain('Angelus Temple')
+        ->and(DiscoverSection::where('key', 'doctrine')->value('content'))->toBe('<p>Saisi dans le panel</p>')
+        ->and(DiscoverSection::where('status', 'PUBLISHED')->count())->toBe(0)
+        ->and(NationalLeader::count())->toBe(3)
+        ->and(NationalLeader::where('is_published', true)->count())->toBe(0);
 });
