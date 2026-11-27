@@ -4568,8 +4568,7 @@
                 if (res.view === 'gallery') return renderGallery();
                 if (res.view === 'dashboard') return renderDashboard();
                 if (res.view === 'settings') return renderSettings();
-                if (res.view === 'legal-content')
-                    return renderLegalContent();
+                if (res.view === 'legal-content') return renderLegalContent();
 
                 $('main').innerHTML =
                     renderHead(

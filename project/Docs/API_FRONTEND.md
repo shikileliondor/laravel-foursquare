@@ -21,22 +21,22 @@ const home = json.data;
 
 ## Routes publiques
 
-| Écran / besoin | Requête                 | Données principales                                                                                             |
-| -------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Accueil        | `GET /home`             | `daily_verse`, `social_links`, `donation_url`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events`   |
-| Versets        | `GET /verses`           | Historique paginé des versets publiés, du plus récent au plus ancien                                            |
-| Verset du jour | `GET /verses/today`     | Verset national du jour ou `data: null`                                                                         |
-| Méditations    | `GET /meditations`      | Historique paginé (extraits), du plus récent au plus ancien                                                     |
-| Méditation     | `GET /meditations/{id}` | Texte complet (`content` HTML) ; `GET /meditations/today` pour celle du jour ou `data: null`                    |
-| Découvrir      | `GET /discover`         | Rubriques institutionnelles publiées, dans leur ordre d’affichage                                               |
-| Rubrique       | `GET /discover/{key}`   | Texte, images et responsables publiés pour `national-office`                                                    |
-| Actualités     | `GET /news`             | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                           |
-| Actualité      | `GET /news/{slug}`      | Détail, notamment `content`                                                                                     |
-| Événements     | `GET /events`           | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id` |
-| Événement      | `GET /events/{slug}`    | Détail de l'événement                                                                                           |
-| Districts      | `GET /districts`        | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives)                              |
-| Églises        | `GET /churches`         | Liste paginée ; filtres `search`, `district_id`, `commune`                                                      |
-| Église         | `GET /churches/{slug}`  | Détail, dont `district`, `image`, coordonnées et contacts éventuels                                             |
+| Écran / besoin | Requête                 | Données principales                                                                                                           |
+| -------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Accueil        | `GET /home`             | `daily_verse`, `social_links`, `donation_url`, `banners`, `featured_news`, `featured_event`, `latest_news`, `upcoming_events` |
+| Versets        | `GET /verses`           | Historique paginé des versets publiés, du plus récent au plus ancien                                                          |
+| Verset du jour | `GET /verses/today`     | Verset national du jour ou `data: null`                                                                                       |
+| Méditations    | `GET /meditations`      | Historique paginé (extraits), du plus récent au plus ancien                                                                   |
+| Méditation     | `GET /meditations/{id}` | Texte complet (`content` HTML) ; `GET /meditations/today` pour celle du jour ou `data: null`                                  |
+| Découvrir      | `GET /discover`         | Rubriques institutionnelles publiées, dans leur ordre d’affichage                                                             |
+| Rubrique       | `GET /discover/{key}`   | Texte, images et responsables publiés pour `national-office`                                                                  |
+| Actualités     | `GET /news`             | Liste paginée ; filtres `search`, `scope`, `district_id`, `church_id`                                                         |
+| Actualité      | `GET /news/{slug}`      | Détail, notamment `content`                                                                                                   |
+| Événements     | `GET /events`           | Liste paginée ; filtres `search`, `status=upcoming` (ou `ongoing`, `past`), `scope`, `district_id`, `church_id`               |
+| Événement      | `GET /events/{slug}`    | Détail de l'événement                                                                                                         |
+| Districts      | `GET /districts`        | Liste paginée ; chaque district a `id`, `name`, `churches_count` (églises actives)                                            |
+| Églises        | `GET /churches`         | Liste paginée ; filtres `search`, `district_id`, `commune`                                                                    |
+| Église         | `GET /churches/{slug}`  | Détail, dont `district`, `image`, coordonnées et contacts éventuels                                                           |
 
 Pour les détails publics, utiliser le **slug** dans l'URL ; les identifiants des objets et des filtres sont des UUID. Les listes publiques ne montrent que les contenus publiés et les structures actives.
 
